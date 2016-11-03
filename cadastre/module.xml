@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module xmlns="http://jelix.org/ns/module/1.0">
-    <info id="cadastre3liz.com" name="cadastre" createdate="2016-07-07">
-        <version date="2016-07-07">0.1pre</version>
+    <info id="cadastre" name="cadastre" createdate="2016-07-07">
+        <version date="2016-07-07">1.0.0beta1</version>
         <label lang="en_US">cadastre</label>
         <description lang="en_US" />
-        <license URL="">All rights reserved</license>
-        <copyright>2011 3liz</copyright>
-        <creator name="your name" email="your-email@yourwebsite.undefined" active="true"/>
-        <!--<contributor name="hisname" email="hisemail@yoursite.undefined" active="true" since="" role=""/>-->
+        <license URL="">Mozilla Public Licence (MPL)</license>
+        <copyright>2016 3liz</copyright>
+        <creator name="3liz" email="info@3liz.com" active="true"/>
         <homepageURL>http://3liz.com</homepageURL>
     </info>
     <dependencies>
