@@ -18,7 +18,7 @@ class lizmapCadastreRequest extends lizmapOGCRequest {
     function createPdf(){
 
         $querystring = $this->constructUrl();
-jLog::log( $querystring );
+//jLog::log( $querystring );
         // Get remote data
         $getRemoteData = lizmapProxy::getRemoteData(
           $querystring,
@@ -56,7 +56,7 @@ jLog::log( $querystring );
     function getPdf(){
 
         $querystring = $this->constructUrl();
-
+//jLog::log($querystring);
         // Get remote data
         $getRemoteData = lizmapProxy::getRemoteData(
           $querystring,

@@ -81,6 +81,10 @@ class serviceCtrl extends jController {
             $rep->content = $pdfs[$tok];
             $rep->doDownload  =  false;
             $rep->outputFileName = 'cadastre_' . $tok . '.pdf';
+        }else if(count($pdfs) == 0){
+            $rep = $this->getResponse('text');
+            $rep->content = 'Erreur de création du relevé.';
+            return $rep;
         }else{
             $rep = $this->getResponse('zip');
             $rep->zipFilename='releves_cadastre.zip';
