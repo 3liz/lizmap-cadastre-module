@@ -153,6 +153,8 @@ lizMap.events.on({
                                 var html = nbparcelles+" parcelles ont été sélectionnées.";
                                 html+= '&nbsp;<button class="btn btn-mini cadastre-unselect">Désélectionner</button>';
                                 lizMap.addMessage(html,'info',true).attr('id','lizmap-cadastre-message');
+                                // Open selection mini-dock
+                                $('#mapmenu li.selectiontool:not(.active) a').click();
 
                                 $('button.cadastre-unselect').click(function(){
                                     $('#lizmap-cadastre-message').remove();
