@@ -150,33 +150,10 @@ lizMap.events.on({
                             if( nbparcelles > 0){
                                 // Messages
                                 $('#lizmap-cadastre-message').remove();
-                                var selectHtml = $('button.layerActionExport').parent('div.btn-group:first').html();
-                                selectHtml = selectHtml.replace('layerActionExport', 'cadastrelayerActionExport');
-                                selectHtml = selectHtml.replace('disabled', '');
-                                selectHtml = selectHtml.replace('<i class="icon-download icon-white"></i>', 'Exporter');
-                                selectHtml = '<div class="btn-group">'+selectHtml+'</div>';
-                                selectHtml+= '';
-                                var html = nbparcelles+" parcelles ont été sélectionnées. Vous pouvez les exporter avec le bouton suivant: ";
-                                html+= selectHtml;
+                                var html = nbparcelles+" parcelles ont été sélectionnées.";
                                 html+= '&nbsp;<button class="btn btn-mini cadastre-unselect">Désélectionner</button>';
                                 lizMap.addMessage(html,'info',true).attr('id','lizmap-cadastre-message');
 
-                                var aName = lizMap.getLayerNameByCleanName( lizMap.cleanName(featureType));
-                                $('button.cadastrelayerActionExport')
-                                .val(aName)
-                                .next('ul:first').find('a.btn-export-layer').click(function(){
-                                    var eFormat = $(this).text();
-                                    if( eFormat == 'GML' )
-                                        eFormat = 'GML3';
-                                    var eName = $('button.cadastrelayerActionExport').val();
-                                    if( !eName ){
-                                        $('body').css('cursor', 'auto');
-                                    }else{
-                                        lizMap.exportVectorLayer( eName, eFormat );
-                                        $('#lizmap-cadastre-message').click(); // blur dropdown
-                                    }
-                                    return false;
-                                });
                                 $('button.cadastre-unselect').click(function(){
                                     $('#lizmap-cadastre-message').remove();
                                     lizMap.events.triggerEvent(
