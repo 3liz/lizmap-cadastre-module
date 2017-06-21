@@ -11,7 +11,7 @@ class cadastreListener extends jEventListener{
 
         if (preg_match('#^cadastre#i', $event->project)){
             $js = array(
-                $bp.'js/cadastre/cadastre.js'
+                $bp.'cadastre/js/cadastre.js'
             );
             $cadastreConfig = array(
                 'url' => jUrl::get('cadastre~service:getCadastrePdf'),
@@ -22,7 +22,7 @@ class cadastreListener extends jEventListener{
                 'var cadastreConfig = ' . json_encode($cadastreConfig)
             );
             $css = array(
-                $bp.'css/cadastre/cadastre.css'
+                $bp.'cadastre/css/cadastre.css'
             );
         }
         $event->add(
