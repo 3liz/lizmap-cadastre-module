@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module xmlns="http://jelix.org/ns/module/1.0">
     <info id="cadastre" name="cadastre" createdate="2016-07-07">
-        <version date="2016-07-07">1.0.0beta1</version>
+        <version date="2016-07-07">1.0.0</version>
         <label lang="en_US">cadastre</label>
         <description lang="en_US" />
         <license URL="">Mozilla Public Licence (MPL)</license>
-        <copyright>2016 3liz</copyright>
+        <copyright>2017 3liz</copyright>
         <creator name="3liz" email="info@3liz.com" active="true"/>
         <homepageURL>http://3liz.com</homepageURL>
     </info>
