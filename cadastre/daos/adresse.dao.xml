@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dao xmlns="http://jelix.org/ns/dao/1.0">
+    <datasources>
+        <primarytable name="voie" realname="voie" primarykey="voie" />
+        <foreigntable name="geo_commune" realname="geo_commune" primarykey="geo_commune" onforeignkey="commune" />
+    </datasources>
+    <record>
+        <property name="voie" fieldname="voie" datatype="text" required="true"/>
+        <property name="natvoi" fieldname="natvoi" datatype="text" required="true"/>
+        <property name="libvoi" fieldname="libvoi" datatype="text" required="true"/>
+        <property name="commune" fieldname="commune" datatype="text" required="true"/>
+        <property name="name" fieldname="libvoi" datatype="text" selectpattern="trim(concat(libvoi, ' (', libvoi, ')'))"/>
+        <!--<property name="" fieldname="" datatype="string/int/float/date"
+        required="yes" maxlength="" minlength="" regexp="" sequence=""
+        updatepattern="" insertpattern="" selectpattern=""/>-->
+    </record>
+    <factory>
+        <method name="findByCommune" type="select">
+            <parameter name="geo_commune" />
+            <conditions logic="and">
+                <eq property="commune" expr="$geo_commune" />
+            </conditions>
+            <order>
+                <orderitem property="libvoi" way="asc" />
+            </order>
+        </method>
+
+<!--
+        <method name="getDistinctChamp" type="select">
+        <body><![CDATA[
+            $sql = ' SELECT DISTINCTchamp';
+            $sql.= ' ORDER BY champ';
+            $this->_conn->exec($sql);
+        ]]></body>
+        </method>
+-->
+
+    </factory>
+</dao>

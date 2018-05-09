@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dao xmlns="http://jelix.org/ns/dao/1.0">
+    <datasources>
+        <primarytable name="parcelle_info" realname="parcelle_info" primarykey="ogc_fid" />
+    </datasources>
+    <record>
+        <property name="ogc_fid" fieldname="ogc_fid" datatype="integer" required="true"/>
+        <property name="geo_parcelle" fieldname="geo_parcelle" datatype="text" required="true"/>
+        <property name="geo_section" fieldname="geo_section" datatype="text" required="true"/>
+        <property name="voie" fieldname="voie" datatype="text" required="true"/>
+        <property name="comptecommunal" fieldname="comptecommunal" datatype="text" required="true"/>
+        <property name="name" fieldname="idu" datatype="text" required="true" selectpattern="codecommune || ' - ' || substr(idu,7,6)"/>
+        <property name="geom" fieldname="geom" datatype="text" required="true" selectpattern="ST_AsText(geom)"/>
+        <!--<property name="" fieldname="" datatype="string/int/float/date"
+        required="yes" maxlength="" minlength="" regexp="" sequence=""
+        updatepattern="" insertpattern="" selectpattern=""/>-->
+    </record>
+    <factory>
+        <method name="findBySection" type="select">
+            <parameter name="geo_section" />
+            <conditions logic="and">
+                <eq property="geo_section" expr="$geo_section" />
+            </conditions>
+            <order>
+                <orderitem property="name" way="asc" />
+            </order>
+        </method>
+
+        <method name="findByVoie" type="select">
+            <parameter name="voie" />
+            <conditions logic="and">
+                <eq property="voie" expr="$voie" />
+            </conditions>
+            <order>
+                <orderitem property="name" way="asc" />
+            </order>
+        </method>
+
+        <method name="findByProprietaire" type="select">
+            <parameter name="comptecommunal" />
+            <conditions logic="and">
+                <eq property="comptecommunal" expr="$comptecommunal" />
+            </conditions>
+            <order>
+                <orderitem property="name" way="asc" />
+            </order>
+        </method>
+
+        <method type="php" name="findParcelleByLieu">
+            <parameter name="geo_section" />
+            <parameter name="voie" />
+            <body><![CDATA[
+
+            $sql = $this->_selectClause . $this->_fromClause . $this->_whereClause;
+            $sql.= ($this->_whereClause == ''?' WHERE ':' AND ');
+            $sql.= ' (';
+            $sql.= ' geo_section = ' . $this->_prepareValue($geo_section,'string');
+            $sql.= ' OR voie = ' . $this->_prepareValue($voie,'string');
+            $sql.= ' )';
+            $sql.= ' ORDER BY geo_parcelle';
+
+            $rs = $this->_conn->query($sql);
+            $rs->setFetchMode(8,$this->_DaoRecordClassName);
+            return $rs;
+            ]]></body>
+        </method>
+
+        <method type="php" name="findParcelleByProp">
+            <parameter name="comptecommunal" />
+
+            <body><![CDATA[
+
+            $cc = explode(',', $comptecommunal);
+
+            $sql = $this->_selectClause . $this->_fromClause . $this->_whereClause;
+            $sql.= ($this->_whereClause == ''?' WHERE ':' AND ');
+            $sql.= ' (';
+            $or = '';
+            foreach($cc as $c){
+                $sql.= $or . ' comptecommunal = ' . $this->_prepareValue(trim($c),'string');
+                $or = ' OR ';
+            }
+            $sql.= ' )';
+            $sql.= ' ORDER BY geo_parcelle';
+
+            $rs = $this->_conn->query($sql);
+            $rs->setFetchMode(8,$this->_DaoRecordClassName);
+            return $rs;
+            ]]></body>
+        </method>
+
+    </factory>
+</dao>

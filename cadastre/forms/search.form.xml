@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form xmlns="http://jelix.org/ns/forms/1.1" allowAnyOrigin="true">
+
+    <group ref="grp_lieu">
+        <label locale="cadastre~search.group.search.lieu"/>
+
+        <menulist ref="commune">
+            <label locale="cadastre~search.input.commune"/>
+            <emptyitem locale="cadastre~search.input.emptyitem"/>
+            <datasource
+                dao="cadastre~geo_commune" profile="cadastre"
+                method="findAllCommune" labelproperty="name" valueproperty="geo_commune"/>
+        </menulist>
+
+        <label locale="cadastre~search.group.search"/>
+
+        <menulist ref="section">
+            <label locale="cadastre~search.input.section"/>
+            <emptyitem locale="cadastre~search.input.emptyitem"/>
+            <datasource
+                dao="cadastre~geo_section" profile="cadastre"
+                criteriafrom="commune"
+                method="findByCommune" labelproperty="name" valueproperty="geo_section"/>
+        </menulist>
+
+        <input ref="adresse">
+            <label locale="cadastre~search.input.adresse"/>
+        </input>
+
+        <hidden ref="voie">
+        </hidden>
+
+        <menulist ref="geo_parcelle_lieu">
+            <label locale="cadastre~search.input.parcelle"/>
+            <emptyitem locale="cadastre~search.input.emptyitem"/>
+            <datasource
+                dao="cadastre~parcelle_info" profile="cadastre"
+                criteriafrom="section,voie"
+                method="findParcelleByLieu" labelproperty="name" valueproperty="geo_parcelle"/>
+        </menulist>
+
+    </group>
+
+    <group ref="grp_prop">
+        <label locale="cadastre~search.group.search.proprietaire"/>
+
+        <input ref="proprietaire">
+            <label locale="cadastre~search.input.proprietaire"/>
+        </input>
+
+        <hidden ref="comptecommunal">
+        </hidden>
+
+        <menulist ref="geo_parcelle_prop">
+            <label locale="cadastre~search.input.parcelle"/>
+            <emptyitem locale="cadastre~search.input.emptyitem"/>
+            <datasource
+                dao="cadastre~parcelle_info" profile="cadastre"
+                criteriafrom="comptecommunal"
+                method="findParcelleByProp" labelproperty="name" valueproperty="geo_parcelle"/>
+        </menulist>
+
+    </group>
+
+  <submit ref="zoom">
+    <label locale="cadastre~search.input.zoom"/>
+  </submit>
+  <submit ref="select">
+    <label locale="cadastre~search.input.select"/>
+  </submit>
+  <reset ref="reinit">
+    <label locale="cadastre~search.input.reinit"/>
+  </reset>
+<!--
+
+  <submit ref="submit">
+    <label locale="cadastre~search.input.submit"/>
+  </submit>
+-->
+
+
+</form>

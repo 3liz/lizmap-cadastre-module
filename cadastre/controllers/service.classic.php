@@ -96,5 +96,47 @@ class serviceCtrl extends jController {
         return $rep;
     }
 
+
+    /**
+     * Autocompletion search
+     *
+    */
+    function autocomplete() {
+
+        $rep = $this->getResponse('json');
+
+        $term = $this->param('term');
+        $field = $this->param('field', 'voie');
+        $commune = $this->param('commune');
+        $voie = $this->param('voie');
+        $limit = $this->intParam('limit', 30);
+
+        $autocomplete = jClasses::getService('cadastre~search');
+        $result = $autocomplete->getData( $term, $field, $commune, $voie, $limit );
+
+        $rep->data = $result;
+
+        return $rep;
+    }
+
+    /**
+     * Get total extent for road or owner
+     *
+    */
+    function extent() {
+
+        $rep = $this->getResponse('json');
+
+        $field = $this->param('field', 'voie');
+        $value = $this->param('value');
+
+        $autocomplete = jClasses::getService('cadastre~search');
+        $result = $autocomplete->getDataExtent( $field, $value );
+
+        $rep->data = $result;
+
+        return $rep;
+    }
+
 }
 

@@ -2,4 +2,7 @@
    <listener name="cadastre">
        <event name="getMapAdditions" />
    </listener>
+    <listener name="cadastreDockable">
+        <event name="mapDockable" />
+    </listener>
 </events>
