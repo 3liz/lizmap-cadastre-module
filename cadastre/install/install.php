@@ -13,14 +13,34 @@ class cadastreModuleInstaller extends jInstallerModule {
 
     function install() {
 
-        // Copy CSS and JS files
-        $this->copyDirectoryContent('www', jApp::wwwPath());
-
         if ($this->firstExec('acl2') ) {
             $this->useDbProfile('auth');
 
-            //jAcl2DbManager::addSubjectGroup ('cadastre.subject.group', 'cadastre~jacl2.cadastre.subject.group.name');
-            //jAcl2DbManager::addSubject( 'cadastre.admin.config.gerer', 'cadastre~jacl2.cadastre.admin.config.gerer', 'cadastre.subject.group');
+            // Add rights group
+            jAcl2DbManager::addSubjectGroup ('cadastre.subject.group', 'cadastre~search.cadastre.subject.group.name');
+
+            // Add right subject
+            jAcl2DbManager::addSubject( 'cadastre.acces.donnees.proprio', 'cadastre~search.cadastre.acces.donnees.proprio', 'cadastre.subject.group');
+            jAcl2DbManager::addSubject( 'cadastre.use.search.tool', 'cadastre~search.cadastre.use.search.tool', 'cadastre.subject.group');
+
+            // Create cadastre group
+            jAcl2DbUserGroup::createGroup(
+                'Cadastre Lizmap',
+                'cadastre_lizmap'
+            );
+
+            // Add rights on group
+            jAcl2DbManager::setRightsOnGroup(
+                'cadastre_lizmap',
+                array(
+                    'cadastre.use.search.tool'=>true,
+                    'cadastre.acces.donnees.proprio'=>true
+                )
+            );
+
+            // Add admin users to cadastre group
+            jAcl2DbUserGroup::addUserToGroup('admin', 'cadastre_lizmap');
+
         }
 
     }

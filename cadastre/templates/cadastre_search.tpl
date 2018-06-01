@@ -5,8 +5,24 @@
     <input type="text" name="term"></input>
   </form>
 </div>
+
 <div id="div_form_cadastre_search" class="menu-content">
-{formfull $form, 'cadastre~service:search', array(), 'htmlbootstrap'}
+{form $form, 'cadastre~service:search', array(), 'htmlbootstrap'}
+
+  {formcontrols array('grp_lieu')}
+     <p> {ctrl_label} {ctrl_control} </p>
+  {/formcontrols}
+
+  {ifacl2 "cadastre.acces.donnees.proprio"}
+  {formcontrols array('grp_prop')}
+     <p> {ctrl_label} {ctrl_control} </p>
+  {/formcontrols}
+  {/ifacl2}
+
+  <div style="text-align:center;"> {formreset}{formsubmits}{formsubmit}{/formsubmits}</div>
+
+{/form}
+
 </div>
 
 <!--

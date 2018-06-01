@@ -24,6 +24,12 @@ class serviceCtrl extends jController {
         $repository = $this->param('repository');
 
         $rep = $this->getResponse('json');
+
+        if( !jAcl2::check("cadastre.acces.donnees.proprio") ){
+            $rep->data = array('status'=>'fail', 'message'=>'Vous n\'avez pas les droits pour voir les données de propriété.');
+            return $rep;
+        }
+
         if( !preg_match('#^cadastre#i', $project) ){
             $rep->data = array('status'=>'fail', 'message'=>'This is not a cadastre project. Project key must begins with cadastre');
             return $rep;

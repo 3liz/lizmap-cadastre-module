@@ -28,14 +28,36 @@ function selectParcelles(getFeatureUrlData){
                 });
 
                 // Trigger selection
+                // Dot no trigger updateDrawing to avoid too big url
+                // Get layer
+                var cleanName = lizMap.cleanName(cadastreConfig.layer);
+                var layer = lizMap.map.getLayersByName( cleanName )[0];
+                var updateDrawing = true;
+                if( layer && lizMap.config.layers[cadastreConfig.layer]
+                    && 'EXP_FILTER' in getFeatureUrlData['options']
+                    && getFeatureUrlData['options']['EXP_FILTER'].startsWith('"comptecommunal"')
+
+                ){
+console.log('FILTRE COMPTE COMMUNAL');
+                    var selectionParam = cadastreConfig.layer + ': ' + getFeatureUrlData['options']['EXP_FILTER'];
+                    //lizMap.config.layers[cadastreConfig.layer]['request_params']['filter'] = selectionParam;
+                    //layer.params['FILTER'] = selectionParam;
+                    //layer.redraw(true);
+                    //updateDrawing = false;
+                }else{
+console.log('TRUC CLASSIQUE');
+                }
+
                 lizMap.events.triggerEvent(
                     "layerSelectionChanged",
                     {
                         'featureType': cadastreConfig.layer,
                         'featureIds': lizMap.config.layers[cadastreConfig.layer]['selectedFeatures'],
-                        'updateDrawing': true
+                        'updateDrawing': updateDrawing
                     }
                 );
+
+
             }else{
                 $('#lizmap-cadastre-message').remove();
                 lizMap.addMessage("Aucune parcelle n'a été sélectionnée",'error',true).attr('id','lizmap-cadastre-message');
@@ -242,11 +264,11 @@ lizMap.events.on({
                 fieldname = '#'+formId+'_geo_parcelle_prop';
                 if( $('#jforms_cadastre_search_geo_parcelle_prop option').size() > 1 && $('#'+formId+'_comptecommunal').val() ){
                     if($(fieldname).val() == ''){
-                        fids =  "'" + $('#'+formId+'_comptecommunal').val().split(",").join("','") + "'";
-                        filter = '"comptecommunal" IN (' + fids + ')';
+                        fids =  "'" + $('#'+formId+'_comptecommunal').val().split(",").join("' , '") + "'";
+                        filter = '"comptecommunal" IN ( ' + fids + ' )';
                     }else{
                         fids = "'" + $(fieldname).val() + "'";
-                        filter = '"geo_parcelle" IN (' + fids + ')';
+                        filter = '"geo_parcelle" IN ( ' + fids + ' )';
                     }
                 }
                 if(filter){
@@ -355,6 +377,9 @@ lizMap.events.on({
     'lizmappopupdisplayed':function(e){
 
         if(!(typeof cadastreConfig != 'undefined'))
+            return;
+
+        if(!cadastreConfig.url)
             return;
 
         var popup = e.popup;
@@ -486,7 +511,7 @@ lizMap.events.on({
                     // Get all parcelle sharing same comptecommunal
                     var getFeatureUrlData2 = lizMap.getVectorLayerWfsUrl(
                         cadastreConfig.layer,
-                        '"comptecommunal" IN (\''+feat.attributes.comptecommunal+'\')',
+                        '"comptecommunal" IN ( \''+feat.attributes.comptecommunal+'\' )',
                         null,
                         'none'
                     );

@@ -112,6 +112,11 @@ class search {
     */
     function getData($term, $field="voie", $commune='', $voie='', $limit=15, $get_total_extent=False) {
 
+        // Access control
+        if( $field != 'voie' and !jAcl2::check("cadastre.acces.donnees.proprio") ){
+            return Null;
+        }
+
         // Array to use on the prepared statement
         $pa = array();
 
@@ -166,6 +171,11 @@ class search {
     * @return List of matching taxons
     */
     function getDataExtent($field="voie", $value='') {
+
+        // Access control
+        if( $field != 'voie' and !jAcl2::check("cadastre.acces.donnees.proprio") ){
+            return Null;
+        }
 
         // Array to use on the prepared statement
         $pa = array();
