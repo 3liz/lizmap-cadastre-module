@@ -7,6 +7,7 @@
         <property name="ogc_fid" fieldname="ogc_fid" datatype="integer" required="true"/>
         <property name="geo_commune" fieldname="geo_commune" datatype="text" required="true"/>
         <property name="name" fieldname="tex2" datatype="text" required="true" selectpattern="idu || ' - ' || tex2"/>
+        <property name="nom_court" fieldname="tex2" datatype="text" required="true" selectpattern="tex2"/>
         <!--<property name="" fieldname="" datatype="string/int/float/date"
         required="yes" maxlength="" minlength="" regexp="" sequence=""
         updatepattern="" insertpattern="" selectpattern=""/>-->

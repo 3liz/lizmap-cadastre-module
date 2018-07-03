@@ -136,6 +136,7 @@ lizMap.events.on({
                     $('#'+formId+'_proprietaire').val( '' );
                     $('#'+formId+'_comptecommunal').val( '' );
                     $('#'+formId+'_geo_parcelle_prop').val( '' );
+
                     zoomToCadastreFeature();
 
                     return false;
@@ -178,7 +179,9 @@ lizMap.events.on({
                     $('#'+formId+'_geo_parcelle_lieu').val( '' );
                     $(this).val( $('<a>').html(ui.item.label).text() );
                     $('#'+formId+'_comptecommunal').val( ui.item.code ).change();
+
                     zoomToCadastreFeature();
+
                     return false;
                 }
             }).autocomplete( "widget" ).css("z-index","1050");
@@ -283,11 +286,11 @@ lizMap.events.on({
                 return false;
             });
             // Click on select button
-            $('#'+formId+'_select').click(function(){
+            //$('#'+formId+'_select').click(function(){
                 //manageCadastreSubmit();
                 //console.log('select');
-                return false;
-            });
+                //return false;
+            //});
             // Reinit search form
             $('#'+formId+'_reinit').click(function(){
                 reinitCadastreForm();
@@ -333,6 +336,8 @@ lizMap.events.on({
                             var proj = new OpenLayers.Projection('EPSG:4326');
                             feat.geometry.transform(proj, lizMap.map.getProjection());
                             lizMap.map.zoomToExtent(feat.geometry.getBounds());
+
+                            $('#'+formId+'_select').click();
                         }
                     }
                 );

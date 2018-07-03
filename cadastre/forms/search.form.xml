@@ -9,7 +9,7 @@
             <emptyitem locale="cadastre~search.input.emptyitem"/>
             <datasource
                 dao="cadastre~geo_commune" profile="cadastre"
-                method="findAllCommune" labelproperty="name" valueproperty="geo_commune"/>
+                method="findAllCommune" labelproperty="nom_court" valueproperty="geo_commune"/>
         </menulist>
 
         <label locale="cadastre~search.group.search"/>
