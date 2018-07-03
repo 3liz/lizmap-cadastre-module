@@ -64,6 +64,8 @@ class search {
             SELECT trim(ddenom) AS label, string_agg(comptecommunal, ',') AS code, dnuper,
             trim(ddenom) ~ '^" . $this->terms[0] . "' AS b
             FROM proprietaire p
+            ";
+            $sql.= "
             WHERE 2>1
             ";
 
@@ -77,6 +79,10 @@ class search {
                 $sql.=" AND trim(p.comptecommunal) IN (SELECT DISTINCT comptecommunal FROM parcelle_info WHERE voie = $" . $i . ")";
                 $i++;
             }
+            if(!empty($this->commune)){
+                $sql.=" AND trim(p.comptecommunal) IN (SELECT DISTINCT comptecommunal FROM parcelle_info WHERE geo_parcelle LIKE $" . $i . ")";
+                $i++;
+            }
             $sql.= "
             GROUP BY dnuper, ddenom, dlign4
             ORDER BY b DESC, ddenom
@@ -87,7 +93,7 @@ class search {
         else{
             $sql = Null;
         }
-
+//jLog::log($sql);
         return $sql;
     }
 
@@ -143,8 +149,12 @@ class search {
 
         // Commune
         $this->commune = trim($commune);
-        if($field == 'voie' and !empty($this->commune))
-            $pa[] = trim($commune);
+        if(!empty($this->commune)){
+            $pco = trim($commune);
+            if($field == 'prop')
+                $pco.='%';
+            $pa[] = $pco;
+        }
 
         // Voie
         $this->voie = trim($voie);
@@ -166,7 +176,7 @@ class search {
     }
 
     /**
-    * Method called by the autocomplete input field for taxon search
+    * Method called by the autocomplete input field
     * @param $term Searched term
     * @return List of matching taxons
     */

@@ -38,14 +38,13 @@ function selectParcelles(getFeatureUrlData){
                     && getFeatureUrlData['options']['EXP_FILTER'].startsWith('"comptecommunal"')
 
                 ){
-console.log('FILTRE COMPTE COMMUNAL');
                     var selectionParam = cadastreConfig.layer + ': ' + getFeatureUrlData['options']['EXP_FILTER'];
                     //lizMap.config.layers[cadastreConfig.layer]['request_params']['filter'] = selectionParam;
                     //layer.params['FILTER'] = selectionParam;
                     //layer.redraw(true);
                     //updateDrawing = false;
                 }else{
-console.log('TRUC CLASSIQUE');
+                    console.log('pas de filtre par comptecommunal');
                 }
 
                 lizMap.events.triggerEvent(
@@ -149,6 +148,7 @@ lizMap.events.on({
                 autoFocus: true,
                 source:function( request, response ) {
                     request.field = 'prop';
+                    request.commune = $('#'+formId+'_commune').val();
                     request.limit = 100;
                     $.getJSON($('#form_cadastre_service_autocomplete').attr('action'),
                         request, function( data, status, xhr ) {
