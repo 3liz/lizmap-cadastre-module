@@ -61,7 +61,13 @@ class serviceCtrl extends jController {
         );
         $result = $request->process();
 
-        // Get created PDFs
+        // Check errors
+        if($result->mime == 'text/xml'){
+            $rep->data = array('status'=>'fail', 'message'=> trim(preg_replace( "#\n#", '', strip_tags($result->data))));
+            return $rep;
+        }
+
+        // Get created PDFs;
         $data = $result->data;
         $pdfs = array();
         $tok = Null;
