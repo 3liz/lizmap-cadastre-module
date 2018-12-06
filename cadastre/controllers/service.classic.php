@@ -74,9 +74,8 @@ class serviceCtrl extends jController {
         }
 
         if($type == 'fiche'){
-jLog::log(json_encode($result->data));
-            $rep = $this->getResponse('text');
-            $rep->content = 'Erreur de création du relevé.';
+            $rep = $this->getResponse('htmlfragment');
+            $rep->addContent($result->data);
             return $rep;
         }
 

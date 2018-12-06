@@ -418,7 +418,12 @@ lizMap.events.on({
                 if (layerName == cadastreConfig.layer ){
 
                     var fval = fid;
-                    eHtml = '<button class="btn btn-mini cadastre-export-parcelle parcelle" target="_blank" value="';
+                    eHtml = ''
+                    //eHtml+= '<button class="btn btn-mini cadastre-export-parcelle fiche" target="_blank" value="';
+                    //eHtml+= fval;
+                    //eHtml+= '" title="Fiche détaillée"><i class="icon-list-alt"></i>&nbsp;</button>';
+
+                    eHtml+= '<button class="btn btn-mini cadastre-export-parcelle parcelle" target="_blank" value="';
                     eHtml+= fval;
                     eHtml+= '" title="Relevé parcellaire"><i class="icon-file"></i>&nbsp;</button>';
 
@@ -458,7 +463,9 @@ lizMap.events.on({
             var link = '';
             link+= cadastreLink;
             link+= '&layer=' + featureType;
-            var etype = 'parcelle';
+            var etype = 'fiche';
+            if( bt.hasClass('parcelle') )
+                etype = 'parcelle';
             if( bt.hasClass('proprietaire') )
                 etype = 'proprietaire';
             link+= '&type=' + etype;

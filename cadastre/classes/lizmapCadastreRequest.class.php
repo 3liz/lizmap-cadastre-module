@@ -24,7 +24,7 @@ class lizmapCadastreRequest extends lizmapOGCRequest {
         }
 
         $querystring = $this->constructUrl();
-jLog::log( $querystring );
+//jLog::log( $querystring );
         // Get remote data
         $getRemoteData = lizmapProxy::getRemoteData(
           $querystring,
@@ -97,15 +97,15 @@ jLog::log( $querystring );
         }
 
         $querystring = $this->constructUrl();
-jLog::log($querystring);
+//jLog::log($querystring);
         // Get remote data
         $getRemoteData = lizmapProxy::getRemoteData(
           $querystring,
           $this->services->proxyMethod,
           $this->services->debugMode
         );
-        $data = $getRemoteData[0];
-jLog::log(json_encode($data));
+        $data = json_decode($getRemoteData[0]);
+        $data = $data->data;
         $mime = $getRemoteData[1];
         $code = $getRemoteData[2];
 
