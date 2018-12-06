@@ -49,11 +49,17 @@ class serviceCtrl extends jController {
             return $rep;
         }
         jClasses::inc('cadastre~lizmapCadastreRequest');
+        if($type == 'fiche'){
+            $creq = 'getHtml';
+            jLog::log($creq);
+        }else{
+            $creq = 'createPdf';
+        }
         $request = new lizmapCadastreRequest(
             $p,
             array(
                 'service'=>'CADASTRE',
-                'request'=>'createPdf',
+                'request'=>$creq,
                 'layer'=> $parcelleLayer,
                 'parcelle'=> $parcelleId,
                 'type'=> $type
@@ -64,6 +70,13 @@ class serviceCtrl extends jController {
         // Check errors
         if($result->mime == 'text/xml'){
             $rep->data = array('status'=>'fail', 'message'=> trim(preg_replace( "#\n#", '', strip_tags($result->data))));
+            return $rep;
+        }
+
+        if($type == 'fiche'){
+jLog::log(json_encode($result->data));
+            $rep = $this->getResponse('text');
+            $rep->content = 'Erreur de création du relevé.';
             return $rep;
         }
 

@@ -88,4 +88,35 @@ jLog::log( $querystring );
         );
     }
 
+
+    function getHtml(){
+        // Access control
+        if( !jAcl2::check("cadastre.acces.donnees.proprio") ){
+            jMessage::add('Cadastre - Droits insuffisants pour accéder aux données de propriété', 'Error');
+            return $this->serviceException();
+        }
+
+        $querystring = $this->constructUrl();
+jLog::log($querystring);
+        // Get remote data
+        $getRemoteData = lizmapProxy::getRemoteData(
+          $querystring,
+          $this->services->proxyMethod,
+          $this->services->debugMode
+        );
+        $data = $getRemoteData[0];
+jLog::log(json_encode($data));
+        $mime = $getRemoteData[1];
+        $code = $getRemoteData[2];
+
+        jMessage::clearAll();
+
+        return (object) array(
+            'code' => $code,
+            'mime' => $mime,
+            'data' => $data,
+            'cached' => False
+        );
+    }
+
 }
