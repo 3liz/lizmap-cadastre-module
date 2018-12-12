@@ -51,7 +51,7 @@ class serviceCtrl extends jController {
         jClasses::inc('cadastre~lizmapCadastreRequest');
         if($type == 'fiche'){
             $creq = 'getHtml';
-            jLog::log($creq);
+            //jLog::log($creq);
         }else{
             $creq = 'createPdf';
         }

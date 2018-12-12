@@ -5,4 +5,7 @@
     <listener name="cadastreDockable">
         <event name="mapDockable" />
     </listener>
+   <listener name="atlasPrint">
+       <event name="BeforePdfCreation" />
+   </listener>
 </events>
