@@ -20,7 +20,7 @@ class cadastreListener extends jEventListener{
 
             // Access control
             if( jAcl2::check("cadastre.acces.donnees.proprio") ){
-                $cadastreConfig['url'] = jUrl::get('cadastre~service:getCadastrePdf');
+                $cadastreConfig['url'] = jUrl::get('cadastre~service:initExport');
             }else{
                 $cadastreConfig['url'] = Null;
             }
