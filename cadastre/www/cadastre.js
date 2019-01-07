@@ -1,7 +1,8 @@
+
 function selectParcelles(getFeatureUrlData){
     $('body').css('cursor', 'wait');
 
-    $.get( getFeatureUrlData['url'], getFeatureUrlData['options'], function(data2) {
+    $.post( getFeatureUrlData['url'], getFeatureUrlData['options'], function(data2) {
         if( data2.features.length != 0) {
             lizMap.config.layers[cadastreConfig.layer]['selectedFeatures'] = [];
             for(var f in data2.features){
@@ -78,6 +79,44 @@ function selectParcelles(getFeatureUrlData){
     });
 
 }
+
+function selectParcelleByProprietaire(geo_parcelle){
+
+    var feat = null;
+    //var featureId = cadastreConfig.layer + '.' + fid;
+
+    //var getFeatureUrlData = lizMap.getVectorLayerWfsUrl( cadastreConfig.layer, null, featureId, 'none' );
+    var getFeatureUrlData = lizMap.getVectorLayerWfsUrl( cadastreConfig.layer, '"geo_parcelle" IN (\''+geo_parcelle+'\')', null, 'none' );
+    getFeatureUrlData['options']['PROPERTYNAME'] = [cadastreConfig.pk].join(',') + ',comptecommunal';
+
+    // Get parcelle feature
+    $.post( getFeatureUrlData['url'], getFeatureUrlData['options'], function(data) {
+        if( data.features.length != 0) {
+            var format = new OpenLayers.Format.GeoJSON();
+            feat = format.read(data.features[0])[0];
+
+            // Get all parcelle sharing same comptecommunal
+            var getFeatureUrlData2 = lizMap.getVectorLayerWfsUrl(
+                cadastreConfig.layer,
+                '"comptecommunal" IN ( \''+feat.attributes.comptecommunal+'\' )',
+                null,
+                'none'
+            );
+            getFeatureUrlData2['options']['PROPERTYNAME'] = [cadastreConfig.pk].join(',') + ',comptecommunal';
+            selectParcelles(getFeatureUrlData2);
+
+            return false;
+        }
+        $('body').css('cursor', 'auto');
+    }).fail(function(){
+        $('#lizmap-cadastre-message').remove();
+        lizMap.addMessage("Aucune parcelle n'a été sélectionnée",'error',true).attr('id','lizmap-cadastre-message');
+        $('body').css('cursor', 'auto');
+        return false;
+    });
+
+    return false;
+};
 
 lizMap.events.on({
 
@@ -285,12 +324,12 @@ lizMap.events.on({
                 }
                 return false;
             });
-            // Click on select button
-            //$('#'+formId+'_select').click(function(){
-                //manageCadastreSubmit();
-                //console.log('select');
-                //return false;
-            //});
+            // Click on export button
+            $('#'+formId+'_export').click(function(){
+                var etype = $('#jforms_cadastre_search_exported_item').val();
+                //exportSelectedItems(etype);
+                return false;
+            });
             // Reinit search form
             $('#'+formId+'_reinit').click(function(){
                 reinitCadastreForm();
@@ -346,7 +385,7 @@ lizMap.events.on({
                 var getFeatureUrlData = lizMap.getVectorLayerWfsUrl( layername, filter, null, 'extent' );
                 getFeatureUrlData['options']['PROPERTYNAME'] = 'ogc_fid,geometry';
                 // Get data
-                $.get( getFeatureUrlData['url'], getFeatureUrlData['options'], function(data) {
+                $.post( getFeatureUrlData['url'], getFeatureUrlData['options'], function(data) {
                   if( data.features.length != 0) {
                     feat = format.read(data.features[0])[0];
                     var proj = new OpenLayers.Projection(cadastreCrs);
@@ -400,6 +439,7 @@ lizMap.events.on({
           ,OpenLayers.Util.getParameterString(lizUrls.params)
         )
 
+
         // Add action buttons if needed
         $('div.lizmapPopupContent input.lizmap-popup-layer-feature-id').each(function(){
 
@@ -417,131 +457,68 @@ lizMap.events.on({
 
                 if (layerName == cadastreConfig.layer ){
 
-                    var fval = fid;
-                    eHtml = ''
-                    //eHtml+= '<button class="btn btn-mini cadastre-export-parcelle fiche" target="_blank" value="';
-                    //eHtml+= fval;
-                    //eHtml+= '" title="Fiche détaillée"><i class="icon-list-alt"></i>&nbsp;</button>';
-
-                    eHtml+= '<button class="btn btn-mini cadastre-export-parcelle parcelle" target="_blank" value="';
-                    eHtml+= fval;
-                    eHtml+= '" title="Relevé parcellaire"><i class="icon-file"></i>&nbsp;</button>';
-
-                    eHtml+= '<button class="btn btn-mini cadastre-export-parcelle proprietaire" target="_blank" value="';
-                    eHtml+= fval;
-                    eHtml+= '" title="Relevé de propriété"><i class="icon-book"></i>&nbsp;</button>';
-
-                    if( 'attributeLayers' in config && cadastreLayer in config.attributeLayers){
-                        eHtml+= '<button class="btn btn-mini cadastre-select-parcelle-proprietaire" target="_blank" value="';
-                        eHtml+= fval;
-                        eHtml+= '" title="Sélectionner les parcelles du propriétaire"><i class="icon-user"></i>&nbsp;</button>';
-                    }
-
-                    var popupButtonBar = self.next('span.popupButtonBar');
-                    if ( popupButtonBar.length != 0 ) {
-                        popupButtonBar.append(eHtml);
-                    } else {
-                        eHtml = '<span class="popupButtonBar">' + eHtml + '</span></br>';
-                        self.after(eHtml);
-                    }
-                }
-
-            }
-
-        });
-
-
-        $('button.cadastre-export-parcelle').click(function(){
-
-            var feat = null;
-            var fid = $(this).val();
-            var featureType = cadastreConfig.layer;
-            var layerConfig = config.layers[featureType];
-            var featureId = featureType + '.' + fid;
-            var bt = $(this);
-
-            var link = '';
-            link+= cadastreLink;
-            link+= '&layer=' + featureType;
-            var etype = 'fiche';
-            if( bt.hasClass('parcelle') )
-                etype = 'parcelle';
-            if( bt.hasClass('proprietaire') )
-                etype = 'proprietaire';
-            link+= '&type=' + etype;
-
-            if( bt.prev('a.cadastre-select-parcelle-proprietaire:first').length == 0){
-                bt.before('<a class="cadastre-select-parcelle-proprietaire" href="" target="_blank"/>')
-            }
-            var a = bt.prev('a.cadastre-select-parcelle-proprietaire:first')
-            if( a.attr('href') != '' ){
-                a[0].click();
-                return false;
-            }
-            lizMap.addMessage('Export en cours...','info',true).attr('id','lizmap-cadastre-message');
-            var getFeatureUrlData = lizMap.getVectorLayerWfsUrl( featureType, null, featureId, 'none' );
-            var format = new OpenLayers.Format.GeoJSON();
-            getFeatureUrlData['options']['PROPERTYNAME'] = [cadastreConfig.pk].join(',');
-            $('body').css('cursor', 'wait');
-            $.get( getFeatureUrlData['url'], getFeatureUrlData['options'], function(data) {
-                if( data.features.length != 0) {
-                    feat = format.read(data.features[0])[0];
-                    link+= '&parcelle=' + feat.attributes[cadastreConfig.pk];
-                    a.attr('href', link)
-                    a[0].click();
-                    $('body').css('cursor', 'auto');
-                }
-                $('body').css('cursor', 'auto');
-                $('#lizmap-cadastre-message').remove();
-                return false;
-            }).fail(function(){
-                $('body').css('cursor', 'auto');
-                $('#lizmap-cadastre-message').remove();
-                return false;
-            });
-            $('body').css('cursor', 'auto');
-            return false;
-        });
-
-        $('button.cadastre-select-parcelle-proprietaire').click(function(){
-
-            var feat = null;
-            var fid = $(this).val();
-            var featureId = cadastreConfig.layer + '.' + fid;
-            var bt = $(this);
-
-            var getFeatureUrlData = lizMap.getVectorLayerWfsUrl( cadastreConfig.layer, null, featureId, 'none' );
-            //var getFeatureUrlData = lizMap.getVectorLayerWfsUrl( cadastreConfig.layer, '"geo_parcelle" IN (\''+fid+'\')' );
-            getFeatureUrlData['options']['PROPERTYNAME'] = [cadastreConfig.pk].join(',') + ',comptecommunal';
-
-            // Get parcelle feature
-            $.get( getFeatureUrlData['url'], getFeatureUrlData['options'], function(data) {
-                if( data.features.length != 0) {
-                    var format = new OpenLayers.Format.GeoJSON();
-                    feat = format.read(data.features[0])[0];
-
-                    // Get all parcelle sharing same comptecommunal
-                    var getFeatureUrlData2 = lizMap.getVectorLayerWfsUrl(
+                    // Get geo_parcelle from WFS request and build export URL
+                    var getFeatureUrlData = lizMap.getVectorLayerWfsUrl(
                         cadastreConfig.layer,
-                        '"comptecommunal" IN ( \''+feat.attributes.comptecommunal+'\' )',
                         null,
+                        cadastreConfig.layer + '.' + fid,
                         'none'
                     );
-                    getFeatureUrlData2['options']['PROPERTYNAME'] = [cadastreConfig.pk].join(',') + ',comptecommunal';
-                    selectParcelles(getFeatureUrlData2);
+                    $.post( getFeatureUrlData['url'], getFeatureUrlData['options'], function(data) {
 
-                    return false;
+                        var link = '';
+                        link+= cadastreLink;
+                        link+= '&layer=' + cadastreConfig.layer;
+                        var format = new OpenLayers.Format.GeoJSON();
+                        getFeatureUrlData['options']['PROPERTYNAME'] = [cadastreConfig.pk].join(',');
+
+                        if( data.features.length != 0) {
+                            feat = format.read(data.features[0])[0];
+                            link+= '&parcelle=' + feat.attributes[cadastreConfig.pk];
+
+                            // Add buttons
+                            eHtml = ''
+                            eHtml+= '<a href="';
+                            eHtml+= link + '&type=parcelle';
+                            eHtml+= '" class="btn btn-mini cadastre-export-parcelle parcelle" target="_blank" title="Relevé parcellaire"><i class="icon-file"></i>&nbsp;</a>';
+
+                            eHtml+= '<a href="';
+                            eHtml+= link + '&type=proprietaire';
+                            eHtml+= '" class="btn btn-mini cadastre-export-parcelle proprietaire" target="_blank" title="Relevé de propriété"><i class="icon-book"></i>&nbsp;</a>';
+
+                            if( 'attributeLayers' in config && cadastreLayer in config.attributeLayers){
+                                eHtml+= '<button class="btn btn-mini cadastre-select-parcelle-proprietaire" target="_blank" value="';
+                                eHtml+= fid;
+                                eHtml+= '" title="Sélectionner les parcelles du propriétaire"';
+                                eHtml+= ' onclick="selectParcelleByProprietaire(\''+feat.attributes[cadastreConfig.pk]+'\')">';
+                                eHtml+= '<i class="icon-user"></i>&nbsp;</button>';
+                            }
+
+                            var popupButtonBar = self.next('span.popupButtonBar');
+                            if ( popupButtonBar.length != 0 ) {
+                                popupButtonBar.append(eHtml);
+                            } else {
+                                eHtml = '<span class="popupButtonBar">' + eHtml + '</span></br>';
+                                self.after(eHtml);
+                            }
+                        }
+                        $('body').css('cursor', 'auto');
+                        return false;
+                    }).fail(function(){
+                        $('body').css('cursor', 'auto');
+                        $('#lizmap-cadastre-message').remove();
+                        return false;
+                    });
+
+
                 }
-                $('body').css('cursor', 'auto');
-            }).fail(function(){
-                $('#lizmap-cadastre-message').remove();
-                lizMap.addMessage("Aucune parcelle n'a été sélectionnée",'error',true).attr('id','lizmap-cadastre-message');
-                $('body').css('cursor', 'auto');
-                return false;
-            });
 
-            return false;
+            }
+
         });
+
+
+
 
     }
 
