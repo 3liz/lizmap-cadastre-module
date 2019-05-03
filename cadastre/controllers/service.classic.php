@@ -172,9 +172,12 @@ class serviceCtrl extends jController {
     function initExport() {
 
         $rep = $this->getResponse('json');
-
+        $services = lizmap::getServices();
         // Use standard export if the standalone python PDF generator does not exist
         $standalone_python_script = '/srv/qgis/plugins/cadastre/standalone_export.py';
+        if (version_compare($services->qgisServerVersion, '3.0', '>=')) {
+            $standalone_python_script = '/srv/qgis/plugins/cadastre/standalone/export.py';
+        }
         if(!is_file($standalone_python_script)){
             return $this->getCadastrePdf();
         }
@@ -208,6 +211,9 @@ class serviceCtrl extends jController {
 
         // Run python code
         $cmd = 'python ' . $standalone_python_script;
+        if (version_compare($services->qgisServerVersion, '3.0', '>=')) {
+            $cmd = 'python3 ' . $standalone_python_script;
+        }
         $cmd.= ' -P ' . $p->getQgisPath();
         $cmd.= ' -L "' . $parcelleLayer . '"';
         $cmd.= ' -I ' . $parcelleId;
