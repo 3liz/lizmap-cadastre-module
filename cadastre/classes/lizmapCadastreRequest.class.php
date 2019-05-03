@@ -38,7 +38,7 @@ class lizmapCadastreRequest extends lizmapOGCRequest {
         jMessage::clearAll();
 
         // Check mime type
-        if( $mime != 'text/json' ){
+        if( $mime != 'text/json' && $mime != 'application/json' ){
             jMessage::add('QGIS Server has not returned expected response', 'Error');
             return $this->serviceException();
         }
