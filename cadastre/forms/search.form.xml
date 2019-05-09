@@ -79,9 +79,12 @@
         </menulist>
     </group>
 
-  <submit ref="zoom">
+<!--   <submit ref="zoom">
     <label locale="cadastre~search.input.zoom"/>
-  </submit>
+  </submit> -->
+  <button ref="zoom">
+    <label locale="cadastre~search.input.zoom"/>
+  </button>
   <submit ref="select">
     <label locale="cadastre~search.input.select"/>
   </submit>

@@ -28,6 +28,7 @@
   {/formcontrols}
 
   <div style="text-align:center;">
+    {ctrl_control 'zoom'}
     {formsubmits}{formsubmit}{/formsubmits}
     {ctrl_control 'emptyselect'}
   </div>

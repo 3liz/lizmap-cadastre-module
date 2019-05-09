@@ -274,8 +274,11 @@ lizMap.events.on({
                 return false;
             });
             // Click on zoom button
-            $('#'+formId+'_zoom').click(function(){
-                //console.log('zoom');
+            $('#'+formId+'_zoom')
+            .attr( "title", "Zoomer" )
+            .addClass( "btn" )
+            .html( "<i class='icon-zoom-in'></i>" )
+            .click(function(){
                 zoomToCadastreFeature();
                 return false;
             });
@@ -342,6 +345,19 @@ lizMap.events.on({
                 return false;
             });
 
+            // Empty selection
+            $('#'+formId+'_emptyselect')
+                .attr( "title", "Vider la sélection" )
+                .addClass( "btn" )
+                .html( "<i class='icon-refresh'></i>" )
+                .click(function(){
+                lizMap.events.triggerEvent(
+                    'layerfeatureunselectall',
+                    { 'featureType': cadastreConfig.layer, 'updateDrawing': true}
+                );
+                return false;
+            });
+
             // Observe modification on parcelle select to display option count
             MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 
@@ -371,18 +387,6 @@ lizMap.events.on({
             geo_parcelle_lieu_observer.observe(document.getElementById(formId+'_geo_parcelle_lieu'), {childList:true});
             geo_parcelle_prop_observer.observe(document.getElementById(formId+'_geo_parcelle_prop'), {childList:true});
 
-            // Empty selection
-            $('#'+formId+'_emptyselect')
-                .attr( "title", "Vider la sélection" )
-                .addClass( "btn" )
-                .html( "<i class='icon-refresh'></i>" )
-                .click(function(){
-                lizMap.events.triggerEvent(
-                    'layerfeatureunselectall',
-                    { 'featureType': cadastreConfig.layer, 'updateDrawing': true}
-                );
-                return false;
-            });
         }
 
         function zoomToCadastreFeature(){
