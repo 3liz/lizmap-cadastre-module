@@ -1,19 +1,50 @@
 
-function selectParcelles(getFeatureUrlData){
+function selectParcelles(getFeatureUrlData, addToSelection){
     $('body').css('cursor', 'wait');
 
     $.post( getFeatureUrlData['url'], getFeatureUrlData['options'], function(data2) {
         if( data2.features.length != 0) {
-            lizMap.config.layers[cadastreConfig.layer]['selectedFeatures'] = [];
+            var nbParcellesModify = 0;
             for(var f in data2.features){
                 var feature = data2.features[f];
-                lizMap.config.layers[cadastreConfig.layer]['selectedFeatures'].push( feature.id.split('.')[1] );
+                
+                var parcelleId = feature.id.split('.')[1];
+
+                if(addToSelection){
+                    // Don't add existing parcelle
+                    if(lizMap.config.layers[cadastreConfig.layer]['selectedFeatures'].indexOf(parcelleId) === -1){
+                        lizMap.config.layers[cadastreConfig.layer]['selectedFeatures'].push(parcelleId);
+                        nbParcellesModify++;
+                    }
+                }else{
+                    var index = lizMap.config.layers[cadastreConfig.layer]['selectedFeatures'].indexOf(parcelleId);
+                    if (index > -1) {
+                      lizMap.config.layers[cadastreConfig.layer]['selectedFeatures'].splice(index, 1);
+                      nbParcellesModify++;
+                    }
+                }
+
             }
-            var nbparcelles = lizMap.config.layers[cadastreConfig.layer]['selectedFeatures'].length;
-            if( nbparcelles > 0){
+
+            if( nbParcellesModify > 0){
                 // Messages
                 $('#lizmap-cadastre-message').remove();
-                var html = nbparcelles+" parcelles ont été sélectionnées.";
+                
+                var html = '';
+                if(addToSelection){
+                    if(nbParcellesModify == 1){
+                        html = "1 parcelle a été sélectionnée.";
+                    }else{
+                        html = nbParcellesModify+" parcelles ont été sélectionnées.";
+                    }
+                }else{
+                    if(nbParcellesModify == 1){
+                        html = "1 parcelle a été désélectionnée.";
+                    }else{
+                        html = nbParcellesModify+" parcelles ont été désélectionnées.";
+                    }
+                }
+
                 html+= '&nbsp;<button class="btn btn-mini cadastre-unselect">Désélectionner</button>';
                 lizMap.addMessage(html,'info',true).attr('id','lizmap-cadastre-message');
                 // Open selection mini-dock
@@ -56,8 +87,6 @@ function selectParcelles(getFeatureUrlData){
                         'updateDrawing': updateDrawing
                     }
                 );
-
-
             }else{
                 $('#lizmap-cadastre-message').remove();
                 lizMap.addMessage("Aucune parcelle n'a été sélectionnée",'error',true).attr('id','lizmap-cadastre-message');
@@ -77,7 +106,6 @@ function selectParcelles(getFeatureUrlData){
         $('body').css('cursor', 'auto');
         return false;
     });
-
 }
 
 function selectParcelleByProprietaire(geo_parcelle){
@@ -103,7 +131,7 @@ function selectParcelleByProprietaire(geo_parcelle){
                 'none'
             );
             getFeatureUrlData2['options']['PROPERTYNAME'] = [cadastreConfig.pk].join(',') + ',comptecommunal';
-            selectParcelles(getFeatureUrlData2);
+            selectParcelles(getFeatureUrlData2, true);
 
             return false;
         }
@@ -256,8 +284,8 @@ lizMap.events.on({
                 return false;
             });
 
-            // Click on select button
-            $('#'+formId+'_select').click(function(){
+            // Handle click on select button
+            $('#'+formId+'_select, #'+formId+'_unselect').click(function(){
                 var fieldname = null; var filter = null;
                 var section = $('#'+formId+'_section').val();
                 fieldname = '#'+formId+'_geo_parcelle_lieu';
@@ -297,7 +325,10 @@ lizMap.events.on({
                         null,
                         'none'
                     );
-                    selectParcelles(getFeatureUrlData)
+                    // Add or remove from selection
+                    var addToSelection = (this.id === "jforms_cadastre_search_select");
+                    selectParcelles(getFeatureUrlData, addToSelection);
+
                 }
                 return false;
             });
@@ -322,6 +353,8 @@ lizMap.events.on({
 
                 if(countParcelle > 0){
                     $('#'+formId+'_geo_parcelle_lieu option:first').text(countParcelle+" parcelles trouvées");
+                }else{
+                    $('#'+formId+'_geo_parcelle_lieu option:first').text("Aucune parcelle trouvée");
                 }
 
             });
@@ -332,6 +365,8 @@ lizMap.events.on({
 
                 if(countParcelle > 0){
                     $('#'+formId+'_geo_parcelle_prop option:first').text(countParcelle+" parcelles trouvées");
+                }else{
+                    $('#'+formId+'_geo_parcelle_prop option:first').text("Aucune parcelle trouvée");
                 }
             });
 
@@ -510,17 +545,8 @@ lizMap.events.on({
                         $('#lizmap-cadastre-message').remove();
                         return false;
                     });
-
-
                 }
-
             }
-
         });
-
-
-
-
     }
-
 });

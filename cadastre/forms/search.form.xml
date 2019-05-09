@@ -85,6 +85,9 @@
   <submit ref="select">
     <label locale="cadastre~search.input.select"/>
   </submit>
+  <submit ref="unselect">
+      <label locale="cadastre~search.input.unselect"/>
+    </submit>
   <reset ref="reinit">
     <label locale="cadastre~search.input.reinit"/>
   </reset>
