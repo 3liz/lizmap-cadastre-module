@@ -259,10 +259,17 @@ lizMap.events.on({
             // Click on select button
             $('#'+formId+'_select').click(function(){
                 var fieldname = null; var filter = null;
+                var section = $('#'+formId+'_section').val();
                 fieldname = '#'+formId+'_geo_parcelle_lieu';
-                if($(fieldname + ' option').size() > 1 && ( $('#'+formId+'_section').val() || $('#'+formId+'_voie').val() ) ) {
-                    if($('#'+formId+'_section').val() && $(fieldname).val()){
-                        filter = '"geo_parcelle" IN (\'' + $(fieldname).val() + '\')';
+                if($(fieldname + ' option').size() > 1 && ( section || $('#'+formId+'_voie').val() ) ) {
+                    if(section){
+                        // Select one parcelle
+                        if($(fieldname).val()){
+                            filter = '"geo_parcelle" IN (\'' + $(fieldname).val() + '\')';
+                        }else{ // Select all parcelles on section
+                            var section = $('#'+formId+'_section').val();
+                            filter = '"geo_section" IN (\'' + section + '\')';
+                        }
                     }
                     if($('#'+formId+'_voie').val()){
                         if($(fieldname).val() == ''){
@@ -358,6 +365,7 @@ lizMap.events.on({
                 return false;
 
             var format = new OpenLayers.Format.GeoJSON();
+            // TODO test which tab is visible
             if(fieldname == 'voie' || fieldname == 'prop'){
                 var url = $('#form_cadastre_service_autocomplete').attr('action').replace('autocomplete','extent');
                 var options = {field: fieldname, value: fieldval};
@@ -370,8 +378,6 @@ lizMap.events.on({
                             var proj = new OpenLayers.Projection('EPSG:4326');
                             feat.geometry.transform(proj, lizMap.map.getProjection());
                             lizMap.map.zoomToExtent(feat.geometry.getBounds());
-
-                            $('#'+formId+'_select').click();
                         }
                     }
                 );
