@@ -27,7 +27,10 @@
      <p> {ctrl_label} {ctrl_control} </p>
   {/formcontrols}
 
-  <div style="text-align:center;"> {formreset}{formsubmits}{formsubmit}{/formsubmits}</div>
+  <div style="text-align:center;">
+    {formsubmits}{formsubmit}{/formsubmits}
+  </div>
+  <div>{formreset}</div>
 
 {/form}
 

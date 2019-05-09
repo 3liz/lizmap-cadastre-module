@@ -305,6 +305,31 @@ lizMap.events.on({
                 reinitCadastreForm();
                 return false;
             });
+
+            // Observe modification on parcelle select to display option count
+            MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+
+            var geo_parcelle_lieu_observer = new MutationObserver(function() {
+                var formId = $('#div_form_cadastre_search form').attr('id');
+                var countParcelle = $('#'+formId+'_geo_parcelle_lieu option').length - 1;
+
+                if(countParcelle > 0){
+                    $('#'+formId+'_geo_parcelle_lieu option:first').text(countParcelle+" parcelles trouvées");
+                }
+
+            });
+
+            var geo_parcelle_prop_observer = new MutationObserver(function() {
+                var formId = $('#div_form_cadastre_search form').attr('id');
+                var countParcelle = $('#'+formId+'_geo_parcelle_prop option').length - 1;
+
+                if(countParcelle > 0){
+                    $('#'+formId+'_geo_parcelle_prop option:first').text(countParcelle+" parcelles trouvées");
+                }
+            });
+
+            geo_parcelle_lieu_observer.observe(document.getElementById(formId+'_geo_parcelle_lieu'), {childList:true});
+            geo_parcelle_prop_observer.observe(document.getElementById(formId+'_geo_parcelle_prop'), {childList:true});
         }
 
         function zoomToCadastreFeature(){
