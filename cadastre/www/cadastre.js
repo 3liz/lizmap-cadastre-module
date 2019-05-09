@@ -45,7 +45,6 @@ function selectParcelles(getFeatureUrlData, addToSelection){
                     }
                 }
 
-                html+= '&nbsp;<button class="btn btn-mini cadastre-unselect">Désélectionner</button>';
                 lizMap.addMessage(html,'info',true).attr('id','lizmap-cadastre-message');
                 // Open selection mini-dock
                 $('#mapmenu li.selectiontool:not(.active) a').click();
@@ -92,11 +91,13 @@ function selectParcelles(getFeatureUrlData, addToSelection){
                 lizMap.addMessage("Aucune parcelle n'a été sélectionnée",'error',true).attr('id','lizmap-cadastre-message');
             }
             $('body').css('cursor', 'auto');
+            window.setTimeout(function(){$('#lizmap-cadastre-message').hide('slow')},1500);
             return false;
         }else{
             $('#lizmap-cadastre-message').remove();
             lizMap.addMessage("Aucune parcelle n'a été sélectionnée",'error',true).attr('id','lizmap-cadastre-message');
             $('body').css('cursor', 'auto');
+            window.setTimeout(function(){$('#lizmap-cadastre-message').hide('slow')},1500);
             return false;
         }
 
@@ -104,11 +105,12 @@ function selectParcelles(getFeatureUrlData, addToSelection){
         $('#lizmap-cadastre-message').remove();
         lizMap.addMessage("Aucune parcelle n'a été sélectionnée",'error',true).attr('id','lizmap-cadastre-message');
         $('body').css('cursor', 'auto');
+        window.setTimeout(function(){$('#lizmap-cadastre-message').hide('slow')},1500);
         return false;
     });
 }
 
-function selectParcelleByProprietaire(geo_parcelle){
+function selectParcelleByProprietaire(geo_parcelle, addToSelection){
 
     var feat = null;
     //var featureId = cadastreConfig.layer + '.' + fid;
@@ -131,7 +133,7 @@ function selectParcelleByProprietaire(geo_parcelle){
                 'none'
             );
             getFeatureUrlData2['options']['PROPERTYNAME'] = [cadastreConfig.pk].join(',') + ',comptecommunal';
-            selectParcelles(getFeatureUrlData2, true);
+            selectParcelles(getFeatureUrlData2, addToSelection);
 
             return false;
         }
@@ -526,8 +528,15 @@ lizMap.events.on({
                                 eHtml+= '<button class="btn btn-mini cadastre-select-parcelle-proprietaire" target="_blank" value="';
                                 eHtml+= fid;
                                 eHtml+= '" title="Sélectionner les parcelles du propriétaire"';
-                                eHtml+= ' onclick="selectParcelleByProprietaire(\''+feat.attributes[cadastreConfig.pk]+'\')">';
-                                eHtml+= '<i class="icon-user"></i>&nbsp;</button>';
+                                eHtml+= ' onclick="selectParcelleByProprietaire(\''+feat.attributes[cadastreConfig.pk]+'\', true)">';
+                                eHtml+= '<i class="icon-user"></i><i class="icon-plus"></i>&nbsp;</button>';
+
+                                eHtml+= '<button class="btn btn-mini cadastre-unselect-parcelle-proprietaire" target="_blank" value="';
+                                eHtml+= fid;
+                                eHtml+= '" title="Retirer les parcelles du propriétaire"';
+                                eHtml+= ' onclick="selectParcelleByProprietaire(\''+feat.attributes[cadastreConfig.pk]+'\', false)">';
+                                eHtml+= '<i class="icon-user"></i><i class="icon-minus"></i>&nbsp;</button>';
+
                             }
 
                             var popupButtonBar = self.next('span.popupButtonBar');
