@@ -86,8 +86,11 @@
     <label locale="cadastre~search.input.select"/>
   </submit>
   <submit ref="unselect">
-      <label locale="cadastre~search.input.unselect"/>
-    </submit>
+    <label locale="cadastre~search.input.unselect"/>
+  </submit>
+  <button ref="emptyselect">
+    <label>Empty</label>
+  </button>
   <reset ref="reinit">
     <label locale="cadastre~search.input.reinit"/>
   </reset>

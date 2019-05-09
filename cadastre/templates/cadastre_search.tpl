@@ -29,6 +29,7 @@
 
   <div style="text-align:center;">
     {formsubmits}{formsubmit}{/formsubmits}
+    {ctrl_control 'emptyselect'}
   </div>
   <div>{formreset}</div>
 

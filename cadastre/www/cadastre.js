@@ -49,15 +49,6 @@ function selectParcelles(getFeatureUrlData, addToSelection){
                 // Open selection mini-dock
                 $('#mapmenu li.selectiontool:not(.active) a').click();
 
-                $('button.cadastre-unselect').click(function(){
-                    $('#lizmap-cadastre-message').remove();
-                    lizMap.events.triggerEvent(
-                        'layerfeatureunselectall',
-                        { 'featureType': cadastreConfig.layer, 'updateDrawing': true}
-                    );
-                    return false;
-                });
-
                 // Trigger selection
                 // Dot no trigger updateDrawing to avoid too big url
                 // Get layer
@@ -262,6 +253,9 @@ lizMap.events.on({
                 $('#'+formId+'_voie').val( '' );
                 $('#'+formId+'_geo_parcelle_lieu').val( '' );
 
+                // TODO : remove when tab added
+                $('#'+formId+'_proprietaire').val( '' );
+
                 // Handle result visibility
                 $('#'+formId+'_grp_result_parcelle_lieu').show();
                 $('#'+formId+'_grp_result_parcelle_prop').hide();
@@ -309,17 +303,19 @@ lizMap.events.on({
                         }
                         filter = '"geo_parcelle" IN (' + fids + ')';
                     }
-                }
-                fieldname = '#'+formId+'_geo_parcelle_prop';
-                if( $('#jforms_cadastre_search_geo_parcelle_prop option').size() > 1 && $('#'+formId+'_comptecommunal').val() ){
-                    if($(fieldname).val() == ''){
-                        fids =  "'" + $('#'+formId+'_comptecommunal').val().split(",").join("' , '") + "'";
-                        filter = '"comptecommunal" IN ( ' + fids + ' )';
-                    }else{
-                        fids = "'" + $(fieldname).val() + "'";
-                        filter = '"geo_parcelle" IN ( ' + fids + ' )';
+                }else{
+                    fieldname = '#'+formId+'_geo_parcelle_prop';
+                    if( $('#jforms_cadastre_search_geo_parcelle_prop option').size() > 1 && $('#'+formId+'_comptecommunal').val() ){
+                        if($(fieldname).val() == ''){
+                            fids =  "'" + $('#'+formId+'_comptecommunal').val().split(",").join("' , '") + "'";
+                            filter = '"comptecommunal" IN ( ' + fids + ' )';
+                        }else{
+                            fids = "'" + $(fieldname).val() + "'";
+                            filter = '"geo_parcelle" IN ( ' + fids + ' )';
+                        }
                     }
                 }
+
                 if(filter){
                     var getFeatureUrlData = lizMap.getVectorLayerWfsUrl(
                         cadastreConfig.layer,
@@ -374,6 +370,19 @@ lizMap.events.on({
 
             geo_parcelle_lieu_observer.observe(document.getElementById(formId+'_geo_parcelle_lieu'), {childList:true});
             geo_parcelle_prop_observer.observe(document.getElementById(formId+'_geo_parcelle_prop'), {childList:true});
+
+            // Empty selection
+            $('#'+formId+'_emptyselect')
+                .attr( "title", "Vider la sélection" )
+                .addClass( "btn" )
+                .html( "<i class='icon-refresh'></i>" )
+                .click(function(){
+                lizMap.events.triggerEvent(
+                    'layerfeatureunselectall',
+                    { 'featureType': cadastreConfig.layer, 'updateDrawing': true}
+                );
+                return false;
+            });
         }
 
         function zoomToCadastreFeature(){
