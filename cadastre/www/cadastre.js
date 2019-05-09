@@ -131,6 +131,7 @@ lizMap.events.on({
             $('#'+formId+'_adresse').val('');
             $('#'+formId+'_voie').val('');
             $('#'+formId+'_geo_parcelle_lieu').val('');
+            $('#'+formId+'_commune_prop').val('');
             $('#'+formId+'_proprietaire').val('');
             $('#'+formId+'_comptecommunal').val('');
             $('#'+formId+'_geo_parcelle_prop').val('');
@@ -168,15 +169,13 @@ lizMap.events.on({
                     //$('#'+formId+'_voie').val('').change();
                 },
                 select: function( e, ui ) {
-                    //console.log('select adresse');
+                    // Handle result visibility
+                    $('#'+formId+'_grp_result_parcelle_lieu').show();
+                    $('#'+formId+'_grp_result_parcelle_prop').hide();
+
                     $(this).val( $('<a>').html(ui.item.label).text() );
                     $('#'+formId+'_section').val( '' );
                     $('#'+formId+'_voie').val( ui.item.code ).change();
-                    $('#'+formId+'_proprietaire').val( '' );
-                    $('#'+formId+'_comptecommunal').val( '' );
-                    $('#'+formId+'_geo_parcelle_prop').val( '' );
-
-                    zoomToCadastreFeature();
 
                     return false;
                 }
@@ -188,7 +187,7 @@ lizMap.events.on({
                 autoFocus: true,
                 source:function( request, response ) {
                     request.field = 'prop';
-                    request.commune = $('#'+formId+'_commune').val();
+                    request.commune = $('#'+formId+'_commune_prop').val();
                     request.limit = 100;
                     $.getJSON($('#form_cadastre_service_autocomplete').attr('action'),
                         request, function( data, status, xhr ) {
@@ -211,15 +210,12 @@ lizMap.events.on({
                 search: function( e, ui ) {
                 },
                 select: function( e, ui ) {
-                    //console.log('select');
-                    $('#'+formId+'_section').val( '' );
-                    $('#'+formId+'_adresse').val( '' );
-                    $('#'+formId+'_voie').val( '' );
-                    $('#'+formId+'_geo_parcelle_lieu').val( '' );
+                    // Handle result visibility
+                    $('#'+formId+'_grp_result_parcelle_lieu').hide();
+                    $('#'+formId+'_grp_result_parcelle_prop').show();
+
                     $(this).val( $('<a>').html(ui.item.label).text() );
                     $('#'+formId+'_comptecommunal').val( ui.item.code ).change();
-
-                    zoomToCadastreFeature();
 
                     return false;
                 }
@@ -228,52 +224,26 @@ lizMap.events.on({
 
 
             $('#'+formId+'_commune').change(function(){
-                //console.log('changed commune');
-                $('#'+formId+'_adresse').val( '' );
-                $('#'+formId+'_voie').val( '' );
                 $('#'+formId+'_geo_parcelle_lieu').val( '' );
-                $('#'+formId+'_proprietaire').val( '' );
-                $('#'+formId+'_comptecommunal').val( '' );
-                $('#'+formId+'_geo_parcelle_prop').val( '' );
+
             });
             $('#'+formId+'_section').change(function(){
-                //console.log('changed section')
                 $('#'+formId+'_adresse').val( '' );
                 $('#'+formId+'_voie').val( '' );
                 $('#'+formId+'_geo_parcelle_lieu').val( '' );
-                $('#'+formId+'_proprietaire').val( '' );
-                $('#'+formId+'_comptecommunal').val( '' );
-                $('#'+formId+'_geo_parcelle_prop').val( '' );
+
+                // Handle result visibility
+                $('#'+formId+'_grp_result_parcelle_lieu').show();
+                $('#'+formId+'_grp_result_parcelle_prop').hide();
             });
             $('#'+formId+'_adresse').change(function(){
-                //console.log('changed adresse')
                 $('#'+formId+'_section').val( '' );
-                $('#'+formId+'_proprietaire').val( '' );
-                $('#'+formId+'_comptecommunal').val( '' );
-                $('#'+formId+'_geo_parcelle_prop').val( '' );
-            });
-            $('#'+formId+'_geo_parcelle_lieu').change(function(){
-                //console.log('changed adresse')
-                $('#'+formId+'_proprietaire').val( '' );
-                $('#'+formId+'_comptecommunal').val( '' );
-                $('#'+formId+'_geo_parcelle_prop').val( '' );
-            });
-            $('#'+formId+'_proprietaire').change(function(){
-                //console.log('changed proprio')
-                $('#'+formId+'_section').val( '' );
-                $('#'+formId+'_adresse').val( '' );
-                $('#'+formId+'_voie').val( '' );
-                $('#'+formId+'_geo_parcelle_lieu').val( '' );
-            });
-            $('#'+formId+'_geo_parcelle_prop').change(function(){
-                //console.log('changed adresse')
-                $('#'+formId+'_section').val( '' );
-                $('#'+formId+'_adresse').val( '' );
-                $('#'+formId+'_voie').val( '' );
-                $('#'+formId+'_geo_parcelle_lieu').val( '' );
             });
 
+            $('#'+formId+'_commune_prop').change(function(){
+                $('#'+formId+'_proprietaire').val( '' );
 
+            });
 
             // Manage submit
             $('#'+formId).submit(function(){

@@ -30,3 +30,10 @@ Toolbar buttons
 #cadastre-content div.menu-content {
     margin-bottom:10px !important;
 }
+
+/*
+Results
+*/
+fieldset[id$='_grp_result_parcelle_prop']{
+	display: none;
+}

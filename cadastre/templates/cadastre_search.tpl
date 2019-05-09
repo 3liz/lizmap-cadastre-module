@@ -19,6 +19,14 @@
   {/formcontrols}
   {/ifacl2}
 
+  {formcontrols array('grp_result_parcelle_lieu')}
+     <p> {ctrl_label} {ctrl_control} </p>
+  {/formcontrols}
+
+  {formcontrols array('grp_result_parcelle_prop')}
+     <p> {ctrl_label} {ctrl_control} </p>
+  {/formcontrols}
+
   <div style="text-align:center;"> {formreset}{formsubmits}{formsubmit}{/formsubmits}</div>
 
 {/form}
