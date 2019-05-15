@@ -374,7 +374,7 @@ lizMap.events.on({
                             firstOption.text(countParcelle+" parcelles trouvées");
                         }
                     }else{
-                        firstOption.text("Aucune parcelle trouvée");
+                        firstOption.text("-- Choisir --");
                     }
                 }
             });
@@ -391,7 +391,7 @@ lizMap.events.on({
                         firstOption.text(countParcelle+" parcelles trouvées");
                     }
                 }else{
-                    firstOption.text("Aucune parcelle trouvée");
+                    firstOption.text("-- Choisir --");
                 }
             });
 
@@ -472,6 +472,11 @@ lizMap.events.on({
             $('#div_form_cadastre_search form select option').prop('selected', function() {
                 return this.defaultSelected;
             });
+
+            $('#'+formId+'_geo_parcelle_lieu option:not(:first)').remove();
+            $('#'+formId+'_geo_parcelle_lieu option:first').text('-- Choisir --');
+            $('#'+formId+'_geo_parcelle_prop option:not(:first)').remove();
+
             $('#'+formId+'_commune').val( '' ).change();
             $('#'+formId+'_commune_prop').val( '' ).change();
             $('#'+formId+'_section').val( '' ).change();
