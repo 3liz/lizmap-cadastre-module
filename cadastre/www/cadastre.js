@@ -366,14 +366,16 @@ lizMap.events.on({
                 var countParcelle = $('#'+formId+'_geo_parcelle_lieu option').length - 1;
                 var firstOption = $('#'+formId+'_geo_parcelle_lieu option:first');
 
-                if(countParcelle > 0){
-                    if(countParcelle == 1){
-                        firstOption.text("1 parcelle trouvée");
+                if($('#'+formId+'_section').val() != '' ||  $('#'+formId+'_adresse').val() != ''){
+                    if(countParcelle > 0){
+                        if(countParcelle == 1){
+                            firstOption.text("1 parcelle trouvée");
+                        }else{
+                            firstOption.text(countParcelle+" parcelles trouvées");
+                        }
                     }else{
-                        firstOption.text(countParcelle+" parcelles trouvées");
+                        firstOption.text("Aucune parcelle trouvée");
                     }
-                }else{
-                    firstOption.text("Aucune parcelle trouvée");
                 }
             });
 
