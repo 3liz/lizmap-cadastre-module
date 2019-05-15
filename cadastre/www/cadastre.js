@@ -23,7 +23,6 @@ function selectParcelles(getFeatureUrlData, addToSelection){
                       nbParcellesModify++;
                     }
                 }
-
             }
 
             if( nbParcellesModify > 0){
@@ -81,6 +80,7 @@ function selectParcelles(getFeatureUrlData, addToSelection){
                 $('#lizmap-cadastre-message').remove();
                 lizMap.addMessage("Aucune parcelle n'a été sélectionnée",'error',true).attr('id','lizmap-cadastre-message');
             }
+
             $('body').css('cursor', 'auto');
             window.setTimeout(function(){$('#lizmap-cadastre-message').hide('slow')},1500);
             return false;
@@ -275,7 +275,7 @@ lizMap.events.on({
 
             $('#'+formId+'_unselect')
             .attr( "title", "Supprimer de la sélection" )
-            .addClass( "btn" )
+            .addClass( "btn disabled" )
             .html( "<i class='icon-minus'></i>" );
 
             // Handle click on select and unselect buttons
@@ -350,11 +350,12 @@ lizMap.events.on({
                 .addClass( "btn" )
                 .html( "<i class='icon-refresh'></i>" )
                 .click(function(){
-                lizMap.events.triggerEvent(
-                    'layerfeatureunselectall',
-                    { 'featureType': cadastreConfig.layer, 'updateDrawing': true}
-                );
-                return false;
+                    // $('#'+formId+'_unselect').addClass('disabled');
+                    lizMap.events.triggerEvent(
+                        'layerfeatureunselectall',
+                        { 'featureType': cadastreConfig.layer, 'updateDrawing': true}
+                    );
+                    return false;
             });
 
             // Observe modification on parcelle select to display option count
@@ -587,5 +588,18 @@ lizMap.events.on({
                 }
             }
         });
+    },
+    'layerSelectionChanged':function(e){
+        // Enable/disable remove from selection button
+        var formId = $('#div_form_cadastre_search form').attr('id');
+        if(e.featureIds.length > 0){
+            $('#'+formId+'_unselect')
+            .removeClass('disabled')
+            .prop('disabled', false);
+        }else{
+            $('#'+formId+'_unselect')
+            .addClass('disabled')
+            .prop('disabled', true);
+        }
     }
 });
