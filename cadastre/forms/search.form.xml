@@ -1,56 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form xmlns="http://jelix.org/ns/forms/1.1" allowAnyOrigin="true">
 
-    <group ref="grp_lieu">
-        <label locale="cadastre~search.group.search.lieu"/>
+    <menulist ref="commune">
+        <label locale="cadastre~search.input.commune"/>
+        <emptyitem locale="cadastre~search.input.emptyitem"/>
+        <datasource
+            dao="cadastre~geo_commune" profile="cadastre"
+            method="findAllCommune" labelproperty="nom_court" valueproperty="geo_commune"/>
+    </menulist>
 
-        <menulist ref="commune">
-            <label locale="cadastre~search.input.commune"/>
-            <emptyitem locale="cadastre~search.input.emptyitem"/>
-            <datasource
-                dao="cadastre~geo_commune" profile="cadastre"
-                method="findAllCommune" labelproperty="nom_court" valueproperty="geo_commune"/>
-        </menulist>
+    <menulist ref="section">
+        <label locale="cadastre~search.input.section"/>
+        <emptyitem locale="cadastre~search.input.emptyitem"/>
+        <datasource
+            dao="cadastre~geo_section" profile="cadastre"
+            criteriafrom="commune"
+            method="findByCommune" labelproperty="name" valueproperty="geo_section"/>
+    </menulist>
 
-        <label locale="cadastre~search.group.search"/>
+    <input ref="adresse">
+        <label locale="cadastre~search.input.adresse"/>
+    </input>
 
-        <menulist ref="section">
-            <label locale="cadastre~search.input.section"/>
-            <emptyitem locale="cadastre~search.input.emptyitem"/>
-            <datasource
-                dao="cadastre~geo_section" profile="cadastre"
-                criteriafrom="commune"
-                method="findByCommune" labelproperty="name" valueproperty="geo_section"/>
-        </menulist>
+    <hidden ref="voie">
+    </hidden>
 
-        <input ref="adresse">
-            <label locale="cadastre~search.input.adresse"/>
-        </input>
 
-        <hidden ref="voie">
-        </hidden>
+    <menulist ref="commune_prop">
+        <label locale="cadastre~search.input.commune"/>
+        <emptyitem locale="cadastre~search.input.emptyitem"/>
+        <datasource
+            dao="cadastre~geo_commune" profile="cadastre"
+            method="findAllCommune" labelproperty="nom_court" valueproperty="geo_commune"/>
+    </menulist>
 
-    </group>
+    <input ref="proprietaire">
+        <label locale="cadastre~search.input.proprietaire"/>
+    </input>
 
-    <group ref="grp_prop">
-        <label locale="cadastre~search.group.search.proprietaire"/>
-
-        <menulist ref="commune_prop">
-            <label locale="cadastre~search.input.commune"/>
-            <emptyitem locale="cadastre~search.input.emptyitem"/>
-            <datasource
-                dao="cadastre~geo_commune" profile="cadastre"
-                method="findAllCommune" labelproperty="nom_court" valueproperty="geo_commune"/>
-        </menulist>
-
-        <input ref="proprietaire">
-            <label locale="cadastre~search.input.proprietaire"/>
-        </input>
-
-        <hidden ref="comptecommunal">
-        </hidden>
-
-    </group>
+    <hidden ref="comptecommunal">
+    </hidden>
 
     <group ref="grp_result_parcelle_lieu">
         <label locale="cadastre~search.group.search.result"/>
@@ -79,30 +68,22 @@
         </menulist>
     </group>
 
-<!--   <submit ref="zoom">
-    <label locale="cadastre~search.input.zoom"/>
-  </submit> -->
-  <button ref="zoom">
-    <label locale="cadastre~search.input.zoom"/>
-  </button>
-  <submit ref="select">
-    <label locale="cadastre~search.input.select"/>
-  </submit>
-  <submit ref="unselect">
-    <label locale="cadastre~search.input.unselect"/>
-  </submit>
-  <button ref="emptyselect">
-    <label>Empty</label>
-  </button>
-  <reset ref="reinit">
-    <label locale="cadastre~search.input.reinit"/>
-  </reset>
-<!--
+    <button ref="zoom">
+        <label locale="cadastre~search.input.zoom"/>
+    </button>
 
-  <submit ref="submit">
-    <label locale="cadastre~search.input.submit"/>
-  </submit>
--->
+    <button ref="emptyselect">
+        <label>Empty</label>
+    </button>
+    <button ref="select">
+        <label locale="cadastre~search.input.select"/>
+    </button>
+    <button ref="unselect">
+        <label locale="cadastre~search.input.unselect"/>
+    </button>
 
+    <reset ref="reinit">
+        <label locale="cadastre~search.input.reinit"/>
+    </reset>
 
 </form>

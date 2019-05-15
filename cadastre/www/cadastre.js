@@ -190,10 +190,6 @@ lizMap.events.on({
                     //$('#'+formId+'_voie').val('').change();
                 },
                 select: function( e, ui ) {
-                    // Handle result visibility
-                    $('#'+formId+'_grp_result_parcelle_lieu').show();
-                    $('#'+formId+'_grp_result_parcelle_prop').hide();
-
                     $(this).val( $('<a>').html(ui.item.label).text() );
                     $('#'+formId+'_section').val( '' );
                     $('#'+formId+'_voie').val( ui.item.code ).change();
@@ -231,10 +227,6 @@ lizMap.events.on({
                 search: function( e, ui ) {
                 },
                 select: function( e, ui ) {
-                    // Handle result visibility
-                    $('#'+formId+'_grp_result_parcelle_lieu').hide();
-                    $('#'+formId+'_grp_result_parcelle_prop').show();
-
                     $(this).val( $('<a>').html(ui.item.label).text() );
                     $('#'+formId+'_comptecommunal').val( ui.item.code ).change();
 
@@ -243,22 +235,13 @@ lizMap.events.on({
             }).autocomplete( "widget" ).css("z-index","1050");
 
 
-
             $('#'+formId+'_commune').change(function(){
                 $('#'+formId+'_geo_parcelle_lieu').val( '' );
-
             });
             $('#'+formId+'_section').change(function(){
                 $('#'+formId+'_adresse').val( '' );
                 $('#'+formId+'_voie').val( '' );
                 $('#'+formId+'_geo_parcelle_lieu').val( '' );
-
-                // TODO : remove when tab added
-                $('#'+formId+'_proprietaire').val( '' );
-
-                // Handle result visibility
-                $('#'+formId+'_grp_result_parcelle_lieu').show();
-                $('#'+formId+'_grp_result_parcelle_prop').hide();
             });
             $('#'+formId+'_adresse').change(function(){
                 $('#'+formId+'_section').val( '' );
@@ -266,6 +249,7 @@ lizMap.events.on({
 
             $('#'+formId+'_commune_prop').change(function(){
                 $('#'+formId+'_proprietaire').val( '' );
+                $('#'+formId+'_geo_parcelle_prop').val( '' );
 
             });
 
@@ -273,6 +257,7 @@ lizMap.events.on({
             $('#'+formId).submit(function(){
                 return false;
             });
+
             // Click on zoom button
             $('#'+formId+'_zoom')
             .attr( "title", "Zoomer" )
@@ -283,30 +268,44 @@ lizMap.events.on({
                 return false;
             });
 
-            // Handle click on select button
+            $('#'+formId+'_select')
+            .attr( "title", "Ajouter à la sélection" )
+            .addClass( "btn" )
+            .html( "<i class='icon-plus'></i>" );
+
+            $('#'+formId+'_unselect')
+            .attr( "title", "Supprimer de la sélection" )
+            .addClass( "btn" )
+            .html( "<i class='icon-minus'></i>" );
+
+            // Handle click on select and unselect buttons
             $('#'+formId+'_select, #'+formId+'_unselect').click(function(){
                 var fieldname = null; var filter = null;
-                var section = $('#'+formId+'_section').val();
-                fieldname = '#'+formId+'_geo_parcelle_lieu';
-                if($(fieldname + ' option').size() > 1 && ( section || $('#'+formId+'_voie').val() ) ) {
-                    if(section){
-                        // Select one parcelle
-                        if($(fieldname).val()){
-                            filter = '"geo_parcelle" IN (\'' + $(fieldname).val() + '\')';
-                        }else{ // Select all parcelles on section
-                            var section = $('#'+formId+'_section').val();
-                            filter = '"geo_section" IN (\'' + section + '\')';
+
+                if($('#div_form_cadastre_search ul li:first').hasClass('active')){
+                    var section = $('#'+formId+'_section').val();
+                    fieldname = '#'+formId+'_geo_parcelle_lieu';
+                    if($(fieldname + ' option').size() > 1 && ( section || $('#'+formId+'_voie').val() ) ) {
+                        if(section){
+                            // Select one parcelle
+                            if($(fieldname).val()){
+                                filter = '"geo_parcelle" IN (\'' + $(fieldname).val() + '\')';
+                            }else{ // Select all parcelles on section
+                                var section = $('#'+formId+'_section').val();
+                                filter = '"geo_section" IN (\'' + section + '\')';
+                            }
+                        }
+                        if($('#'+formId+'_voie').val()){
+                            if($(fieldname).val() == ''){
+                                fids =  $.map( $(fieldname + ' option'), function( o ){return "'" + o.value + "'";}).join(',');
+                            }else{
+                                fids = "'" + $(fieldname).val() + "'";
+                            }
+                            filter = '"geo_parcelle" IN (' + fids + ')';
                         }
                     }
-                    if($('#'+formId+'_voie').val()){
-                        if($(fieldname).val() == ''){
-                            fids =  $.map( $(fieldname + ' option'), function( o ){return "'" + o.value + "'";}).join(',');
-                        }else{
-                            fids = "'" + $(fieldname).val() + "'";
-                        }
-                        filter = '"geo_parcelle" IN (' + fids + ')';
-                    }
-                }else{
+                }
+                else{
                     fieldname = '#'+formId+'_geo_parcelle_prop';
                     if( $('#jforms_cadastre_search_geo_parcelle_prop option').size() > 1 && $('#'+formId+'_comptecommunal').val() ){
                         if($(fieldname).val() == ''){
@@ -347,7 +346,7 @@ lizMap.events.on({
 
             // Empty selection
             $('#'+formId+'_emptyselect')
-                .attr( "title", "Vider la sélection" )
+                .attr( "title", "Nouvelle sélection" )
                 .addClass( "btn" )
                 .html( "<i class='icon-refresh'></i>" )
                 .click(function(){
@@ -364,23 +363,32 @@ lizMap.events.on({
             var geo_parcelle_lieu_observer = new MutationObserver(function() {
                 var formId = $('#div_form_cadastre_search form').attr('id');
                 var countParcelle = $('#'+formId+'_geo_parcelle_lieu option').length - 1;
+                var firstOption = $('#'+formId+'_geo_parcelle_lieu option:first');
 
                 if(countParcelle > 0){
-                    $('#'+formId+'_geo_parcelle_lieu option:first').text(countParcelle+" parcelles trouvées");
+                    if(countParcelle == 1){
+                        firstOption.text("1 parcelle trouvée");
+                    }else{
+                        firstOption.text(countParcelle+" parcelles trouvées");
+                    }
                 }else{
-                    $('#'+formId+'_geo_parcelle_lieu option:first').text("Aucune parcelle trouvée");
+                    firstOption.text("Aucune parcelle trouvée");
                 }
-
             });
 
             var geo_parcelle_prop_observer = new MutationObserver(function() {
                 var formId = $('#div_form_cadastre_search form').attr('id');
                 var countParcelle = $('#'+formId+'_geo_parcelle_prop option').length - 1;
+                var firstOption = $('#'+formId+'_geo_parcelle_prop option:first');
 
                 if(countParcelle > 0){
-                    $('#'+formId+'_geo_parcelle_prop option:first').text(countParcelle+" parcelles trouvées");
+                    if(countParcelle == 1){
+                        firstOption.text("1 parcelle trouvée");
+                    }else{
+                        firstOption.text(countParcelle+" parcelles trouvées");
+                    }
                 }else{
-                    $('#'+formId+'_geo_parcelle_prop option:first').text("Aucune parcelle trouvée");
+                    firstOption.text("Aucune parcelle trouvée");
                 }
             });
 
@@ -393,29 +401,38 @@ lizMap.events.on({
             var formId = $('#div_form_cadastre_search form').attr('id');
 
             var layername = null; var fieldname = null; var fieldval = null;
-            if( $('#'+formId+'_commune').val() ){
-                layername = 'Communes'; fieldname = 'geo_commune'; fieldval = $('#'+formId+'_commune').val();
+
+            if($('#div_form_cadastre_search ul li:first').hasClass('active')){
+                if( $('#'+formId+'_commune').val() ){
+                    layername = 'Communes'; fieldname = 'geo_commune'; fieldval = $('#'+formId+'_commune').val();
+                }
+                if( $('#'+formId+'_section').val() ){
+                    layername = 'Sections'; fieldname = 'geo_section'; fieldval = $('#'+formId+'_section').val();
+                }
+                if( $('#'+formId+'_voie').val() && !$('#'+formId+'_geo_parcelle_lieu').val()){
+                    layername = 'Voies'; fieldname = 'voie'; fieldval = $('#'+formId+'_voie').val();
+                }
+                if( $('#'+formId+'_geo_parcelle_lieu').val() ){
+                    layername = 'Parcelles'; fieldname = 'geo_parcelle'; fieldval = $('#'+formId+'_geo_parcelle_lieu').val();
+                }
+            }else{
+                if( $('#'+formId+'_commune_prop').val() ){
+                    layername = 'Communes'; fieldname = 'geo_commune'; fieldval = $('#'+formId+'_commune_prop').val();
+                }
+                if( $('#'+formId+'_geo_parcelle_prop').val() ){
+                    layername = 'Parcelles'; fieldname = 'geo_parcelle'; fieldval = $('#'+formId+'_geo_parcelle_prop').val();
+                }
+                if( $('#'+formId+'_comptecommunal').val() && !$('#'+formId+'_geo_parcelle_prop').val()){
+                    layername = 'Proprietaire'; fieldname = 'prop'; fieldval = $('#'+formId+'_comptecommunal').val();
+                }
             }
-            if( $('#'+formId+'_section').val() ){
-                layername = 'Sections'; fieldname = 'geo_section'; fieldval = $('#'+formId+'_section').val();
-            }
-            if( $('#'+formId+'_voie').val() && !$('#'+formId+'_geo_parcelle_lieu').val()){
-                layername = 'Voies'; fieldname = 'voie'; fieldval = $('#'+formId+'_voie').val();
-            }
-            if( $('#'+formId+'_geo_parcelle_lieu').val() ){
-                layername = 'Parcelles'; fieldname = 'geo_parcelle'; fieldval = $('#'+formId+'_geo_parcelle_lieu').val();
-            }
-            if( $('#'+formId+'_geo_parcelle_prop').val() ){
-                layername = 'Parcelles'; fieldname = 'geo_parcelle'; fieldval = $('#'+formId+'_geo_parcelle_prop').val();
-            }
-            if( $('#'+formId+'_comptecommunal').val() && !$('#'+formId+'_geo_parcelle_prop').val()){
-                layername = 'Proprietaire'; fieldname = 'prop'; fieldval = $('#'+formId+'_comptecommunal').val();
-            }
-            if(!layername || !fieldname || !fieldval)
+
+            if(!layername || !fieldname || !fieldval){
                 return false;
+            }
 
             var format = new OpenLayers.Format.GeoJSON();
-            // TODO test which tab is visible
+
             if(fieldname == 'voie' || fieldname == 'prop'){
                 var url = $('#form_cadastre_service_autocomplete').attr('action').replace('autocomplete','extent');
                 var options = {field: fieldname, value: fieldval};
@@ -442,9 +459,8 @@ lizMap.events.on({
                     var proj = new OpenLayers.Projection(cadastreCrs);
                     feat.geometry.transform(proj, lizMap.map.getProjection());
                     lizMap.map.zoomToExtent(feat.geometry.getBounds());
-                    //console.log(feat.geometry.getBounds())
                   }
-                })
+                });
             }
         }
 
@@ -454,6 +470,7 @@ lizMap.events.on({
                 return this.defaultSelected;
             });
             $('#'+formId+'_commune').val( '' ).change();
+            $('#'+formId+'_commune_prop').val( '' ).change();
             $('#'+formId+'_section').val( '' ).change();
             $('#'+formId+'_adresse').val( '' ).change();
             $('#'+formId+'_voie').val( '' ).change();
