@@ -395,9 +395,15 @@ lizMap.events.on({
                 }
             });
 
-            geo_parcelle_lieu_observer.observe(document.getElementById(formId+'_geo_parcelle_lieu'), {childList:true});
-            geo_parcelle_prop_observer.observe(document.getElementById(formId+'_geo_parcelle_prop'), {childList:true});
+            var geo_parcelle_lieu =  document.getElementById(formId+'_geo_parcelle_lieu');
+            var geo_parcelle_prop =  document.getElementById(formId+'_geo_parcelle_prop');
 
+            if(geo_parcelle_lieu){
+                geo_parcelle_lieu_observer.observe(geo_parcelle_lieu, {childList:true});
+            }
+            if(geo_parcelle_prop){
+                geo_parcelle_prop_observer.observe(geo_parcelle_prop, {childList:true});
+            }
         }
 
         function zoomToCadastreFeature(){
