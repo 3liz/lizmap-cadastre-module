@@ -260,11 +260,11 @@ lizMap.events.on({
 
             // Click on zoom button
             $('#'+formId+'_zoom')
-            .attr( "title", "Zoomer" )
+            .attr( "title", "Mode zoom" )
             .addClass( "btn" )
             .html( "<i class='icon-zoom-in'></i>" )
             .click(function(){
-                zoomToCadastreFeature();
+                $(this).toggleClass('active');
                 return false;
             });
 
@@ -277,6 +277,13 @@ lizMap.events.on({
             .attr( "title", "Supprimer de la sélection" )
             .addClass( "btn disabled" )
             .html( "<i class='icon-minus'></i>" );
+
+            // Zoom on features if mode is active
+            $('#'+formId+'_geo_parcelle_lieu, #'+formId+'_geo_parcelle_prop').change(function(){
+                if($('#'+formId+'_zoom').hasClass('active')){
+                    zoomToCadastreFeature();
+                }
+            });
 
             // Handle click on select and unselect buttons
             $('#'+formId+'_select, #'+formId+'_unselect').click(function(){
@@ -359,6 +366,7 @@ lizMap.events.on({
             });
 
             // Observe modification on parcelle select to display option count
+            // TODO : refactoring to avoid duplicate code
             MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 
             var geo_parcelle_lieu_observer = new MutationObserver(function() {
@@ -372,6 +380,10 @@ lizMap.events.on({
                             firstOption.text("1 parcelle trouvée");
                         }else{
                             firstOption.text(countParcelle+" parcelles trouvées");
+                        }
+                        // Zoom on features if mode is active
+                        if($('#'+formId+'_zoom').hasClass('active')){
+                            zoomToCadastreFeature();
                         }
                     }else{
                         firstOption.text("-- Choisir --");
@@ -389,6 +401,10 @@ lizMap.events.on({
                         firstOption.text("1 parcelle trouvée");
                     }else{
                         firstOption.text(countParcelle+" parcelles trouvées");
+                    }
+                    // Zoom on features if mode is active
+                    if($('#'+formId+'_zoom').hasClass('active')){
+                        zoomToCadastreFeature();
                     }
                 }else{
                     firstOption.text("-- Choisir --");
