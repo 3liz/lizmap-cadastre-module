@@ -73,17 +73,17 @@
     </button>
 
     <button ref="newselect">
-        <label>New</label>
+        <label locale="cadastre~search.input.newselect"/>
     </button>
     <button ref="addselect">
-        <label locale="cadastre~search.input.select"/>
+        <label locale="cadastre~search.input.addselect"/>
     </button>
     <button ref="unselect">
         <label locale="cadastre~search.input.unselect"/>
     </button>
 
     <button ref="emptyselect">
-        <label>Empty</label>
+        <label locale="cadastre~search.input.emptyselect"/>
     </button>
 
     <reset ref="reinit">
