@@ -265,6 +265,9 @@ lizMap.events.on({
             .html( "<i class='icon-zoom-in'></i>" )
             .click(function(){
                 $(this).toggleClass('active');
+                if($(this).hasClass('active')){
+                    zoomToCadastreFeature();
+                }
                 return false;
             });
 
