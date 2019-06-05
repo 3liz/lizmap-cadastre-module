@@ -72,14 +72,18 @@
         <label locale="cadastre~search.input.zoom"/>
     </button>
 
-    <button ref="emptyselect">
-        <label>Empty</label>
+    <button ref="newselect">
+        <label>New</label>
     </button>
-    <button ref="select">
+    <button ref="addselect">
         <label locale="cadastre~search.input.select"/>
     </button>
     <button ref="unselect">
         <label locale="cadastre~search.input.unselect"/>
+    </button>
+
+    <button ref="emptyselect">
+        <label>Empty</label>
     </button>
 
     <reset ref="reinit">

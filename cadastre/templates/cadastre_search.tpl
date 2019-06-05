@@ -31,7 +31,7 @@
         {formcontrols array('commune_prop','proprietaire','comptecommunal')}
           <p> {ctrl_label}&nbsp;&nbsp;{ctrl_control} </p>
         {/formcontrols}
-        
+
         {formcontrols array('grp_result_parcelle_prop')}
            <p> {ctrl_label} {ctrl_control} </p>
         {/formcontrols}
@@ -43,10 +43,11 @@
     <div style="text-align:center;margin-bottom: 5px;">
       {ctrl_control 'zoom'}
       <div class="btn-group">
-        {ctrl_control 'emptyselect'}
-        {ctrl_control 'select'}
+        {ctrl_control 'newselect'}
+        {ctrl_control 'addselect'}
         {ctrl_control 'unselect'}
       </div>
+      {ctrl_control 'emptyselect'}
     </div>
     <div>{formreset}</div>
 

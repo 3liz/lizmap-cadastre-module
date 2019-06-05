@@ -7,7 +7,7 @@ function selectParcelles(getFeatureUrlData, addToSelection){
             var nbParcellesModify = 0;
             for(var f in data2.features){
                 var feature = data2.features[f];
-                
+
                 var parcelleId = feature.id.split('.')[1];
 
                 if(addToSelection){
@@ -28,7 +28,7 @@ function selectParcelles(getFeatureUrlData, addToSelection){
             if( nbParcellesModify > 0){
                 // Messages
                 $('#lizmap-cadastre-message').remove();
-                
+
                 var html = '';
                 if(addToSelection){
                     if(nbParcellesModify == 1){
@@ -268,7 +268,12 @@ lizMap.events.on({
                 return false;
             });
 
-            $('#'+formId+'_select')
+            $('#'+formId+'_newselect')
+            .attr( "title", "Nouvelle sélection" )
+            .addClass( "btn" )
+            .html( "<i class='icon-refresh'></i>" );
+
+            $('#'+formId+'_addselect')
             .attr( "title", "Ajouter à la sélection" )
             .addClass( "btn" )
             .html( "<i class='icon-plus'></i>" );
@@ -286,7 +291,7 @@ lizMap.events.on({
             });
 
             // Handle click on select and unselect buttons
-            $('#'+formId+'_select, #'+formId+'_unselect').click(function(){
+            $('#'+formId+'_newselect, #'+formId+'_addselect, #'+formId+'_unselect').click(function(){
                 var fieldname = null; var filter = null;
 
                 if($('#div_form_cadastre_search ul li:first').hasClass('active')){
@@ -332,8 +337,12 @@ lizMap.events.on({
                         null,
                         'none'
                     );
+                    // Clear selection
+                    if (this.id === "jforms_cadastre_search_newselect") {
+                        lizMap.config.layers[cadastreConfig.layer]['selectedFeatures'] = [];
+                    }
                     // Add or remove from selection
-                    var addToSelection = (this.id === "jforms_cadastre_search_select");
+                    var addToSelection = (this.id !== "jforms_cadastre_search_unselect");
                     selectParcelles(getFeatureUrlData, addToSelection);
 
                 }
@@ -353,9 +362,9 @@ lizMap.events.on({
 
             // Empty selection
             $('#'+formId+'_emptyselect')
-                .attr( "title", "Nouvelle sélection" )
+                .attr( "title", "Désélectionner" )
                 .addClass( "btn" )
-                .html( "<i class='icon-refresh'></i>" )
+                .html( "<i class='icon-star-empty'></i>" )
                 .click(function(){
                     // $('#'+formId+'_unselect').addClass('disabled');
                     lizMap.events.triggerEvent(
