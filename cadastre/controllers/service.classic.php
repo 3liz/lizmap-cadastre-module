@@ -31,7 +31,9 @@ class serviceCtrl extends jController {
             return $rep;
         }
 
-        if( !preg_match('#^cadastre#i', $project) ){
+        $services = lizmap::getServices();
+        if (version_compare($services->qgisServerVersion, '3.0', '<') &&
+            !preg_match('#^cadastre#i', $project) ){
             $rep->data = array('status'=>'error', 'message'=>'This is not a cadastre project. Project key must begins with cadastre');
             return $rep;
         }
@@ -42,6 +44,22 @@ class serviceCtrl extends jController {
             return $rep;
         }
 
+        jClasses::inc('cadastre~lizmapCadastreRequest');
+        if (version_compare($services->qgisServerVersion, '3.0', '>=')) {
+            $request = new lizmapCadastreRequest(
+                $p,
+                array(
+                    'service'=>'CADASTRE',
+                    'request'=>'GetCapabilities'
+                )
+            );
+            $result = $request->process();
+            if ($result->code !== 200){
+                $rep->data = array('status'=>'error', 'message'=>'This is not a cadastre project or has not been configured.');
+                return $rep;
+            }
+        }
+
         $parcelleLayer = $this->param('layer');
         $parcelleId = $this->param('parcelle');
         $type = $this->param('type');
@@ -49,7 +67,7 @@ class serviceCtrl extends jController {
             $rep->data = array('status'=>'error', 'message'=>'layer, parcelle and type parameters are mandatory');
             return $rep;
         }
-        jClasses::inc('cadastre~lizmapCadastreRequest');
+
         if($type == 'fiche'){
             $creq = 'getHtml';
             //jLog::log($creq);

@@ -2,12 +2,35 @@
     class cadastreDockableListener extends jEventListener{
 
         function onmapDockable ($event) {
+            $isCadastreProject = false;
+            $services = lizmap::getServices();
+            if (version_compare($services->qgisServerVersion, '3.0', '<')) {
+                if (preg_match('#^cadastre#i', $event->project) ) {
+                    $isCadastreProject = true;
+                }
+            } else {
+                $p = lizmap::getProject($event->repository.'~'.$event->project);
+                if ($p) {
+                    jClasses::inc('cadastre~lizmapCadastreRequest');
+                    $request = new lizmapCadastreRequest(
+                        $p,
+                        array(
+                            'service'=>'CADASTRE',
+                            'request'=>'GetCapabilities'
+                        )
+                    );
+                    $result = $request->process();
+                    if ($result->code === 200 && $result->mime !== 'text/xml'){
+                        $data = json_decode($result->data);
+                        if ($data->status == 'success') {
+                            $isCadastreProject = true;
+                        }
+                    }
+                }
+            }
 
-            $coord = jApp::coord();
-            $project = $event->getParam( 'project' );
-            if( preg_match('#^cadastre#i', $event->project) and $this->checkCadastre() ){
-                $repository = $event->getParam( 'repository' );
-                $lproj = lizmap::getProject( $repository . '~' .$project );
+            if( $isCadastreProject and $this->checkCadastre() ){
+                $lproj = lizmap::getProject( $event->repository . '~' .$event->project );
                 $configOptions = $lproj->getOptions();
                 $bp = jApp::config()->urlengine['basePath'];
 
@@ -28,7 +51,6 @@
                     Null
                 );
                 $event->add($dock);
-
             }
         }
 
