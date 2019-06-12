@@ -1,5 +1,14 @@
 
 function selectParcelles(getFeatureUrlData, addToSelection){
+    if(!(typeof cadastreConfig != 'undefined'))
+        return;
+
+    if(!cadastreConfig.url)
+        return;
+
+    if(!cadastreConfig.layer)
+        return;
+
     $('body').css('cursor', 'wait');
 
     $.post( getFeatureUrlData['url'], getFeatureUrlData['options'], function(data2) {
@@ -102,6 +111,14 @@ function selectParcelles(getFeatureUrlData, addToSelection){
 }
 
 function selectParcelleByProprietaire(geo_parcelle, addToSelection){
+    if(!(typeof cadastreConfig != 'undefined'))
+        return;
+
+    if(!cadastreConfig.url)
+        return;
+
+    if(!cadastreConfig.layer)
+        return;
 
     var feat = null;
     //var featureId = cadastreConfig.layer + '.' + fid;
@@ -142,6 +159,15 @@ function selectParcelleByProprietaire(geo_parcelle, addToSelection){
 lizMap.events.on({
 
     'uicreated': function(e){
+        if(!(typeof cadastreConfig != 'undefined'))
+            return;
+
+        if(!cadastreConfig.url)
+            return;
+
+        if(!cadastreConfig.layer)
+            return;
+
         var cadastreCrs = 'EPSG:2154';
         if ( 'qgisServerVersion' in lizMap.config.options && lizMap.config.options.qgisServerVersion != '2.14' )
             cadastreCrs = 'EPSG:4326';
@@ -536,6 +562,9 @@ lizMap.events.on({
         if(!cadastreConfig.url)
             return;
 
+        if(!cadastreConfig.layer)
+            return;
+
         var popup = e.popup;
         var config = lizMap.config;
 
@@ -631,6 +660,8 @@ lizMap.events.on({
         });
     },
     'layerSelectionChanged':function(e){
+        if ( $('#div_form_cadastre_search form').length == 0 )
+            return;
         // Enable/disable remove from selection button
         var formId = $('#div_form_cadastre_search form').attr('id');
         if(e.featureIds.length > 0){
