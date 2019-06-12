@@ -45,7 +45,7 @@ class cadastreListener extends jEventListener{
         $jscode = array();
         $css = array();
 
-        if (hasCadastreConfig){
+        if ($hasCadastreConfig){
             $bp = jApp::config()->urlengine['basePath'];
 
             $js = array(
