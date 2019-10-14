@@ -52,5 +52,12 @@
     <div>{formreset}</div>
 
   {/form}
+  {ifacl2 "cadastre.acces.donnees.proprio"}
+  <div>
+    <h4>Données de la sélection</h4>
+    <p><a id="cadastre-export-locaux-proprios" class="btn" href="{jurl 'cadastre~service:locauxProprios'}">Locaux et propriétaires <i class="icon-download-alt"></i></a></p>
+  </div>
+  {/ifacl2}
+
 
 </div>

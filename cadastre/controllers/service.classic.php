@@ -411,5 +411,27 @@ class serviceCtrl extends jController {
         }
     }
 
+
+    function locauxProprios() {
+
+        $parcelleIds = $this->param('parcelles');
+
+        $parcelleIds = explode( ',', $parcelleIds );
+
+        $rep = $this->getResponse('binary');
+        $rep->mimeType = 'text/csv';
+
+        $extra_infos = jClasses::getService('cadastre~cadastreExtraInfos');
+        $path = $extra_infos->getLocauxAndProprioInfos( $parcelleIds );
+
+        $rep->fileName = $path;
+        $rep->deleteFileAfterSending = true;
+
+        $rep->doDownload = false;
+        $rep->outputFileName = 'cadastre_extra_infos.csv';
+
+        return $rep;
+    }
+
 }
 

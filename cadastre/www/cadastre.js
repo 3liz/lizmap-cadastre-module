@@ -551,6 +551,123 @@ lizMap.events.on({
             return false;
         }
 
+        // copy from lizmap
+        function downloadFile( url, parameters ) {
+          var xhr = new XMLHttpRequest();
+          xhr.open('POST', url, true);
+          xhr.responseType = 'arraybuffer';
+          xhr.onload = function () {
+              if (this.status === 200) {
+                  var filename = "";
+                  var disposition = xhr.getResponseHeader('Content-Disposition');
+                  if (disposition && disposition.indexOf('attachment') !== -1) {
+                      var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                      var matches = filenameRegex.exec(disposition);
+                      if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+                  }
+                  var type = xhr.getResponseHeader('Content-Type');
+
+                  var blob = typeof File === 'function'
+                      ? new File([this.response], filename, { type: type })
+                      : new Blob([this.response], { type: type });
+                  if (typeof window.navigator.msSaveBlob !== 'undefined') {
+                      // IE workaround for "HTML7007: One or more blob URLs were revoked by closing the blob for which they were created. These URLs will no longer resolve as the data backing the URL has been freed."
+                      window.navigator.msSaveBlob(blob, filename);
+                  } else {
+                      var URL = window.URL || window.webkitURL;
+                      var downloadUrl = URL.createObjectURL(blob);
+
+                      if (filename) {
+                          // use HTML5 a[download] attribute to specify filename
+                          var a = document.createElement("a");
+                          // safari doesn't support this yet
+                          if (typeof a.download === 'undefined') {
+                              window.location = downloadUrl;
+                          } else {
+                              a.href = downloadUrl;
+                              a.download = filename;
+                              document.body.appendChild(a);
+                              a.click();
+                          }
+                      } else {
+                          window.location = downloadUrl;
+                      }
+
+                      setTimeout(function () { URL.revokeObjectURL(downloadUrl); }, 100); // cleanup
+                  }
+              }
+          };
+          xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+          xhr.send($.param(parameters));
+        }
+        if ( $('#cadastre-export-locaux-proprios').length != 0 ) {
+            function getLocauxAndProprioInfos() {
+                if(!(typeof cadastreConfig != 'undefined'))
+                    return;
+
+                if(!cadastreConfig.url)
+                    return;
+
+                if(!cadastreConfig.layer)
+                    return;
+
+                var cadastreLayer = cadastreConfig.layer;
+                var cadastreLayerConfig = lizMap.config.layers[cadastreLayer];
+                var cleanName = lizMap.cleanName(cadastreLayer);
+
+                if( !cadastreLayerConfig['selectedFeatures'] )
+                    cadastreLayerConfig['selectedFeatures'] = [];
+
+                var selectedParcelles = cadastreLayerConfig['selectedFeatures'];
+                if( selectedParcelles.length == 0 ) {
+                    lizMap.addMessage('Aucune parcelle sélectionée', 'error', true).attr('id','lizmap-cadastre-message');
+                    window.setTimeout(function(){
+                        var $CadastreMessage = $('#lizmap-cadastre-message');
+                        if ( $CadastreMessage.length != 0 ) {
+                            $CadastreMessage.remove();
+                        }
+                    }, 5000);
+                    return;
+                }
+
+                var typeName = cadastreLayer.split(' ').join('_');
+                if ( 'typename' in cadastreLayerConfig ) {
+                    typeName = cadastreLayerConfig.typename;
+                } else if ( 'shortname' in cadastreLayerConfig ) {
+                    typeName = cadastreLayerConfig.shortname;
+                }
+
+                // copy and adapt from getVectorLayerSelectionFeatureIdsString
+                var featureids = '';
+                var fids = [];
+                for( var id in selectedParcelles ) {
+                    fids.push( typeName + '.' + selectedParcelles[id] );
+                }
+                if( fids.length ) {
+                    featureids = fids.join();
+                }
+
+                var getFeatureUrlData = lizMap.getVectorLayerWfsUrl( cadastreLayer, null, featureids, 'none' );
+                // Set export format
+                getFeatureUrlData['options']['PROPERTYNAME'] = [cadastreConfig.pk].join(',');
+
+                $.post( getFeatureUrlData['url'], getFeatureUrlData['options'], function(data) {
+                    var parcellePks = $.map(data.features, function(feat){
+                        return feat.properties[cadastreConfig.pk];
+                    });
+                    downloadFile( $('#cadastre-export-locaux-proprios').attr('href'), {parcelles:parcellePks.join()});
+                });
+            }
+            $('#cadastre-export-locaux-proprios').click(function(){
+                try {
+                    getLocauxAndProprioInfos();
+                } catch(e) {
+                    console.log(e);
+                }
+                return false;
+            });
+        }
+
         initCadastreForm();
     },
 
