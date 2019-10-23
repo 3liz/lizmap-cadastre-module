@@ -101,7 +101,7 @@ function selectParcelles(getFeatureUrlData, addToSelection){
             return false;
         }
 
-    }).fail(function(){
+    },'json').fail(function(){
         $('#lizmap-cadastre-message').remove();
         lizMap.addMessage("Aucune parcelle n'a été sélectionnée",'error',true).attr('id','lizmap-cadastre-message');
         $('body').css('cursor', 'auto');
@@ -146,7 +146,7 @@ function selectParcelleByProprietaire(geo_parcelle, addToSelection){
             return false;
         }
         $('body').css('cursor', 'auto');
-    }).fail(function(){
+    },'json').fail(function(){
         $('#lizmap-cadastre-message').remove();
         lizMap.addMessage("Aucune parcelle n'a été sélectionnée",'error',true).attr('id','lizmap-cadastre-message');
         $('body').css('cursor', 'auto');
@@ -523,7 +523,7 @@ lizMap.events.on({
                     feat.geometry.transform(proj, lizMap.map.getProjection());
                     lizMap.map.zoomToExtent(feat.geometry.getBounds());
                   }
-                });
+                },'json');
             }
         }
 
@@ -767,7 +767,7 @@ lizMap.events.on({
                         }
                         $('body').css('cursor', 'auto');
                         return false;
-                    }).fail(function(){
+                    },'json').fail(function(){
                         $('body').css('cursor', 'auto');
                         $('#lizmap-cadastre-message').remove();
                         return false;
