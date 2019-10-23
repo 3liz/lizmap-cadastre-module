@@ -414,6 +414,12 @@ class serviceCtrl extends jController {
 
     function locauxProprios() {
 
+        $rep = $this->getResponse('json');
+        if( !jAcl2::check("cadastre.acces.donnees.proprio") ){
+            $rep->data = array('status'=>'error', 'message'=>'Vous n\'avez pas les droits pour voir les données de propriété.');
+            return $rep;
+        }
+
         $parcelleIds = $this->param('parcelles');
 
         $parcelleIds = explode( ',', $parcelleIds );
