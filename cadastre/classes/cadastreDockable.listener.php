@@ -4,6 +4,7 @@
         function onmapDockable ($event) {
             $isCadastreProject = false;
             $services = lizmap::getServices();
+            $parcelleId = null;
             if (version_compare($services->qgisServerVersion, '3.0', '<')) {
                 if (preg_match('#^cadastre#i', $event->project) ) {
                     $isCadastreProject = true;
@@ -24,12 +25,33 @@
                         $data = json_decode($result->data);
                         if ($data->status == 'success') {
                             $isCadastreProject = true;
+                            $parcelleId = $data->data->parcelle->id;
                         }
                     }
                 }
             }
 
-            if( $isCadastreProject and $this->checkCadastre() ){
+            // Check profile
+            $profile = 'cadastre';
+            try {
+                // try to get the specific search profile to do not rebuild it
+                jProfiles::get('jdb', $profile, true);
+            } catch (Exception $e) {
+                // else use default or virtual profile
+                $repository = $event->repository;
+                $project = $event->project;
+                if (!empty($parcelleId)) {
+                    $project = lizmap::getProject($repository . '~' .$project);
+                    $qgisLayer = $project->getLayer($parcelleId);
+                    $profile = $qgisLayer->getDatasourceProfile();
+                } else {
+                    $profile = Null;
+                }
+            }
+
+            if ($isCadastreProject
+                and $this->checkCadastre($profile, $parcelleId)
+            ) {
                 $lproj = lizmap::getProject( $event->repository . '~' .$event->project );
                 $configOptions = $lproj->getOptions();
                 $bp = jApp::config()->urlengine['basePath'];
@@ -37,6 +59,8 @@
                 // cadastre dock
                 // Create search form
                 $searchForm = jForms::create("cadastre~search");
+                $form->setData('repository', $event->repository);
+                $form->setData('project', $event->project);
                 $assign = array(
                     'form' => $searchForm
                 );
@@ -64,21 +88,12 @@
         function onmapBottomDockable ( $event ) {
         }
 
-        protected function checkCadastre(){
+        protected function checkCadastre($profile, $parcelleId){
             $ok = False;
 
             // Access control
             if( !jAcl2::check("cadastre.use.search.tool") ){
                 return False;
-            }
-
-            $profile = 'cadastre';
-            try {
-                // try to get the specific search profile to do not rebuild it
-                jProfiles::get('jdb', $profile, true);
-            } catch (Exception $e) {
-                // else use default
-                $profile = Null;
             }
 
             // Try to get data from geo_commune
@@ -92,7 +107,6 @@
             }
             return $ok;
         }
-
 
     }
 

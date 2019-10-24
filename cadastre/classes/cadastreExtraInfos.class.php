@@ -136,11 +136,10 @@ class cadastreExtraInfos {
     * @param $withGeom With geometry data (optional)
     * @return The CSV file path
     */
-    function getLocauxAndProprioInfos( $parcelle_ids, $withGeom = false ) {
+    function getLocauxAndProprioInfos( $profile, $parcelle_ids, $withGeom = false ) {
 
         $sql = $this->getLocauxAndProprioSql( $parcelle_ids, $withGeom );
-
-        $rows = $this->query( $sql, array() );
+        $rows = $this->query( $sql, array(), $profile );
 
         return $this->buildCsv( $rows );
     }

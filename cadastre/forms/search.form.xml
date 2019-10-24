@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form xmlns="http://jelix.org/ns/forms/1.1" allowAnyOrigin="true">
 
+    <hidden ref="repository">
+    </hidden>
+
+    <hidden ref="project">
+    </hidden>
+
     <menulist ref="commune">
         <label locale="cadastre~search.input.commune"/>
         <emptyitem locale="cadastre~search.input.emptyitem"/>

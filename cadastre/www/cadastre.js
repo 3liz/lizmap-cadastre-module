@@ -192,6 +192,9 @@ lizMap.events.on({
                     request.field = 'voie';
                     request.commune = $('#'+formId+'_commune').val();
                     request.limit = 100;
+                    request.layer = cadastreConfig.layer;
+                    request.repository = lizUrls.params.repository;
+                    request.project = lizUrls.params.project;
                     $.getJSON($('#form_cadastre_service_autocomplete').attr('action'),
                         request, function( data, status, xhr ) {
                             response( data );
@@ -232,6 +235,9 @@ lizMap.events.on({
                     request.field = 'prop';
                     request.commune = $('#'+formId+'_commune_prop').val();
                     request.limit = 100;
+                    request.layer = cadastreConfig.layer;
+                    request.repository = lizUrls.params.repository;
+                    request.project = lizUrls.params.project;
                     $.getJSON($('#form_cadastre_service_autocomplete').attr('action'),
                         request, function( data, status, xhr ) {
                             response( data );
@@ -498,7 +504,13 @@ lizMap.events.on({
 
             if(fieldname == 'voie' || fieldname == 'prop'){
                 var url = $('#form_cadastre_service_autocomplete').attr('action').replace('autocomplete','extent');
-                var options = {field: fieldname, value: fieldval};
+                var options = {
+                    field: fieldname,
+                    value: fieldval,
+                    layer: cadastreConfig.layer,
+                    repository: lizUrls.params.repository,
+                    project: lizUrls.params.project
+                };
                 $.getJSON(
                     url,
                     options,
@@ -655,7 +667,15 @@ lizMap.events.on({
                     var parcellePks = $.map(data.features, function(feat){
                         return feat.properties[cadastreConfig.pk];
                     });
-                    downloadFile( $('#cadastre-export-locaux-proprios').attr('href'), {parcelles:parcellePks.join()});
+                    downloadFile(
+                        $('#cadastre-export-locaux-proprios').attr('href'),
+                        {
+                            parcelles: parcellePks.join(),
+                            layer: cadastreConfig.layer,
+                            repository: lizUrls.params.repository,
+                            project: lizUrls.params.project
+                        }
+                    );
                 });
             }
             $('#cadastre-export-locaux-proprios').click(function(){

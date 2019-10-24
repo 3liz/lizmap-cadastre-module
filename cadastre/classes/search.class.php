@@ -116,7 +116,7 @@ class search {
     * @param $term Searched term
     * @return List of matching taxons
     */
-    function getData($term, $field="voie", $commune='', $voie='', $limit=15, $get_total_extent=False) {
+    function getData($profile, $term, $field="voie", $commune='', $voie='', $limit=15, $get_total_extent=False) {
 
         // Access control
         if( $field != 'voie' and !jAcl2::check("cadastre.acces.donnees.proprio") ){
@@ -172,7 +172,7 @@ class search {
         if(!$sql)
             return Null;
 
-        return $this->query( $sql, $pa );
+        return $this->query( $sql, $pa, $profile );
     }
 
     /**
@@ -180,7 +180,7 @@ class search {
     * @param $term Searched term
     * @return List of matching taxons
     */
-    function getDataExtent($field="voie", $value='') {
+    function getDataExtent($profile, $field="voie", $value='') {
 
         // Access control
         if( $field != 'voie' and !jAcl2::check("cadastre.acces.donnees.proprio") ){
@@ -217,7 +217,7 @@ class search {
         }
 
         // Run query
-        return $this->query( $sql, $pa );
+        return $this->query( $sql, $pa, $profile );
     }
 
 }
