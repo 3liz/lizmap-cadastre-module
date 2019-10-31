@@ -59,8 +59,8 @@
                 // cadastre dock
                 // Create search form
                 $searchForm = jForms::create("cadastre~search");
-                $form->setData('repository', $event->repository);
-                $form->setData('project', $event->project);
+                $searchForm->setData('repository', $event->repository);
+                $searchForm->setData('project', $event->project);
                 $assign = array(
                     'form' => $searchForm
                 );
