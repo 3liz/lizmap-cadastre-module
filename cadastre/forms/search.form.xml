@@ -7,21 +7,23 @@
     <hidden ref="project">
     </hidden>
 
+    <hidden ref="parcelleLayerId">
+    </hidden>
+
     <menulist ref="commune">
         <label locale="cadastre~search.input.commune"/>
         <emptyitem locale="cadastre~search.input.emptyitem"/>
         <datasource
-            dao="cadastre~geo_commune" profile="cadastre"
-            method="findAllCommune" labelproperty="nom_court" valueproperty="geo_commune"/>
+            class="cadastre~listGeoCommuneDatasource"
+            criteriafrom="repository, project, parcelleLayerId"/>
     </menulist>
 
     <menulist ref="section">
         <label locale="cadastre~search.input.section"/>
         <emptyitem locale="cadastre~search.input.emptyitem"/>
         <datasource
-            dao="cadastre~geo_section" profile="cadastre"
-            criteriafrom="commune"
-            method="findByCommune" labelproperty="name" valueproperty="geo_section"/>
+            class="cadastre~listGeoSectionDatasource"
+            criteriafrom="repository, project, parcelleLayerId, commune"/>
     </menulist>
 
     <input ref="adresse">
@@ -36,8 +38,8 @@
         <label locale="cadastre~search.input.commune"/>
         <emptyitem locale="cadastre~search.input.emptyitem"/>
         <datasource
-            dao="cadastre~geo_commune" profile="cadastre"
-            method="findAllCommune" labelproperty="nom_court" valueproperty="geo_commune"/>
+            class="cadastre~listGeoCommuneDatasource"
+            criteriafrom="repository, project, parcelleLayerId"/>
     </menulist>
 
     <input ref="proprietaire">
@@ -73,6 +75,7 @@
                 method="findParcelleByProp" labelproperty="name" valueproperty="geo_parcelle"/>
         </menulist>
     </group>
+
 
     <button ref="zoom">
         <label locale="cadastre~search.input.zoom"/>

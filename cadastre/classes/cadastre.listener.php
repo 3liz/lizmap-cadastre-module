@@ -15,28 +15,13 @@ class cadastreListener extends jEventListener{
                 );
             }
         } else {
-            $p = lizmap::getProject($event->repository.'~'.$event->project);
-            if ($p) {
-                jClasses::inc('cadastre~lizmapCadastreRequest');
-                $request = new lizmapCadastreRequest(
-                    $p,
-                    array(
-                        'service'=>'CADASTRE',
-                        'request'=>'GetCapabilities'
-                    )
+            $config = cadastreConfig::get($event->repository, $event->project);
+            if ($config !== Null) {
+                $hasCadastreConfig = true;
+                $cadastreConfig = array(
+                    'layer' => $config->parcelle->name,
+                    'pk' => $config->parcelle->unique_field
                 );
-                $result = $request->process();
-                if ($result->code === 200 && $result->mime !== 'text/xml'){
-                    $data = json_decode($result->data);
-                    if ($data->status == 'success') {
-                        $data = $data->data;
-                        $hasCadastreConfig = true;
-                        $cadastreConfig = array(
-                            'layer' => $data->parcelle->name,
-                            'pk' => $data->parcelle->unique_field
-                        );
-                    }
-                }
             }
         }
 

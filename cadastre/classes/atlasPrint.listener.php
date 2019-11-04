@@ -56,7 +56,6 @@ class atlasPrintListener extends jEventListener{
                 $geo_parcelle = $line->geo_parcelle;
             }
             $p = lizmap::getProject($event->repository.'~'.$event->project);
-            jClasses::inc('cadastre~lizmapCadastreRequest');
             $request = new lizmapCadastreRequest(
                 $p,
                 array(

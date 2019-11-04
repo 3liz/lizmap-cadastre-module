@@ -10,24 +10,10 @@
                     $isCadastreProject = true;
                 }
             } else {
-                $p = lizmap::getProject($event->repository.'~'.$event->project);
-                if ($p) {
-                    jClasses::inc('cadastre~lizmapCadastreRequest');
-                    $request = new lizmapCadastreRequest(
-                        $p,
-                        array(
-                            'service'=>'CADASTRE',
-                            'request'=>'GetCapabilities'
-                        )
-                    );
-                    $result = $request->process();
-                    if ($result->code === 200 && $result->mime !== 'text/xml'){
-                        $data = json_decode($result->data);
-                        if ($data->status == 'success') {
-                            $isCadastreProject = true;
-                            $parcelleId = $data->data->parcelle->id;
-                        }
-                    }
+                $config = cadastreConfig::get($event->repository, $event->project);
+                if ($config !== Null) {
+                    $isCadastreProject = true;
+                    $parcelleId = $config->parcelle->id;
                 }
             }
 
@@ -41,9 +27,7 @@
                 $repository = $event->repository;
                 $project = $event->project;
                 if (!empty($parcelleId)) {
-                    $project = lizmap::getProject($repository . '~' .$project);
-                    $qgisLayer = $project->getLayer($parcelleId);
-                    $profile = $qgisLayer->getDatasourceProfile();
+                    $profile = cadastreProfile::getWithLayerId($repository, $project, $parcelleId);
                 } else {
                     $profile = Null;
                 }
@@ -61,6 +45,7 @@
                 $searchForm = jForms::create("cadastre~search");
                 $searchForm->setData('repository', $event->repository);
                 $searchForm->setData('project', $event->project);
+                $searchForm->setData('parcelleLayerId', $parcelleId);
                 $assign = array(
                     'form' => $searchForm
                 );

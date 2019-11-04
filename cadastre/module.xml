@@ -12,4 +12,9 @@
     <dependencies>
         <jelix minversion="1.6.8" maxversion="1.6.*"/>
     </dependencies>
+    <autoload>
+        <class name="lizmapCadastreRequest" file="classes/lizmapCadastreRequest.class.php" />
+        <class name="cadastreConfig" file="classes/cadastreConfig.class.php" />
+        <class name="cadastreProfile" file="classes/cadastreProfile.class.php" />
+    </autoload>
 </module>
