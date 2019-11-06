@@ -702,6 +702,17 @@ lizMap.events.on({
         if(!cadastreConfig.layer)
             return;
 
+        if( $('#jforms_cadastre_search_has_majic').length){
+            var has_majic = $('#jforms_cadastre_search_has_majic').val();
+            if ( has_majic == '0' ){
+                return;
+            }
+        }
+
+
+        if(!cadastreConfig.majic)
+            return;
+
         var popup = e.popup;
         var config = lizMap.config;
 

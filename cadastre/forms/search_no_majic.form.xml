@@ -29,25 +29,18 @@
             criteriafrom="repository, project, parcelleLayerId, commune"/>
     </menulist>
 
-    <input ref="adresse">
-        <label locale="cadastre~search.input.adresse"/>
-    </input>
+    <hidden ref="adresse">
+    </hidden>
 
     <hidden ref="voie">
     </hidden>
 
 
-    <menulist ref="commune_prop">
-        <label locale="cadastre~search.input.commune"/>
-        <emptyitem locale="cadastre~search.input.emptyitem"/>
-        <datasource
-            class="cadastre~listGeoCommuneDatasource"
-            criteriafrom="repository, project, parcelleLayerId"/>
-    </menulist>
+    <hidden ref="commune_prop">
+    </hidden>
 
-    <input ref="proprietaire">
-        <label locale="cadastre~search.input.proprietaire"/>
-    </input>
+    <hidden ref="proprietaire">
+    </hidden>
 
     <hidden ref="comptecommunal">
     </hidden>
@@ -59,8 +52,8 @@
             <label locale="cadastre~search.input.parcelle"/>
             <emptyitem locale="cadastre~search.input.emptyitem"/>
             <datasource
-                class="cadastre~listParcelleLieuDatasource"
-                criteriafrom="repository, project, parcelleLayerId, section,voie"/>
+                class="cadastre~listParcelleLieuNoMajicDatasource"
+                criteriafrom="repository, project, parcelleLayerId, section"/>
         </menulist>
 
     </group>
@@ -68,13 +61,8 @@
     <group ref="grp_result_parcelle_prop">
         <label locale="cadastre~search.group.search.result"/>
 
-        <menulist ref="geo_parcelle_prop">
-            <label locale="cadastre~search.input.parcelle"/>
-            <emptyitem locale="cadastre~search.input.emptyitem"/>
-            <datasource
-                class="cadastre~listParcellePropDatasource"
-                criteriafrom="repository, project, parcelleLayerId, comptecommunal"/>
-        </menulist>
+        <hidden ref="geo_parcelle_prop">
+        </hidden>
     </group>
 
 

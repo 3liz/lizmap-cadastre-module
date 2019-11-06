@@ -2,15 +2,16 @@
 
 require_once (JELIX_LIB_PATH.'forms/jFormsDatasource.class.php');
 
-class listGeoCommuneDatasource extends jFormsDynamicDatasource
+class listParcelleLieuNoMajicDatasource extends jFormsDynamicDatasource
 {
-    protected $selector = 'cadastre~geo_commune';
-    protected $method = 'findAllCommune';
+    protected $selector = 'cadastre~parcelle_info_no_majic';
+    protected $method = 'findBySection';
 
-    protected $labelProperty = array('nom_court');
+    protected $labelProperty = array('name');
     protected $labelSeparator;
     public $labelMethod = 'get';
-    protected $keyProperty = 'geo_commune';
+    protected $keyProperty = 'ogc_fid';
+    protected $valueProperty = 'geo_parcelle';
 
     protected $profile;
     protected $dao = null;
@@ -22,18 +23,19 @@ class listGeoCommuneDatasource extends jFormsDynamicDatasource
         $repository = $form->getData($this->criteriaFrom[0]);
         $project = $form->getData($this->criteriaFrom[1]);
         $layerId = $form->getData($this->criteriaFrom[2]);
+        $section = $form->getData($this->criteriaFrom[3]);
         $this->profile = cadastreProfile::getWithLayerId($repository, $project, $layerId);
 
         if($this->dao === null)
             $this->dao = jDao::get($this->selector, $this->profile);
 
-        $found = $this->dao->{$this->method}();
+        $found = $this->dao->{$this->method}($section);
 
         $result = array();
 
         foreach($found as $obj){
             $label = $this->buildLabel($obj);
-            $value = $obj->{$this->keyProperty};
+            $value = $obj->{$this->valueProperty};
 
             $result[$value] = $label;
         }
@@ -76,8 +78,8 @@ class listGeoCommuneDatasource extends jFormsDynamicDatasource
     }
 
     public function setCriteriaControls($criteriaFrom = null){
-        if ( count($criteriaFrom) !== 3 ) {
-            throw new Exception("3 criteria needed: repository, project, parcelleLayerId");
+        if ( count($criteriaFrom) !== 4 ) {
+            throw new Exception("4 criterias needed: repository, project, parcelleLayerId,section");
         }
         $this->criteriaFrom = $criteriaFrom;
     }

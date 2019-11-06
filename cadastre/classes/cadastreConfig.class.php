@@ -31,11 +31,6 @@ class cadastreConfig {
                 $data = json_decode($result->data);
                 if ($data->status == 'success') {
                     return $data->data;
-                    /*$hasCadastreConfig = true;
-                    $cadastreConfig = array(
-                        'layer' => $data->parcelle->name,
-                        'pk' => $data->parcelle->unique_field
-                    );*/
                 }
             }
         }

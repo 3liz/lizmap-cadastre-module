@@ -49,4 +49,52 @@ class cadastreProfile {
         //jLog::log(json_encode($profile));
         return $profile;
     }
+
+    /**
+    * Check access to table data
+    * @param profile The DB profile to test
+    * @return True if data is accessible
+    */
+    public static function checkAccess($profile){
+        $ok = False;
+
+        // Access control
+        if( !jAcl2::check("cadastre.use.search.tool") ){
+            return False;
+        }
+
+        // Try to get data from geo_commune
+        try {
+            // try to get the specific search profile to do not rebuild it
+            $cnx = jDb::getConnection( $profile );
+            $cnx->query('SELECT geo_commune FROM geo_commune LIMIT 0;');
+            $ok = True;
+        } catch (Exception $e) {
+            $ok = False;
+        }
+        return $ok;
+    }
+
+    /**
+    * Check access to table data
+    * @param table Name of the table to test for content
+    * @param profile The DB profile to test
+    * @return True if data is accessible
+    */
+    public static function checkTableContent($table, $profile){
+        $ok = False;
+        // Try to get data from geo_commune
+        try {
+            // try to get the specific search profile to do not rebuild it
+            $cnx = jDb::getConnection( $profile );
+            $res = $cnx->query('SELECT * FROM "'.$table.'" LIMIT 1');
+            foreach($res as $rec) {
+                $ok = True;
+            }
+        } catch (Exception $e) {
+            $ok = False;
+        }
+        return $ok;
+    }
+
 }

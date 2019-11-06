@@ -19,33 +19,46 @@
 
             // Check profile
             $profile = 'cadastre';
-            try {
-                // try to get the specific search profile to do not rebuild it
-                jProfiles::get('jdb', $profile, true);
-            } catch (Exception $e) {
-                // else use default or virtual profile
-                $repository = $event->repository;
-                $project = $event->project;
-                if (!empty($parcelleId)) {
-                    $profile = cadastreProfile::getWithLayerId($repository, $project, $parcelleId);
-                } else {
+            if (!empty($parcelleId)) {
+                $profile = cadastreProfile::getWithLayerId(
+                    $event->repository,
+                    $event->project,
+                    $parcelleId
+                );
+            } else {
+                try {
+                    // try to get the specific search profile to do not rebuild it
+                    jProfiles::get('jdb', $profile, true);
+                } catch (Exception $e) {
                     $profile = Null;
                 }
             }
 
             if ($isCadastreProject
-                and $this->checkCadastre($profile, $parcelleId)
+                and cadastreProfile::checkAccess($profile)
             ) {
                 $lproj = lizmap::getProject( $event->repository . '~' .$event->project );
                 $configOptions = $lproj->getOptions();
                 $bp = jApp::config()->urlengine['basePath'];
 
+                // Check if database has MAJIC content or not
+                $hasProprietaire = cadastreProfile::checkTableContent('proprietaire', $profile);
+                $form_name = "cadastre~search";
+                if(!$hasProprietaire){
+                    $form_name = "cadastre~search_no_majic";
+                }
+
                 // cadastre dock
                 // Create search form
-                $searchForm = jForms::create("cadastre~search");
+                $searchForm = jForms::create($form_name);
                 $searchForm->setData('repository', $event->repository);
                 $searchForm->setData('project', $event->project);
                 $searchForm->setData('parcelleLayerId', $parcelleId);
+                $hasMajic = False;
+                if( $hasProprietaire and jAcl2::check("cadastre.acces.donnees.proprio") ) {
+                    $hasMajic = True;
+                }
+                $searchForm->setData('has_majic', $hasMajic);
                 $assign = array(
                     'form' => $searchForm
                 );
@@ -71,26 +84,6 @@
         }
 
         function onmapBottomDockable ( $event ) {
-        }
-
-        protected function checkCadastre($profile, $parcelleId){
-            $ok = False;
-
-            // Access control
-            if( !jAcl2::check("cadastre.use.search.tool") ){
-                return False;
-            }
-
-            // Try to get data from geo_commune
-            try {
-                // try to get the specific search profile to do not rebuild it
-                $cnx = jDb::getConnection( $profile );
-                $cnx->query('SELECT geo_commune FROM geo_commune LIMIT 0;');
-                $ok = True;
-            } catch (Exception $e) {
-                $ok = False;
-            }
-            return $ok;
         }
 
     }

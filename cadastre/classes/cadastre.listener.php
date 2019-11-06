@@ -37,12 +37,7 @@ class cadastreListener extends jEventListener{
                 jUrl::get('jelix~www:getfile', array('targetmodule'=>'cadastre', 'file'=>'cadastre.js'))
             );
 
-            // Access control
-            if( jAcl2::check("cadastre.acces.donnees.proprio") ){
-                $cadastreConfig['url'] = jUrl::get('cadastre~service:initExport');
-            }else{
-                $cadastreConfig['url'] = Null;
-            }
+            $cadastreConfig['url'] = jUrl::get('cadastre~service:initExport');
 
             $jscode = array(
                 'var cadastreConfig = ' . json_encode($cadastreConfig)

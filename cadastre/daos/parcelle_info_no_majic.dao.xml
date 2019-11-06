@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dao xmlns="http://jelix.org/ns/dao/1.0">
+    <datasources>
+        <primarytable name="parcelle_info" realname="parcelle_info" primarykey="ogc_fid" />
+    </datasources>
+    <record>
+        <property name="ogc_fid" fieldname="ogc_fid" datatype="integer" required="true"/>
+        <property name="geo_parcelle" fieldname="geo_parcelle" datatype="text" required="true"/>
+        <property name="geo_section" fieldname="geo_section" datatype="text" required="true"/>
+        <property name="name" fieldname="idu" datatype="text" required="true" selectpattern="codecommune || ' - ' || substr(idu,7,6)"/>
+        <property name="geom" fieldname="geom" datatype="text" required="true" selectpattern="ST_AsText(geom)"/>
+        <!--<property name="" fieldname="" datatype="string/int/float/date"
+        required="yes" maxlength="" minlength="" regexp="" sequence=""
+        updatepattern="" insertpattern="" selectpattern=""/>-->
+    </record>
+    <factory>
+        <method name="findBySection" type="select">
+            <parameter name="geo_section" />
+            <conditions logic="and">
+                <eq property="geo_section" expr="$geo_section" />
+            </conditions>
+            <order>
+                <orderitem property="name" way="asc" />
+            </order>
+        </method>
+
+    </factory>
+</dao>
