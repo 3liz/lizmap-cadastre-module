@@ -709,10 +709,6 @@ lizMap.events.on({
             }
         }
 
-
-        if(!cadastreConfig.majic)
-            return;
-
         var popup = e.popup;
         var config = lizMap.config;
 
