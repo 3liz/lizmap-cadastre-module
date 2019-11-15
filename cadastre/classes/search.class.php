@@ -22,6 +22,12 @@ class search {
     // voie filter
     protected $voie = '';
 
+    // cadastre config
+    protected $config = null;
+
+    protected $repository = '';
+    protected $project = '';
+
 
     private function normalizeString($string){
         $in = array('à','á','â','ã','ä', 'ç', 'è','é','ê','ë', 'ì','í','î','ï', 'ñ', 'ò','ó','ô','õ','ö','œ','ù','ú','û','ü', 'ý','ÿ', 'À','Á','Â','Ã','Ä', 'Ç', 'È','É','Ê','Ë', 'Ì','Í','Î','Ï', 'Ñ', 'Ò','Ó','Ô','Õ','Ö', 'Ù','Ú','Û','Ü', 'Ý' );
@@ -29,7 +35,44 @@ class search {
         return strtoupper(trim(str_replace($in, $out, $string)));
     }
 
-    protected function getSql() {
+    protected function getFilterSql($filterConfig, $profile='cadastre', $tableAlias = '') {
+        $cnx = jDb::getConnection( $profile );
+        $field = $filterConfig->filterAttribute;
+        $value = null;
+        if ( jAuth::isConnected() ) {
+            if (property_exists($fblConfig, 'filterPrivate') && $fblConfig->filterPrivate == 'True') {
+                $user = jAuth::getUserSession();
+                $value = $user->login;
+            } else {
+                $value = jAcl2DbUserGroup::getGroups();
+            }
+        }
+
+        $sql = '';
+
+        if (is_array($value)) {
+          $preparedValues = array();
+          foreach($value as $v) {
+            $preparedValues[] = $cnx->quote(trim($v));
+          }
+          $sql.= '"'.$field.'" IN ('.implode(', ', $preparedValues).', '.$cnx->quote('all').')';
+        } else if (is_string($value) || is_numeric($value)) {
+            $sql.= '"'.$field.'" IN ('.$cnx->quote(trim($value)).', '.$cnx->quote('all').')';
+        } else {
+            $sql.= '"'.$field.'" = '.$cnx->quote('all');
+        }
+        if ( $tableAlias !== '' ) {
+            $sql = $tableAlias.'.'.$sql;
+        }
+
+        return $sql;
+    }
+
+    protected function getSql($profile='cadastre') {
+        $cFilterConfig = cadastreConfig::getFilterByLogin($this->repository, $this->project, $this->config->commune->id);
+        $sFilterConfig = cadastreConfig::getFilterByLogin($this->repository, $this->project, $this->config->section->id);
+        $pFilterConfig = cadastreConfig::getFilterByLogin($this->repository, $this->project, $this->config->parcelle->id);
+
         if($this->field == 'voie'){
             $sql = "
             SELECT DISTINCT
@@ -52,6 +95,10 @@ class search {
             if(!empty($this->commune)){
                 $sql.=" AND trim(c.geo_commune) = $" . $i;
                 $i++;
+            }
+            if($cFilterConfig !== null){
+                $sql.= ' AND ';
+                $sql.= $this->getFilterSql($cFilterConfig, $profile, 'c');
             }
             $sql.= "
             ORDER BY b DESC, label
@@ -76,12 +123,32 @@ class search {
             }
 
             if(!empty($this->voie)){
-                $sql.=" AND trim(p.comptecommunal) IN (SELECT DISTINCT comptecommunal FROM parcelle_info WHERE voie = $" . $i . ")";
+                $sql.=" AND trim(p.comptecommunal) IN (";
+                $sql.="SELECT DISTINCT comptecommunal FROM parcelle_info WHERE voie = $" . $i;
+                if($pFilterConfig !== null){
+                    $sql.= ' AND ';
+                    $sql.= $this->getFilterSql($pFilterConfig, $profile);
+                }
+                $sql.=")";
                 $i++;
             }
             if(!empty($this->commune)){
-                $sql.=" AND trim(p.comptecommunal) IN (SELECT DISTINCT comptecommunal FROM parcelle_info WHERE geo_parcelle LIKE $" . $i . ")";
+                $sql.=" AND trim(p.comptecommunal) IN (";
+                $sql.="SELECT DISTINCT comptecommunal FROM parcelle_info WHERE geo_parcelle LIKE $" . $i;
+                if($pFilterConfig !== null){
+                    $sql.= ' AND ';
+                    $sql.= $this->getFilterSql($pFilterConfig, $profile);
+                }
+                $sql.=")";
                 $i++;
+            } else if ($pFilterConfig !== null){
+                $sql.=" AND trim(p.comptecommunal) IN (";
+                $sql.="SELECT DISTINCT comptecommunal FROM parcelle_info WHERE 2>1";
+                if($pFilterConfig !== null){
+                    $sql.= ' AND ';
+                    $sql.= $this->getFilterSql($pFilterConfig, $profile);
+                }
+                $sql.=")";
             }
             $sql.= "
             GROUP BY dnuper, ddenom, dlign4
@@ -116,12 +183,17 @@ class search {
     * @param $term Searched term
     * @return List of matching taxons
     */
-    function getData($profile, $term, $field="voie", $commune='', $voie='', $limit=15, $get_total_extent=False) {
+    function getData($repository, $project, $parcelleLayer, $term, $field="voie", $commune='', $voie='', $limit=15, $get_total_extent=False) {
 
         // Access control
         if( $field != 'voie' and !jAcl2::check("cadastre.acces.donnees.proprio") ){
             return Null;
         }
+
+        $profile = cadastreProfile::get($repository, $project, $parcelleLayer);
+        $this->repository = $repository;
+        $this->project = $project;
+        $this->config = cadastreConfig::get($repository, $project);
 
         // Array to use on the prepared statement
         $pa = array();
@@ -168,7 +240,7 @@ class search {
         $this->get_total_extent = $get_total_extent;
 
         // Run query
-        $sql = $this->getSql();
+        $sql = $this->getSql($profile);
         if(!$sql)
             return Null;
 
@@ -180,12 +252,19 @@ class search {
     * @param $term Searched term
     * @return List of matching taxons
     */
-    function getDataExtent($profile, $field="voie", $value='') {
+    function getDataExtent($repository, $project, $parcelleLayer, $field="voie", $value='') {
 
         // Access control
         if( $field != 'voie' and !jAcl2::check("cadastre.acces.donnees.proprio") ){
             return Null;
         }
+
+        $profile = cadastreProfile::get($repository, $project, $parcelleLayer);
+        $this->repository = $repository;
+        $this->project = $project;
+        $this->config = cadastreConfig::get($repository, $project);
+
+        $pFilterConfig = cadastreConfig::getFilterByLogin($this->repository, $this->project, $this->config->parcelle->id);
 
         // Array to use on the prepared statement
         $pa = array();
@@ -207,6 +286,10 @@ class search {
             FROM parcelle_info p
             WHERE p.voie = $1
             ";
+            if($pFilterConfig !== null){
+                $sql.= ' AND ';
+                $sql.= $this->getFilterSql($pFilterConfig, $profile);
+            }
         }
         if( $this->field == 'prop'){
             $sql = "
@@ -214,6 +297,10 @@ class search {
             FROM parcelle_info p
             WHERE p.comptecommunal = ANY (string_to_array($1, ','))
             ";
+            if($pFilterConfig !== null){
+                $sql.= ' AND ';
+                $sql.= $this->getFilterSql($pFilterConfig, $profile);
+            }
         }
 
         // Run query

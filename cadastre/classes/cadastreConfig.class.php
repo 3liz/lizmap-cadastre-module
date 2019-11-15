@@ -37,4 +37,28 @@ class cadastreConfig {
         return Null;
     }
 
+    public static function getFilterByLogin($repository, $project, $layerId) {
+        $p = lizmap::getProject($repository.'~'.$project);
+        if ( !$p->hasLoginFilteredLayers() ) {
+            return Null;
+        }
+
+        $pConfig = $p->getFullCfg();
+        if ( !$pConfig->loginFilteredLayers ) {
+            return Null;
+        }
+
+        $qgisLayer = $p->getLayer($layerId);
+        if ( !$qgisLayer ) {
+            return Null;
+        }
+
+        $layerName = $qgisLayer->getName();
+        if ( !property_exists($pConfig->loginFilteredLayers, $layerName) ) {
+            return Null;
+        }
+
+        return $pConfig->loginFilteredLayers->{$layerName};
+    }
+
 }
