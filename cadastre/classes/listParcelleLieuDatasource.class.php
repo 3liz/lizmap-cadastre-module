@@ -30,7 +30,31 @@ class listParcelleLieuDatasource extends jFormsDynamicDatasource
         if($this->dao === null)
             $this->dao = jDao::get($this->selector, $this->profile);
 
-        $found = $this->dao->{$this->method}($section,$voie);
+        $args = array();
+        array_push( $args, $section );
+        array_push( $args, $voie );
+
+        $config = cadastreConfig::get($repository, $project);
+        $fblConfig = cadastreConfig::getFilterByLogin($repository, $project, $config->parcelle->id);
+
+        $found = array();
+        if ( $fblConfig === null ) {
+            $found = call_user_func_array( array($this->dao, $this->method), $args);
+        } else {
+            $method = $this->method.'AndFieldIn';
+            array_push( $args, $fblConfig->filterAttribute );
+            if ( !jAuth::isConnected() ) {
+                array_push( $args, null );
+            } else {
+                if (property_exists($fblConfig, 'filterPrivate') && $fblConfig->filterPrivate == 'True') {
+                    $user = jAuth::getUserSession();
+                    array_push( $args, $user->login );
+                } else {
+                    array_push( $args, jAcl2DbUserGroup::getGroups() );
+                }
+            }
+            $found = call_user_func_array( array($this->dao, $method), $args);
+        }
 
         $result = array();
 

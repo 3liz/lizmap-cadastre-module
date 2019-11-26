@@ -89,5 +89,209 @@
             ]]></body>
         </method>
 
+
+        <method type="php" name="findByFieldIn">
+            <parameter name="field" />
+            <parameter name="value" />
+
+            <body><![CDATA[
+            $sql = $this->_selectClause . $this->_fromClause . $this->_whereClause;
+            $sql.= ($this->_whereClause == ''?' WHERE ':' AND ');
+
+            if (is_array($value)) {
+              $preparedValues = array();
+              foreach($value as $v) {
+                $preparedValues[] = $this->_prepareValue(trim($v),'string');
+              }
+              $sql.= '"'.$field.'" IN ('.implode(', ', $preparedValues).', '.$this->_prepareValue('all','string').')';
+            } else if (is_string($value) || is_numeric($value)) {
+                $sql.= '"'.$field.'" IN ('.$this->_prepareValue(trim($value),'string').', '.$this->_prepareValue('all','string').')';
+            } else {
+                $sql.= '"'.$field.'" = '.$this->_prepareValue('all','string');
+            }
+
+            $sql.= ' ORDER BY name';
+
+            $rs = $this->_conn->query($sql);
+            $rs->setFetchMode(8,$this->_DaoRecordClassName);
+            return $rs;
+            ]]></body>
+        </method>
+
+        <method type="php" name="findBySectionAndFieldIn">
+            <parameter name="geo_section" />
+            <parameter name="field" />
+            <parameter name="value" />
+
+            <body><![CDATA[
+            $sql = $this->_selectClause . $this->_fromClause . $this->_whereClause;
+            $sql.= ($this->_whereClause == ''?' WHERE ':' AND ');
+
+            $sql.= ' geo_section = '.$this->_prepareValue(trim($geo_section),'string');
+            $sql.= ' AND ';
+
+            if (is_array($value)) {
+              $preparedValues = array();
+              foreach($value as $v) {
+                $preparedValues[] = $this->_prepareValue(trim($v),'string');
+              }
+              $sql.= '"'.$field.'" IN ('.implode(', ', $preparedValues).', '.$this->_prepareValue('all','string').')';
+            } else if (is_string($value) || is_numeric($value)) {
+                $sql.= '"'.$field.'" IN ('.$this->_prepareValue(trim($value),'string').', '.$this->_prepareValue('all','string').')';
+            } else {
+                $sql.= '"'.$field.'" = '.$this->_prepareValue('all','string');
+            }
+
+            $sql.= ' ORDER BY name';
+
+            $rs = $this->_conn->query($sql);
+            $rs->setFetchMode(8,$this->_DaoRecordClassName);
+            return $rs;
+            ]]></body>
+        </method>
+
+        <method type="php" name="findByVoieAndFieldIn">
+            <parameter name="voie" />
+            <parameter name="field" />
+            <parameter name="value" />
+
+            <body><![CDATA[
+            $sql = $this->_selectClause . $this->_fromClause . $this->_whereClause;
+            $sql.= ($this->_whereClause == ''?' WHERE ':' AND ');
+
+            $sql.= ' voie = '.$this->_prepareValue(trim($voie),'string');
+            $sql.= ' AND ';
+
+            if (is_array($value)) {
+              $preparedValues = array();
+              foreach($value as $v) {
+                $preparedValues[] = $this->_prepareValue(trim($v),'string');
+              }
+              $sql.= '"'.$field.'" IN ('.implode(', ', $preparedValues).', '.$this->_prepareValue('all','string').')';
+            } else if (is_string($value) || is_numeric($value)) {
+                $sql.= '"'.$field.'" IN ('.$this->_prepareValue(trim($value),'string').', '.$this->_prepareValue('all','string').')';
+            } else {
+                $sql.= '"'.$field.'" = '.$this->_prepareValue('all','string');
+            }
+
+            $sql.= ' ORDER BY name';
+
+            $rs = $this->_conn->query($sql);
+            $rs->setFetchMode(8,$this->_DaoRecordClassName);
+            return $rs;
+            ]]></body>
+        </method>
+
+        <method type="php" name="findByProprietaireAndFieldIn">
+            <parameter name="comptecommunal" />
+            <parameter name="field" />
+            <parameter name="value" />
+
+            <body><![CDATA[
+            $sql = $this->_selectClause . $this->_fromClause . $this->_whereClause;
+            $sql.= ($this->_whereClause == ''?' WHERE ':' AND ');
+
+            $sql.= ' comptecommunal = '.$this->_prepareValue(trim($comptecommunal),'string');
+            $sql.= ' AND ';
+
+            if (is_array($value)) {
+              $preparedValues = array();
+              foreach($value as $v) {
+                $preparedValues[] = $this->_prepareValue(trim($v),'string');
+              }
+              $sql.= '"'.$field.'" IN ('.implode(', ', $preparedValues).', '.$this->_prepareValue('all','string').')';
+            } else if (is_string($value) || is_numeric($value)) {
+                $sql.= '"'.$field.'" IN ('.$this->_prepareValue(trim($value),'string').', '.$this->_prepareValue('all','string').')';
+            } else {
+                $sql.= '"'.$field.'" = '.$this->_prepareValue('all','string');
+            }
+
+            $sql.= ' ORDER BY name';
+
+            $rs = $this->_conn->query($sql);
+            $rs->setFetchMode(8,$this->_DaoRecordClassName);
+            return $rs;
+            ]]></body>
+        </method>
+
+        <method type="php" name="findParcelleByLieuAndFieldIn">
+            <parameter name="geo_section" />
+            <parameter name="voie" />
+            <parameter name="field" />
+            <parameter name="value" />
+            <body><![CDATA[
+
+            $sql = $this->_selectClause . $this->_fromClause . $this->_whereClause;
+            $sql.= ($this->_whereClause == ''?' WHERE ':' AND ');
+
+            $sql.= ' (';
+            $sql.= ' geo_section = ' . $this->_prepareValue($geo_section,'string');
+            $sql.= ' OR voie = ' . $this->_prepareValue($voie,'string');
+            $sql.= ' )';
+
+            $sql.= ' AND ';
+
+            if (is_array($value)) {
+              $preparedValues = array();
+              foreach($value as $v) {
+                $preparedValues[] = $this->_prepareValue(trim($v),'string');
+              }
+              $sql.= '"'.$field.'" IN ('.implode(', ', $preparedValues).', '.$this->_prepareValue('all','string').')';
+            } else if (is_string($value) || is_numeric($value)) {
+                $sql.= '"'.$field.'" IN ('.$this->_prepareValue(trim($value),'string').', '.$this->_prepareValue('all','string').')';
+            } else {
+                $sql.= '"'.$field.'" = '.$this->_prepareValue('all','string');
+            }
+
+            $sql.= ' ORDER BY geo_parcelle';
+
+            $rs = $this->_conn->query($sql);
+            $rs->setFetchMode(8,$this->_DaoRecordClassName);
+            return $rs;
+            ]]></body>
+        </method>
+
+        <method type="php" name="findParcelleByPropAndFieldIn">
+            <parameter name="comptecommunal" />
+            <parameter name="field" />
+            <parameter name="value" />
+
+            <body><![CDATA[
+
+            $cc = explode(',', $comptecommunal);
+
+            $sql = $this->_selectClause . $this->_fromClause . $this->_whereClause;
+            $sql.= ($this->_whereClause == ''?' WHERE ':' AND ');
+
+            $sql.= ' (';
+            $or = '';
+            foreach($cc as $c){
+                $sql.= $or . ' comptecommunal = ' . $this->_prepareValue(trim($c),'string');
+                $or = ' OR ';
+            }
+            $sql.= ' )';
+
+            $sql.= ' AND ';
+
+            if (is_array($value)) {
+              $preparedValues = array();
+              foreach($value as $v) {
+                $preparedValues[] = $this->_prepareValue(trim($v),'string');
+              }
+              $sql.= '"'.$field.'" IN ('.implode(', ', $preparedValues).', '.$this->_prepareValue('all','string').')';
+            } else if (is_string($value) || is_numeric($value)) {
+                $sql.= '"'.$field.'" IN ('.$this->_prepareValue(trim($value),'string').', '.$this->_prepareValue('all','string').')';
+            } else {
+                $sql.= '"'.$field.'" = '.$this->_prepareValue('all','string');
+            }
+
+            $sql.= ' ORDER BY geo_parcelle';
+
+            $rs = $this->_conn->query($sql);
+            $rs->setFetchMode(8,$this->_DaoRecordClassName);
+            return $rs;
+            ]]></body>
+        </method>
+
     </factory>
 </dao>

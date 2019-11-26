@@ -158,11 +158,11 @@ class serviceCtrl extends jController {
 
         // Get profile
         $parcelleLayer = $this->param('layer', 'Parcelles');
-        $profile = cadastreProfile::get($repository, $project, $parcelleLayer);
+        //$profile = cadastreProfile::get($repository, $project, $parcelleLayer);
 
         $autocomplete = jClasses::getService('cadastre~search');
         try {
-            $result = $autocomplete->getData( $profile, $term, $field, $commune, $voie, $limit );
+            $result = $autocomplete->getData( $repository, $project, $parcelleLayer, $term, $field, $commune, $voie, $limit );
         } catch (Exception $e) {
             $result = Null;
         }
@@ -188,10 +188,10 @@ class serviceCtrl extends jController {
 
         // Get profile
         $parcelleLayer = $this->param('layer', 'Parcelles');
-        $profile = cadastreProfile::get($repository, $project, $parcelleLayer);
+        //$profile = cadastreProfile::get($repository, $project, $parcelleLayer);
 
         $autocomplete = jClasses::getService('cadastre~search');
-        $result = $autocomplete->getDataExtent( $profile, $field, $value );
+        $result = $autocomplete->getDataExtent( $repository, $project, $parcelleLayer, $profile, $field, $value );
 
         $rep->data = $result;
 

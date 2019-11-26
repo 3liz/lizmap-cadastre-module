@@ -24,5 +24,66 @@
             </order>
         </method>
 
+
+        <method type="php" name="findByFieldIn">
+            <parameter name="field" />
+            <parameter name="value" />
+
+            <body><![CDATA[
+            $sql = $this->_selectClause . $this->_fromClause . $this->_whereClause;
+            $sql.= ($this->_whereClause == ''?' WHERE ':' AND ');
+
+            if (is_array($value)) {
+              $preparedValues = array();
+              foreach($value as $v) {
+                $preparedValues[] = $this->_prepareValue(trim($v),'string');
+              }
+              $sql.= '"'.$field.'" IN ('.implode(', ', $preparedValues).', '.$this->_prepareValue('all','string').')';
+            } else if (is_string($value) || is_numeric($value)) {
+                $sql.= '"'.$field.'" IN ('.$this->_prepareValue(trim($value),'string').', '.$this->_prepareValue('all','string').')';
+            } else {
+                $sql.= '"'.$field.'" = '.$this->_prepareValue('all','string');
+            }
+
+            $sql.= ' ORDER BY name';
+
+            $rs = $this->_conn->query($sql);
+            $rs->setFetchMode(8,$this->_DaoRecordClassName);
+            return $rs;
+            ]]></body>
+        </method>
+
+        <method type="php" name="findBySectionAndFieldIn">
+            <parameter name="geo_section" />
+            <parameter name="field" />
+            <parameter name="value" />
+
+            <body><![CDATA[
+            $sql = $this->_selectClause . $this->_fromClause . $this->_whereClause;
+            $sql.= ($this->_whereClause == ''?' WHERE ':' AND ');
+
+            $sql.= ' geo_section = '.$this->_prepareValue(trim($geo_section),'string');
+            $sql.= ' AND ';
+
+            if (is_array($value)) {
+              $preparedValues = array();
+              foreach($value as $v) {
+                $preparedValues[] = $this->_prepareValue(trim($v),'string');
+              }
+              $sql.= '"'.$field.'" IN ('.implode(', ', $preparedValues).', '.$this->_prepareValue('all','string').')';
+            } else if (is_string($value) || is_numeric($value)) {
+                $sql.= '"'.$field.'" IN ('.$this->_prepareValue(trim($value),'string').', '.$this->_prepareValue('all','string').')';
+            } else {
+                $sql.= '"'.$field.'" = '.$this->_prepareValue('all','string');
+            }
+
+            $sql.= ' ORDER BY name';
+
+            $rs = $this->_conn->query($sql);
+            $rs->setFetchMode(8,$this->_DaoRecordClassName);
+            return $rs;
+            ]]></body>
+        </method>
+
     </factory>
 </dao>
