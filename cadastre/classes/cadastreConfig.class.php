@@ -58,6 +58,10 @@ class cadastreConfig {
             return Null;
         }
 
+        if ( jAuth::isConnected() && jAcl2::check('lizmap.tools.loginFilteredLayers.override', $repository) ) {
+            return Null;
+        }
+
         return $pConfig->loginFilteredLayers->{$layerName};
     }
 
