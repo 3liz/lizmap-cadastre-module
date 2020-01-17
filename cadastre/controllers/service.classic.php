@@ -186,12 +186,10 @@ class serviceCtrl extends jController {
         $project = $this->param('project');
         $repository = $this->param('repository');
 
-        // Get profile
         $parcelleLayer = $this->param('layer', 'Parcelles');
-        //$profile = cadastreProfile::get($repository, $project, $parcelleLayer);
 
         $autocomplete = jClasses::getService('cadastre~search');
-        $result = $autocomplete->getDataExtent( $repository, $project, $parcelleLayer, $profile, $field, $value );
+        $result = $autocomplete->getDataExtent( $repository, $project, $parcelleLayer, $field, $value );
 
         $rep->data = $result;
 
