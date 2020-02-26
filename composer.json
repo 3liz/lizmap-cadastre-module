@@ -4,7 +4,7 @@
     "description": "Jelix module for Lizmap, which adds tools to interact with french cadastral data",
     "keywords": ["module", "jelix", "lizmap", "cadastre"],
     "homepage": "http://3liz.com",
-    "license": "Mozilla Public License 2.0 (MPL 2.0)",
+    "license": "MPL-2.0",
     "authors": [
         {
             "name": "Michaël Douchin",
