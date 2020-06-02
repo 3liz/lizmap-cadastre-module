@@ -40,7 +40,7 @@ class search {
         $field = $filterConfig->filterAttribute;
         $value = null;
         if ( jAuth::isConnected() ) {
-            if (property_exists($fblConfig, 'filterPrivate') && $fblConfig->filterPrivate == 'True') {
+            if (property_exists($filterConfig, 'filterPrivate') && $filterConfig->filterPrivate == 'True') {
                 $user = jAuth::getUserSession();
                 $value = $user->login;
             } else {
