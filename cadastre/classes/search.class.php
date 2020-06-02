@@ -212,9 +212,13 @@ class search {
      */
     function getData($repository, $project, $parcelleLayer, $term, $field="voie", $commune='', $voie='', $limit=15, $get_total_extent=False) {
 
+        if ($field != 'voie' && $field != 'prop') {
+            return null;
+        }
+
         // Access control
-        if( $field != 'voie' && !jAcl2::check("cadastre.acces.donnees.proprio") ){
-            return Null;
+        if ($field != 'voie' && !jAcl2::check("cadastre.acces.donnees.proprio")){
+            return null;
         }
 
         $profile = cadastreProfile::get($repository, $project, $parcelleLayer);
@@ -286,6 +290,10 @@ class search {
     */
     function getDataExtent($repository, $project, $parcelleLayer, $field="voie", $value='') {
 
+        if ($field != 'voie' && $field != 'prop') {
+            return null;
+        }
+
         // Access control
         if ($field != 'voie' && !jAcl2::check("cadastre.acces.donnees.proprio") ){
             return Null;
@@ -298,37 +306,31 @@ class search {
 
         $pFilterConfig = cadastreConfig::getFilterByLogin($this->repository, $this->project, $this->config->parcelle->id);
 
-        // Array to use on the prepared statement
-        $pa = array();
-
         // Search field
         $this->field = $field;
 
-        // Voie
-        if($field == 'voie')
-            $pa[] = trim($value);
-
-        if($field == 'prop')
-            $pa[] = trim($value);
+        // Array to use on the prepared statement
+        $pa = array();
+        $pa[] = trim($value);
 
         // Get only grouped geometries
-        if( $this->field == 'voie'){
-            $sql = "
+        if ($this->field == 'voie') {
+            $sql = '
             SELECT ST_AsGeojson(ST_Envelope(ST_Extent(ST_Transform(geom,4326)))) as geom
             FROM parcelle_info p
             WHERE p.voie = $1
-            ";
+            ';
             if($pFilterConfig !== null){
                 $sql.= ' AND ';
                 $sql.= $this->getFilterSql($pFilterConfig, $profile);
             }
         }
-        if( $this->field == 'prop'){
-            $sql = "
+        else {
+            $sql = '
             SELECT ST_AsGeojson(ST_Envelope(ST_Extent(ST_Transform(geom,4326)))) AS geom
             FROM parcelle_info p
-            WHERE p.comptecommunal = ANY (string_to_array($1, ','))
-            ";
+            WHERE p.comptecommunal = ANY (string_to_array($1, \',\'))
+            ';
             if($pFilterConfig !== null){
                 $sql.= ' AND ';
                 $sql.= $this->getFilterSql($pFilterConfig, $profile);
