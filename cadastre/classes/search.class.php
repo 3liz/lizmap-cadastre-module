@@ -1,28 +1,29 @@
 <?php
 /**
-* @package   lizmap
-* @subpackage cadastre
-* @author    Michael Douchin
-* @copyright 2018 3liz
-* @link      http://3liz.com
-* @license    Mozilla Public Licence
-*/
+ * @package   lizmap
+ * @subpackage cadastre
+ * @author    Michael Douchin
+ * @contributor Laurent Jouanneau
+ * @copyright 2018-2020 3liz
+ * @link      http://3liz.com
+ * @license    Mozilla Public Licence
+ */
 
 class search {
 
-    // search terms
+    /** @var string[] search terms */
     protected $terms = array();
 
-    // field, which means, what to search
+    /** @var string  field, which means, what to search */
     protected $field = 'voie';
 
-    // commune filter
+    /** @var string commune filter */
     protected $commune = '';
 
-    // voie filter
+    /** @var string voie filter */
     protected $voie = '';
 
-    // cadastre config
+    /** @var null cadastre config */
     protected $config = null;
 
     protected $repository = '';
@@ -70,7 +71,6 @@ class search {
 
     protected function getSql($profile='cadastre') {
         $cFilterConfig = cadastreConfig::getFilterByLogin($this->repository, $this->project, $this->config->commune->id);
-        $sFilterConfig = cadastreConfig::getFilterByLogin($this->repository, $this->project, $this->config->section->id);
         $pFilterConfig = cadastreConfig::getFilterByLogin($this->repository, $this->project, $this->config->parcelle->id);
 
         if($this->field == 'voie'){
@@ -160,17 +160,18 @@ class search {
         else{
             $sql = Null;
         }
-//jLog::log($sql);
+
         return $sql;
     }
 
     /**
-    * Get data from database and return an array
-    * @param $sql Query to run
-    * @param $profile Name of the DB profile
-    * @return Result as an array
+     * Get data from database and return an array
+     * @param string $sql Query to run
+     * @param string[] $filterParams parameters for the query
+     * @param string $profile Name of the DB profile
+     * @return object[] Result as an array
     */
-    function query( $sql, $filterParams, $profile='cadastre' ) {
+    protected function query( $sql, $filterParams, $profile='cadastre' ) {
         $cnx = jDb::getConnection( $profile );
         $resultset = $cnx->prepare( $sql );
 
@@ -179,14 +180,22 @@ class search {
     }
 
     /**
-    * Method called by the autocomplete input field for taxon search
-    * @param $term Searched term
-    * @return List of matching taxons
-    */
+     * Method called by the autocomplete input field for taxon search
+     * @param string $repository
+     * @param string $project
+     * @param string $parcelleLayer
+     * @param string $term Searched term
+     * @param string $field
+     * @param string $commune
+     * @param string $voie
+     * @param int $limit
+     * @param bool $get_total_extent
+     * @return object[]|null List of matching taxons
+     */
     function getData($repository, $project, $parcelleLayer, $term, $field="voie", $commune='', $voie='', $limit=15, $get_total_extent=False) {
 
         // Access control
-        if( $field != 'voie' and !jAcl2::check("cadastre.acces.donnees.proprio") ){
+        if( $field != 'voie' && !jAcl2::check("cadastre.acces.donnees.proprio") ){
             return Null;
         }
 
@@ -210,8 +219,9 @@ class search {
 
         foreach($terms as $t){
             $term = trim($t);
-            if( in_array($term, $stopwords) )
+            if (in_array($term, $stopwords)) {
                 continue;
+            }
             $pa[] = '%' . $term . '%';
             $this->terms[] = $term;
         }
@@ -221,17 +231,19 @@ class search {
 
         // Commune
         $this->commune = trim($commune);
-        if(!empty($this->commune)){
+        if (!empty($this->commune)) {
             $pco = trim($commune);
-            if($field == 'prop')
+            if ($field == 'prop') {
                 $pco.='%';
+            }
             $pa[] = $pco;
         }
 
         // Voie
         $this->voie = trim($voie);
-        if($field == 'prop' and !empty($this->voie))
+        if ($field == 'prop' && !empty($this->voie)) {
             $pa[] = trim($voie);
+        }
 
         // Limit
         $pa[] = $limit;
@@ -241,21 +253,22 @@ class search {
 
         // Run query
         $sql = $this->getSql($profile);
-        if(!$sql)
+        if (!$sql) {
             return Null;
+        }
 
         return $this->query( $sql, $pa, $profile );
     }
 
     /**
     * Method called by the autocomplete input field
-    * @param $term Searched term
-    * @return List of matching taxons
+    * @param string $term Searched term
+    * @return object[] List of matching taxons
     */
     function getDataExtent($repository, $project, $parcelleLayer, $field="voie", $value='') {
 
         // Access control
-        if( $field != 'voie' and !jAcl2::check("cadastre.acces.donnees.proprio") ){
+        if ($field != 'voie' && !jAcl2::check("cadastre.acces.donnees.proprio") ){
             return Null;
         }
 
