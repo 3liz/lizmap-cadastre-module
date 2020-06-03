@@ -252,6 +252,10 @@ class search {
             $this->terms[] = $term;
         }
 
+        if (count($this->terms) == 0) {
+            return null;
+        }
+
         // Search field
         $this->field = $field;
 
