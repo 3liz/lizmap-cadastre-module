@@ -20,6 +20,9 @@ class cadastreProfile {
     */
     public static function get($repository, $project, $layerName, $profile = 'cadastre') {
         $p = lizmap::getProject($repository.'~'.$project);
+        if ($p === null) {
+            throw new Exception("Cadastre profile: Unknown repository/project $repository.'~'.$project");
+        }
         $layer = $p->findLayerByName($layerName);
         if($layer){
             $layerId = $layer->id;
@@ -42,6 +45,9 @@ class cadastreProfile {
     */
     public static function getWithLayerId($repository, $project, $layerId, $profile = 'cadastre') {
         $p = lizmap::getProject($repository.'~'.$project);
+        if ($p === null) {
+            throw new Exception("Cadastre profile: Unknown repository/project $repository.'~'.$project");
+        }
         $qgisLayer = $p->getLayer($layerId);
         if ($qgisLayer) {
             $profile = $qgisLayer->getDatasourceProfile();
