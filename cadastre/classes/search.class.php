@@ -91,6 +91,9 @@ class search {
         $cFilterConfig = cadastreConfig::getFilterByLogin($this->repository, $this->project, $this->config->commune->id);
         $pFilterConfig = cadastreConfig::getFilterByLogin($this->repository, $this->project, $this->config->parcelle->id);
 
+        $cnx = jDb::getConnection( $profile );
+        $firstTerm = $cnx->quote("^".$this->terms[0]);
+
         if($this->field == 'voie'){
             $sql = "
             SELECT DISTINCT
@@ -100,7 +103,7 @@ class search {
                     Coalesce(trim(natvoi) || ' ', ''),
                     trim(libvoi)
                 )) AS label,
-                trim(libvoi) ~ '^" . $this->terms[0] . "' AS b
+                trim(libvoi) ~ " . $firstTerm . " AS b
             FROM voie v
             INNER JOIN geo_commune c ON c.commune = v.commune
             WHERE 2>1
@@ -127,7 +130,7 @@ class search {
         elseif($this->field == 'prop'){
             $sql = "
             SELECT trim(ddenom) AS label, string_agg(comptecommunal, ',') AS code, dnuper,
-            trim(ddenom) ~ '^" . $this->terms[0] . "' AS b
+            trim(ddenom) ~ " . $firstTerm . " AS b
             FROM proprietaire p
             ";
             $sql.= "
