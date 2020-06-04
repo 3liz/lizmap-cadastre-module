@@ -461,9 +461,9 @@ class serviceCtrl extends jController {
         $path = $extra_infos->getLocauxAndProprioInfos($profile, $parcelleIds);
 
         $rep->fileName = $path;
-        $rep->deleteFileAfterSending = true;
+        $rep->deleteFileAfterSending = True;
 
-        $rep->doDownload = false;
+        $rep->doDownload = True;
         $rep->outputFileName = 'cadastre_extra_infos.csv';
 
         return $rep;
