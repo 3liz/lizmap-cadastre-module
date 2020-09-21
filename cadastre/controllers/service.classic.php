@@ -315,7 +315,7 @@ class serviceCtrl extends jController {
         );
         $rep->addJSLink($jslink);
         $tpl = new jTpl();
-        $rep->body->assign('MAIN', "<div id=\"waitExport\">L'export est en cours...</div>");
+        $rep->body->assign('MAIN', "<br/><div id=\"waitExport\">L'export est en cours...</div>");
 
         return $rep;
     }
