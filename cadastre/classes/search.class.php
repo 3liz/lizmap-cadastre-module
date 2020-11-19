@@ -142,7 +142,7 @@ class search
 
             $i = 1;
             foreach ($this->terms as $term) {
-                $sql .= ' AND ddenom LIKE $'.$i;
+                $sql .= ' AND (ddenom LIKE $'.$i.' OR comptecommunal LIKE $'.$i.')';
                 ++$i;
             }
 
