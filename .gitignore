@@ -7,3 +7,7 @@
 *.swp
 *.log
 *.pyc
+
+.vscode/
+
+node_modules/

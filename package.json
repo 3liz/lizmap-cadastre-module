@@ -1,0 +1,22 @@
+{
+  "name": "lizmap-cadastre-module",
+  "version": "1.0.0",
+  "description": "Le module cadastre permet l'interrogation des données cadastrales MAJIC/EDIGEO au sein de [Lizmap Web Client](https://github.com/3liz/lizmap-web-client).",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/3liz/lizmap-cadastre-module.git"
+  },
+  "author": "3liz",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/3liz/lizmap-cadastre-module/issues"
+  },
+  "homepage": "https://github.com/3liz/lizmap-cadastre-module#readme",
+  "dependencies": {
+    "eslint": "^7.18.0"
+  }
+}
