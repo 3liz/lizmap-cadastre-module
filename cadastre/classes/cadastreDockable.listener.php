@@ -1,17 +1,19 @@
 <?php
-    class cadastreDockableListener extends jEventListener{
 
-        function onmapDockable ($event) {
+    class cadastreDockableListener extends jEventListener
+    {
+        public function onmapDockable($event)
+        {
             $isCadastreProject = false;
             $services = lizmap::getServices();
             $parcelleId = null;
             if (version_compare($services->qgisServerVersion, '3.0', '<')) {
-                if (preg_match('#^cadastre#i', $event->project) ) {
+                if (preg_match('#^cadastre#i', $event->project)) {
                     $isCadastreProject = true;
                 }
             } else {
                 $config = cadastreConfig::get($event->repository, $event->project);
-                if ($config !== Null) {
+                if ($config !== null) {
                     $isCadastreProject = true;
                     $parcelleId = $config->parcelle->id;
                 }
@@ -30,22 +32,22 @@
                     // try to get the specific search profile to do not rebuild it
                     jProfiles::get('jdb', $profile, true);
                 } catch (Exception $e) {
-                    $profile = Null;
+                    $profile = null;
                 }
             }
 
             if ($isCadastreProject
                 and cadastreProfile::checkAccess($profile)
             ) {
-                $lproj = lizmap::getProject( $event->repository . '~' .$event->project );
+                $lproj = lizmap::getProject($event->repository.'~'.$event->project);
                 $configOptions = $lproj->getOptions();
                 $bp = jApp::config()->urlengine['basePath'];
 
                 // Check if database has MAJIC content or not
                 $hasProprietaire = cadastreProfile::checkTableContent('proprietaire', $profile);
-                $form_name = "cadastre~search";
-                if(!$hasProprietaire){
-                    $form_name = "cadastre~search_no_majic";
+                $form_name = 'cadastre~search';
+                if (!$hasProprietaire) {
+                    $form_name = 'cadastre~search_no_majic';
                 }
 
                 // cadastre dock
@@ -54,38 +56,37 @@
                 $searchForm->setData('repository', $event->repository);
                 $searchForm->setData('project', $event->project);
                 $searchForm->setData('parcelleLayerId', $parcelleId);
-                $hasMajic = False;
-                if( $hasProprietaire and jAcl2::check("cadastre.acces.donnees.proprio") ) {
-                    $hasMajic = True;
+                $hasMajic = false;
+                if ($hasProprietaire and jAcl2::check('cadastre.acces.donnees.proprio')) {
+                    $hasMajic = true;
                 }
                 $searchForm->setData('has_majic', $hasMajic);
                 $assign = array(
-                    'form' => $searchForm
+                    'form' => $searchForm,
                 );
-                $content = array( 'cadastre~cadastre_search', $assign );
+                $content = array('cadastre~cadastre_search', $assign);
 
                 $dock = new lizmapMapDockItem(
                     'cadastre',
-                    jLocale::get("cadastre~search.dock.title"),
+                    jLocale::get('cadastre~search.dock.title'),
                     $content,
                     9,
-                    Null,
-                    Null
+                    null,
+                    null
                 );
                 $event->add($dock);
             }
         }
 
-
-        function onmapMiniDockable ( $event ) {
+        public function onmapMiniDockable($event)
+        {
         }
 
-        function onmapRightDockable ( $event ) {
+        public function onmapRightDockable($event)
+        {
         }
 
-        function onmapBottomDockable ( $event ) {
+        public function onmapBottomDockable($event)
+        {
         }
-
     }
-
-?>

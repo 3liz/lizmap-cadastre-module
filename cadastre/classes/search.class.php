@@ -1,20 +1,20 @@
 <?php
 /**
- * @package   lizmap
- * @subpackage cadastre
  * @author    Michael Douchin
  * @contributor Laurent Jouanneau
+ *
  * @copyright 2018-2020 3liz
- * @link      http://3liz.com
+ *
+ * @see      http://3liz.com
+ *
  * @license    Mozilla Public Licence
  */
-
-class search {
-
+class search
+{
     /** @var string[] search terms */
     protected $terms = array();
 
-    /** @var string  field, which means, what to search */
+    /** @var string field, which means, what to search */
     protected $field = 'voie';
 
     /** @var string commune filter */
@@ -24,7 +24,7 @@ class search {
     protected $voie = '';
 
     /** @var null cadastre config */
-    protected $config = null;
+    protected $config;
 
     protected $repository = '';
     protected $project = '';
@@ -45,20 +45,23 @@ class search {
         'PLE ', 'PONT', 'PORT', 'PROM', 'PRV', 'PTA', 'PTE', 'PTR', 'PTTE',
         'QUA', 'QUAI', 'REM', 'RES', 'RIVE', 'RLE', 'ROC', 'RPE ', 'RPT ',
         'RTE ', 'RUE', 'RULT', 'SEN', 'SQ', 'TOUR', 'TSSE', 'VAL', 'VC', 'VEN',
-        'VLA', 'VOIE', 'VOIR', 'VOY', 'ZONE'
+        'VLA', 'VOIE', 'VOIR', 'VOY', 'ZONE',
     );
 
-    private function normalizeString($string){
-        $in = array('à','á','â','ã','ä', 'ç', 'è','é','ê','ë', 'ì','í','î','ï', 'ñ', 'ò','ó','ô','õ','ö','œ','ù','ú','û','ü', 'ý','ÿ', 'À','Á','Â','Ã','Ä', 'Ç', 'È','É','Ê','Ë', 'Ì','Í','Î','Ï', 'Ñ', 'Ò','Ó','Ô','Õ','Ö', 'Ù','Ú','Û','Ü', 'Ý' );
-        $out= array('a','a','a','a','a', 'c', 'e','e','e','e', 'i','i','i','i', 'n', 'o','o','o','o','o','oe','u','u','u','u', 'y','y', 'A','A','A','A','A', 'C', 'E','E','E','E', 'I','I','I','I', 'N', 'O','O','O','O','O', 'U','U','U','U', 'Y' );
+    private function normalizeString($string)
+    {
+        $in = array('à', 'á', 'â', 'ã', 'ä', 'ç', 'è', 'é', 'ê', 'ë', 'ì', 'í', 'î', 'ï', 'ñ', 'ò', 'ó', 'ô', 'õ', 'ö', 'œ', 'ù', 'ú', 'û', 'ü', 'ý', 'ÿ', 'À', 'Á', 'Â', 'Ã', 'Ä', 'Ç', 'È', 'É', 'Ê', 'Ë', 'Ì', 'Í', 'Î', 'Ï', 'Ñ', 'Ò', 'Ó', 'Ô', 'Õ', 'Ö', 'Ù', 'Ú', 'Û', 'Ü', 'Ý');
+        $out = array('a', 'a', 'a', 'a', 'a', 'c', 'e', 'e', 'e', 'e', 'i', 'i', 'i', 'i', 'n', 'o', 'o', 'o', 'o', 'o', 'oe', 'u', 'u', 'u', 'u', 'y', 'y', 'A', 'A', 'A', 'A', 'A', 'C', 'E', 'E', 'E', 'E', 'I', 'I', 'I', 'I', 'N', 'O', 'O', 'O', 'O', 'O', 'U', 'U', 'U', 'U', 'Y');
+
         return strtoupper(trim(str_replace($in, $out, $string)));
     }
 
-    protected function getFilterSql($filterConfig, $profile='cadastre', $tableAlias = '') {
-        $cnx = jDb::getConnection( $profile );
+    protected function getFilterSql($filterConfig, $profile = 'cadastre', $tableAlias = '')
+    {
+        $cnx = jDb::getConnection($profile);
         $field = $filterConfig->filterAttribute;
         $value = null;
-        if ( jAuth::isConnected() ) {
+        if (jAuth::isConnected()) {
             if (property_exists($filterConfig, 'filterPrivate') && $filterConfig->filterPrivate == 'True') {
                 $user = jAuth::getUserSession();
                 $value = $user->login;
@@ -70,31 +73,32 @@ class search {
         $sql = '';
 
         if (is_array($value)) {
-          $preparedValues = array();
-          foreach($value as $v) {
-            $preparedValues[] = $cnx->quote(trim($v));
-          }
-          $sql.= '"'.$field.'" IN ('.implode(', ', $preparedValues).', '.$cnx->quote('all').')';
-        } else if (is_string($value) || is_numeric($value)) {
-            $sql.= '"'.$field.'" IN ('.$cnx->quote(trim($value)).', '.$cnx->quote('all').')';
+            $preparedValues = array();
+            foreach ($value as $v) {
+                $preparedValues[] = $cnx->quote(trim($v));
+            }
+            $sql .= '"'.$field.'" IN ('.implode(', ', $preparedValues).', '.$cnx->quote('all').')';
+        } elseif (is_string($value) || is_numeric($value)) {
+            $sql .= '"'.$field.'" IN ('.$cnx->quote(trim($value)).', '.$cnx->quote('all').')';
         } else {
-            $sql.= '"'.$field.'" = '.$cnx->quote('all');
+            $sql .= '"'.$field.'" = '.$cnx->quote('all');
         }
-        if ( $tableAlias !== '' ) {
+        if ($tableAlias !== '') {
             $sql = $tableAlias.'.'.$sql;
         }
 
         return $sql;
     }
 
-    protected function getSql($profile='cadastre') {
+    protected function getSql($profile = 'cadastre')
+    {
         $cFilterConfig = cadastreConfig::getFilterByLogin($this->repository, $this->project, $this->config->commune->id);
         $pFilterConfig = cadastreConfig::getFilterByLogin($this->repository, $this->project, $this->config->parcelle->id);
 
-        $cnx = jDb::getConnection( $profile );
-        $firstTerm = $cnx->quote("^".$this->terms[0]);
+        $cnx = jDb::getConnection($profile);
+        $firstTerm = $cnx->quote('^'.$this->terms[0]);
 
-        if($this->field == 'voie'){
+        if ($this->field == 'voie') {
             $sql = "
             SELECT DISTINCT
                 v.voie AS code,
@@ -103,124 +107,128 @@ class search {
                     Coalesce(trim(natvoi) || ' ', ''),
                     trim(libvoi)
                 )) AS label,
-                trim(libvoi) ~ " . $firstTerm . " AS b
+                trim(libvoi) ~ ".$firstTerm.' AS b
             FROM voie v
             INNER JOIN geo_commune c ON c.commune = v.commune
             WHERE 2>1
-            ";
+            ';
             $i = 1;
-            foreach($this->terms as $term){
-                $sql.= " AND libvoi LIKE $" . $i;
-                $i++;
+            foreach ($this->terms as $term) {
+                $sql .= ' AND libvoi LIKE $'.$i;
+                ++$i;
             }
-            if(!empty($this->commune)){
-                $sql.=" AND trim(c.geo_commune) = $" . $i;
-                $i++;
+            if (!empty($this->commune)) {
+                $sql .= ' AND trim(c.geo_commune) = $'.$i;
+                ++$i;
             }
-            if($cFilterConfig !== null){
-                $sql.= ' AND ';
-                $sql.= $this->getFilterSql($cFilterConfig, $profile, 'c');
+            if ($cFilterConfig !== null) {
+                $sql .= ' AND ';
+                $sql .= $this->getFilterSql($cFilterConfig, $profile, 'c');
             }
-            $sql.= "
+            $sql .= '
             ORDER BY b DESC, label
-            ";
+            ';
             // limit
-            $sql.= " LIMIT $" . $i;
-        }
-        elseif($this->field == 'prop'){
+            $sql .= ' LIMIT $'.$i;
+        } elseif ($this->field == 'prop') {
             $sql = "
             SELECT trim(ddenom) AS label, string_agg(comptecommunal, ',') AS code, dnuper,
-            trim(ddenom) ~ " . $firstTerm . " AS b
+            trim(ddenom) ~ ".$firstTerm.' AS b
             FROM proprietaire p
-            ";
-            $sql.= "
+            ';
+            $sql .= '
             WHERE 2>1
-            ";
+            ';
 
-            $i=1;
-            foreach($this->terms as $term){
-                $sql.= " AND ddenom LIKE $" . $i;
-                $i++;
+            $i = 1;
+            foreach ($this->terms as $term) {
+                $sql .= ' AND ddenom LIKE $'.$i;
+                ++$i;
             }
 
-            if(!empty($this->voie)){
-                $sql.=" AND trim(p.comptecommunal) IN (";
-                $sql.="SELECT DISTINCT comptecommunal FROM parcelle_info WHERE voie = $" . $i;
-                if($pFilterConfig !== null){
-                    $sql.= ' AND ';
-                    $sql.= $this->getFilterSql($pFilterConfig, $profile);
+            if (!empty($this->voie)) {
+                $sql .= ' AND trim(p.comptecommunal) IN (';
+                $sql .= 'SELECT DISTINCT comptecommunal FROM parcelle_info WHERE voie = $'.$i;
+                if ($pFilterConfig !== null) {
+                    $sql .= ' AND ';
+                    $sql .= $this->getFilterSql($pFilterConfig, $profile);
                 }
-                $sql.=")";
-                $i++;
+                $sql .= ')';
+                ++$i;
             }
-            if(!empty($this->commune)){
-                $sql.=" AND trim(p.comptecommunal) IN (";
-                $sql.="SELECT DISTINCT comptecommunal FROM parcelle_info WHERE geo_parcelle LIKE $" . $i;
-                if($pFilterConfig !== null){
-                    $sql.= ' AND ';
-                    $sql.= $this->getFilterSql($pFilterConfig, $profile);
+            if (!empty($this->commune)) {
+                $sql .= ' AND trim(p.comptecommunal) IN (';
+                $sql .= 'SELECT DISTINCT comptecommunal FROM parcelle_info WHERE geo_parcelle LIKE $'.$i;
+                if ($pFilterConfig !== null) {
+                    $sql .= ' AND ';
+                    $sql .= $this->getFilterSql($pFilterConfig, $profile);
                 }
-                $sql.=")";
-                $i++;
-            } else if ($pFilterConfig !== null){
-                $sql.=" AND trim(p.comptecommunal) IN (";
-                $sql.="SELECT DISTINCT comptecommunal FROM parcelle_info WHERE 2>1";
-                if($pFilterConfig !== null){
-                    $sql.= ' AND ';
-                    $sql.= $this->getFilterSql($pFilterConfig, $profile);
+                $sql .= ')';
+                ++$i;
+            } elseif ($pFilterConfig !== null) {
+                $sql .= ' AND trim(p.comptecommunal) IN (';
+                $sql .= 'SELECT DISTINCT comptecommunal FROM parcelle_info WHERE 2>1';
+                if ($pFilterConfig !== null) {
+                    $sql .= ' AND ';
+                    $sql .= $this->getFilterSql($pFilterConfig, $profile);
                 }
-                $sql.=")";
+                $sql .= ')';
             }
-            $sql.= "
+            $sql .= '
             GROUP BY dnuper, ddenom, dlign4
             ORDER BY b DESC, ddenom
-            ";
+            ';
             // limit
-            $sql.= " LIMIT $" . $i;
-        }
-        else{
-            $sql = Null;
+            $sql .= ' LIMIT $'.$i;
+        } else {
+            $sql = null;
         }
 
         return $sql;
     }
 
     /**
-     * Get data from database and return an array
-     * @param string $sql Query to run
+     * Get data from database and return an array.
+     *
+     * @param string   $sql          Query to run
      * @param string[] $filterParams parameters for the query
-     * @param string $profile Name of the DB profile
+     * @param string   $profile      Name of the DB profile
+     *
      * @return object[] Result as an array
-    */
-    protected function query( $sql, $filterParams, $profile='cadastre' ) {
-        $cnx = jDb::getConnection( $profile );
-        $resultset = $cnx->prepare( $sql );
+     */
+    protected function query($sql, $filterParams, $profile = 'cadastre')
+    {
+        $cnx = jDb::getConnection($profile);
+        $resultset = $cnx->prepare($sql);
 
-        $resultset->execute( $filterParams );
+        $resultset->execute($filterParams);
+
         return $resultset->fetchAll();
     }
 
     /**
-     * Method called by the autocomplete input field for taxon search
+     * Method called by the autocomplete input field for taxon search.
+     *
      * @param string $repository
      * @param string $project
      * @param string $parcelleLayer
-     * @param string $term Searched term
+     * @param string $term             Searched term
      * @param string $field
      * @param string $commune
      * @param string $voie
-     * @param int $limit
-     * @param bool $get_total_extent
-     * @return object[]|null List of matching taxons
+     * @param int    $limit
+     * @param bool   $get_total_extent
+     *
+     * @return null|object[] List of matching taxons
      */
-    function getData($repository, $project, $parcelleLayer, $term, $field="voie", $commune='', $voie='', $limit=15, $get_total_extent=False) {
-
+    public function getData($repository, $project, $parcelleLayer, $term, $field = 'voie', $commune = '', $voie = '', $limit = 15, $get_total_extent = false)
+    {
         if ($field != 'voie' && $field != 'prop') {
             return null;
         }
 
         // Access control
-        if ($field != 'voie' && !jAcl2::check("cadastre.acces.donnees.proprio")){
+        if ($field != 'voie' && !jAcl2::check('cadastre.acces.donnees.proprio')) {
             return null;
         }
 
@@ -238,17 +246,16 @@ class search {
 
         if ($field == 'prop') {
             $stopwords = array();
-        }
-        else {
+        } else {
             $stopwords = self::STOPWORDS;
         }
 
-        foreach($terms as $t){
+        foreach ($terms as $t) {
             $term = trim($t);
             if (in_array($term, $stopwords)) {
                 continue;
             }
-            $pa[] = '%' . $term . '%';
+            $pa[] = '%'.$term.'%';
             $this->terms[] = $term;
         }
 
@@ -264,7 +271,7 @@ class search {
         if (!empty($this->commune)) {
             $pco = trim($commune);
             if ($field == 'prop') {
-                $pco.='%';
+                $pco .= '%';
             }
             $pa[] = $pco;
         }
@@ -284,26 +291,33 @@ class search {
         // Run query
         $sql = $this->getSql($profile);
         if (!$sql) {
-            return Null;
+            return null;
         }
 
-        return $this->query( $sql, $pa, $profile );
+        return $this->query($sql, $pa, $profile);
     }
 
     /**
-    * Method called by the autocomplete input field
-    * @param string $term Searched term
-    * @return object[] List of matching taxons
-    */
-    function getDataExtent($repository, $project, $parcelleLayer, $field="voie", $value='') {
-
+     * Method called by the autocomplete input field.
+     *
+     * @param string $term          Searched term
+     * @param mixed  $repository
+     * @param mixed  $project
+     * @param mixed  $parcelleLayer
+     * @param mixed  $field
+     * @param mixed  $value
+     *
+     * @return object[] List of matching taxons
+     */
+    public function getDataExtent($repository, $project, $parcelleLayer, $field = 'voie', $value = '')
+    {
         if ($field != 'voie' && $field != 'prop') {
             return null;
         }
 
         // Access control
-        if ($field != 'voie' && !jAcl2::check("cadastre.acces.donnees.proprio") ){
-            return Null;
+        if ($field != 'voie' && !jAcl2::check('cadastre.acces.donnees.proprio')) {
+            return null;
         }
 
         $profile = cadastreProfile::get($repository, $project, $parcelleLayer);
@@ -327,25 +341,23 @@ class search {
             FROM parcelle_info p
             WHERE p.voie = $1
             ';
-            if($pFilterConfig !== null){
-                $sql.= ' AND ';
-                $sql.= $this->getFilterSql($pFilterConfig, $profile);
+            if ($pFilterConfig !== null) {
+                $sql .= ' AND ';
+                $sql .= $this->getFilterSql($pFilterConfig, $profile);
             }
-        }
-        else {
+        } else {
             $sql = '
             SELECT ST_AsGeojson(ST_Envelope(ST_Extent(ST_Transform(geom,4326)))) AS geom
             FROM parcelle_info p
             WHERE p.comptecommunal = ANY (string_to_array($1, \',\'))
             ';
-            if($pFilterConfig !== null){
-                $sql.= ' AND ';
-                $sql.= $this->getFilterSql($pFilterConfig, $profile);
+            if ($pFilterConfig !== null) {
+                $sql .= ' AND ';
+                $sql .= $this->getFilterSql($pFilterConfig, $profile);
             }
         }
 
         // Run query
-        return $this->query( $sql, $pa, $profile );
+        return $this->query($sql, $pa, $profile);
     }
-
 }

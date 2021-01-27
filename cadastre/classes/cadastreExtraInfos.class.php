@@ -1,22 +1,24 @@
 <?php
 /**
-* @package   lizmap
-* @subpackage cadastre
-* @author    Rene-Luc Dhont
-* @copyright 2019 3liz
-* @link      http://3liz.com
-* @license    Mozilla Public Licence
-*/
-
-class cadastreExtraInfos {
-
+ * @author    Rene-Luc Dhont
+ * @copyright 2019 3liz
+ *
+ * @see      http://3liz.com
+ *
+ * @license    Mozilla Public Licence
+ */
+class cadastreExtraInfos
+{
     /**
-    * Get SQL request to get locaux and proprios data for parcelle ids
-    * @param $parcelle_ids The ids of parcelles
-    * @param $withGeom With geometry data (optional)
-    * @return The SQL
-    */
-    protected function getLocauxAndProprioSql( $parcelle_ids, $withGeom = false ) {
+     * Get SQL request to get locaux and proprios data for parcelle ids.
+     *
+     * @param $parcelle_ids The ids of parcelles
+     * @param $withGeom With geometry data (optional)
+     *
+     * @return The SQL
+     */
+    protected function getLocauxAndProprioSql($parcelle_ids, $withGeom = false)
+    {
         $sql = "
         --SET SEARCH_PATH TO cadastre_caen, public;
 
@@ -63,14 +65,14 @@ class cadastreExtraInfos {
             Coalesce(ccodem_lib, '') AS p_code_demembrement_lib
         ";
 
-        if ( $withGeom ) {
-            $sql.= ",
+        if ($withGeom) {
+            $sql .= ',
                 -- geometrie
                 ST_Centroid(geom)::geometry(point,2154) AS geom
-            ";
+            ';
         }
 
-        $sql.= "
+        $sql .= '
         FROM parcelle p
             INNER JOIN geo_parcelle gp ON gp.geo_parcelle = p.parcelle
             INNER JOIN local00 l ON l.parcelle = p.parcelle
@@ -83,65 +85,75 @@ class cadastreExtraInfos {
             LEFT JOIN proprietaire AS pr ON pr.comptecommunal = l10.comptecommunal
             LEFT JOIN ccodro c2 ON pr.ccodro = c2.ccodro
             LEFT JOIN ccodem c3 ON pr.ccodem = c3.ccodem
-        ";
-
+        ';
 
         $pids = array();
-        foreach( $parcelle_ids as $pid) {
+        foreach ($parcelle_ids as $pid) {
             $pids[] = "'".$pid."'";
         }
 
-        $sql.="
+        $sql .= '
         WHERE
-            p.parcelle IN ( ".implode(', ', $pids)." )
-        ";
+            p.parcelle IN ( '.implode(', ', $pids).' )
+        ';
 
         return $sql;
     }
 
     /**
-    * Get data from database and return an array
-    * @param $sql Query to run
-    * @param $profile Name of the DB profile
-    * @return Result as an array
-    */
-    protected function query( $sql, $filterParams, $profile='cadastre' ) {
-        $cnx = jDb::getConnection( $profile );
-        $resultset = $cnx->prepare( $sql );
+     * Get data from database and return an array.
+     *
+     * @param $sql Query to run
+     * @param $profile Name of the DB profile
+     * @param mixed $filterParams
+     *
+     * @return Result as an array
+     */
+    protected function query($sql, $filterParams, $profile = 'cadastre')
+    {
+        $cnx = jDb::getConnection($profile);
+        $resultset = $cnx->prepare($sql);
 
-        $resultset->execute( $filterParams );
+        $resultset->execute($filterParams);
+
         return $resultset->fetchAll();
     }
 
     /**
-    * Build CSV file and return its path
-    * @param $rows The rows to write to CSV
-    * @return The CSV file path
-    */
-    protected function buildCsv( $rows ) {
+     * Build CSV file and return its path.
+     *
+     * @param $rows The rows to write to CSV
+     *
+     * @return The CSV file path
+     */
+    protected function buildCsv($rows)
+    {
         $path = tempnam(sys_get_temp_dir(), 'cadastre_'.session_id().'_');
 
         $fd = fopen($path, 'w');
-        fputcsv( $fd, array_keys( (array) reset( $rows ) ) );
-        foreach( $rows as $row ) {
+        fputcsv($fd, array_keys((array) reset($rows)));
+        foreach ($rows as $row) {
             fputcsv($fd, (array) $row);
         }
         fclose($fd);
+
         return $path;
     }
 
     /**
-    * Build the locaux and proprios CSV file and return its path
-    * @param $parcelle_ids The ids of parcelles
-    * @param $withGeom With geometry data (optional)
-    * @return The CSV file path
-    */
-    function getLocauxAndProprioInfos( $profile, $parcelle_ids, $withGeom = false ) {
+     * Build the locaux and proprios CSV file and return its path.
+     *
+     * @param $parcelle_ids The ids of parcelles
+     * @param $withGeom With geometry data (optional)
+     * @param mixed $profile
+     *
+     * @return The CSV file path
+     */
+    public function getLocauxAndProprioInfos($profile, $parcelle_ids, $withGeom = false)
+    {
+        $sql = $this->getLocauxAndProprioSql($parcelle_ids, $withGeom);
+        $rows = $this->query($sql, array(), $profile);
 
-        $sql = $this->getLocauxAndProprioSql( $parcelle_ids, $withGeom );
-        $rows = $this->query( $sql, array(), $profile );
-
-        return $this->buildCsv( $rows );
+        return $this->buildCsv($rows);
     }
-
 }
