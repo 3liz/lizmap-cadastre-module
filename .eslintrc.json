@@ -12,7 +12,8 @@
         "SharedArrayBuffer": "readonly",
         "OpenLayers": "readonly",
         "lizMap": "readonly",
-        "lizUrls": "readonly"
+        "lizUrls": "readonly",
+        "MutationObserver": "writable"
     },
     "parserOptions": {
         "ecmaVersion": 2018,
