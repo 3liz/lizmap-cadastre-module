@@ -7,3 +7,9 @@
 *.swp
 *.log
 *.pyc
+
+.vscode/
+
+node_modules/
+
+.php_cs.cache
