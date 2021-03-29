@@ -18,7 +18,14 @@
         "jelix" : {
             "modules": [
                 "cadastre/"
-            ]
+            ],
+            "autoconfig-access-16" : {
+                "lizmap@3liz.com" : {
+                    "cadastre": {
+                        "__global": 2
+                    }
+                }
+            }
         }
     }
 }
