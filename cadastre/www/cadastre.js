@@ -525,6 +525,9 @@ lizMap.events.on({
                     }
                 );
             } else {
+                if ( layername == 'Parcelles' && layername != cadastreConfig.layer ) {
+                    layername = cadastreConfig.layer;
+                }
                 var filter = '"' + fieldname + '" = ' + "'" + fieldval + "'";
                 var getFeatureUrlData = lizMap.getVectorLayerWfsUrl(layername, filter, null, 'extent');
                 getFeatureUrlData['options']['PROPERTYNAME'] = 'ogc_fid,geometry';
