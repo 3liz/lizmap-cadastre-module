@@ -22,7 +22,8 @@
             "autoconfig-access-16" : {
                 "lizmap@3liz.com" : {
                     "cadastre": {
-                        "__global": 2
+                        "__global": 1,
+                        "index" : 2
                     }
                 }
             }
