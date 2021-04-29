@@ -9,8 +9,7 @@
  *
  * @license Mozilla Public License : http://www.mozilla.org/MPL/
  */
-jClasses::inc('lizmap~lizmapProxy');
-jClasses::inc('lizmap~lizmapOGCRequest');
+
 class lizmapCadastreRequest extends lizmapOGCRequest
 {
     protected $tplExceptions = 'cadastre~cadastre_exception';
@@ -99,14 +98,7 @@ class lizmapCadastreRequest extends lizmapOGCRequest
         $querystring = $this->constructUrl();
         //jLog::log( $querystring );
         // Get remote data
-        $getRemoteData = lizmapProxy::getRemoteData(
-            $querystring,
-            $this->services->proxyMethod,
-            $this->services->debugMode
-        );
-        $data = $getRemoteData[0];
-        $mime = $getRemoteData[1];
-        $code = $getRemoteData[2];
+        list($data, $mime, $code) = lizmapProxy::getRemoteData($querystring);
 
         jMessage::clearAll();
 
@@ -145,14 +137,7 @@ class lizmapCadastreRequest extends lizmapOGCRequest
         $querystring = $this->constructUrl();
         //jLog::log($querystring);
         // Get remote data
-        $getRemoteData = lizmapProxy::getRemoteData(
-            $querystring,
-            $this->services->proxyMethod,
-            $this->services->debugMode
-        );
-        $data = $getRemoteData[0];
-        $mime = $getRemoteData[1];
-        $code = $getRemoteData[2];
+        list($data, $mime, $code) = lizmapProxy::getRemoteData($querystring);
 
         jMessage::clearAll();
 
@@ -176,15 +161,9 @@ class lizmapCadastreRequest extends lizmapOGCRequest
         $querystring = $this->constructUrl();
         //jLog::log($querystring);
         // Get remote data
-        $getRemoteData = lizmapProxy::getRemoteData(
-            $querystring,
-            $this->services->proxyMethod,
-            $this->services->debugMode
-        );
-        $data = json_decode($getRemoteData[0]);
+        list($data, $mime, $code) = lizmapProxy::getRemoteData($querystring);
+        $data = json_decode($data);
         $data = $data->data;
-        $mime = $getRemoteData[1];
-        $code = $getRemoteData[2];
 
         jMessage::clearAll();
 
