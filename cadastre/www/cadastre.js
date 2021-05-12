@@ -111,7 +111,7 @@ function selectParcelles(getFeatureUrlData, addToSelection) {
     });
 }
 
-// Disable line for eslint because this function is used in html 
+// Disable line for eslint because this function is used in html
 // eslint-disable-next-line no-unused-vars
 function selectParcelleByProprietaire(geo_parcelle, addToSelection) {
     if (!(typeof cadastreConfig != 'undefined'))
@@ -728,11 +728,7 @@ lizMap.events.on({
             , OpenLayers.Util.getParameterString(lizUrls.params)
         )
 
-
-        // Add action buttons if needed
-        $('div.lizmapPopupContent input.lizmap-popup-layer-feature-id').each(function () {
-
-            var self = $(this);
+        function addCadastreToolsInfos(self) {
             var val = self.val();
             var eHtml = '';
             var fid = val.split('.').pop();
@@ -797,6 +793,43 @@ lizMap.events.on({
                                 eHtml = '<span class="popupButtonBar">' + eHtml + '</span></br>';
                                 self.after(eHtml);
                             }
+
+                            // Get Extra content
+                            $.post(link, {type:'fiche'}, function (data) {
+                                var d = $(data);
+                                if (d[0].localName == 'h2') {
+                                    var navTabs = $('<ul class="nav nav-tabs"></ul>');
+                                    var tabContent = $('<div class="tab-content cadastre"></div>');
+                                    var idTab = '';
+                                    var tabPanes = [];
+                                    var tabPane = null;
+                                    for (var c=0, clen=d.length; c <clen; c++) {
+                                        var child = d[c];
+                                        if (child.localName == 'h2') {
+                                            if (tabPane !== null && tabPane.children().length == 0) {
+                                                tabPane.append('<p class="cadastre-no-data">Pas de données</p>');
+                                            }
+                                            idTab = child.innerText.toLowerCase().replace(/\W+/g, '')+'-'+feat.attributes[cadastreConfig.pk];
+                                            tabPane = $('<div id="'+idTab+'" class="tab-pane"></div>');
+                                            var tab = '<li><a href="#'+idTab+'" data-toggle="tab">'+child.innerText+'</a></li>';
+                                            navTabs.append(tab);
+                                            tabPanes.push(tabPane);
+                                        } else {
+                                            tabPane.append(child);
+                                        }
+                                    }
+                                    if (tabPane !== null && tabPane.children().length == 0) {
+                                        tabPane.append('<p class="cadastre-no-data">Pas de données</p>');
+                                    }
+                                    tabContent.append(tabPanes);
+                                    self.parent().append(navTabs);
+                                    self.parent().append(tabContent);
+                                } else {
+                                    self.parent().append(d);
+                                }
+                            }).fail(function () {
+                                console.log('fail cadastre fiche');
+                            });
                         }
                         $('body').css('cursor', 'auto');
                         return false;
@@ -807,6 +840,12 @@ lizMap.events.on({
                     });
                 }
             }
+        }
+
+
+        // Add action buttons if needed
+        $('div.lizmapPopupContent input.lizmap-popup-layer-feature-id').each(function () {
+            addCadastreToolsInfos($(this));
         });
     },
     'layerSelectionChanged': function (e) {
