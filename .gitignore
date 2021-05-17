@@ -13,3 +13,7 @@
 node_modules/
 
 .php_cs.cache
+
+# Python, for the packaging on the CI
+.venv
+venv

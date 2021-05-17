@@ -1,5 +1,4 @@
-
-name: Tests 🎳
+name: PHP Lint 🎳
 
 on:
   push:
