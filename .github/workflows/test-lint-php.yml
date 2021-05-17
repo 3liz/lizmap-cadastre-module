@@ -17,6 +17,6 @@ jobs:
 
     - uses: actions/checkout@master
 
-    - uses: docker://oskarstark/php-cs-fixer-ga
+    - uses: docker://oskarstark/php-cs-fixer-ga:2.19.0
       with:
         args: --config=.php_cs.dist --allow-risky=yes --dry-run --diff -- cadastre
