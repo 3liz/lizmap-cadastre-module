@@ -30,3 +30,17 @@ Toolbar buttons
 #cadastre-content div.menu-content {
     margin-bottom:10px !important;
 }
+
+/*
+Popup
+*/
+.lizmapPopup.olPopup .lizmapPopupContent .cadastre.tab-content h3,
+#map-content .lizmapPopupContent .cadastre.tab-content h3,
+#popupcontent .lizmapPopupContent .cadastre.tab-content h3,
+.lizmapPopup.olPopup .lizmapPopupContent .cadastre.tab-content h4,
+#map-content .lizmapPopupContent .cadastre.tab-content h4,
+#popupcontent .lizmapPopupContent .cadastre.tab-content h4 {
+  color:#2B2B2B  !important;
+  font-size: 20px;
+  font-style: italic;
+}
