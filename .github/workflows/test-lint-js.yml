@@ -2,11 +2,11 @@ name: Tests 🎳
 
 on:
   push:
-#    paths:
-#      - '**.js'
+    paths:
+      - '**.js'
   pull_request:
-#    paths:
-#      - '**.js'
+    paths:
+      - '**.js'
 
 jobs:
   eslint:

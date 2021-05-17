@@ -3,11 +3,11 @@ name: Tests 🎳
 
 on:
   push:
-#    paths:
-#      - '**.php'
+    paths:
+      - '**.php'
   pull_request:
-#    paths:
-#      - '**.php'
+    paths:
+      - '**.php'
 
 jobs:
   test-php-cs-fixer:
