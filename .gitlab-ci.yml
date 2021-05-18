@@ -1,0 +1,15 @@
+variables:
+    FACTORY_PRODUCT_NAME: cadastre
+    FACTORY_PACKAGE_TYPE: module
+
+stages:
+- release
+
+tickets:
+  stage: release
+  image:
+    name: registry.snap.lizlan:5000/infra/ci-tools
+  script:
+    - create_ticket.py
+  tags:
+    - factory-plain
