@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.6.0 - 2021-05-18
+
 * Recherche par propriétaire en incluant le champ `comptecommunal`
 * Affichage de la fiche parcellaire dans la popup des parcelles
 
