@@ -7,8 +7,10 @@ stages:
 
 tickets:
   stage: release
+  only:
+    - tags
   image:
-    name: registry.snap.lizlan:5000/infra/ci-tools
+    name: registry.snap.lizlan:5000/infra/ci-tools:latest
   script:
     - create_ticket.py
   tags:
