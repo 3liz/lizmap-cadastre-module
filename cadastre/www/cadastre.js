@@ -1,4 +1,5 @@
 /* global cadastreConfig */
+/*eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_" }]*/
 
 function selectParcelles(getFeatureUrlData, addToSelection) {
     if (!(typeof cadastreConfig != 'undefined'))
@@ -59,31 +60,12 @@ function selectParcelles(getFeatureUrlData, addToSelection) {
                 $('#mapmenu li.selectiontool:not(.active) a').click();
 
                 // Trigger selection
-                // Dot no trigger updateDrawing to avoid too big url
-                // Get layer
-                var cleanName = lizMap.cleanName(cadastreConfig.layer);
-                var layer = lizMap.map.getLayersByName(cleanName)[0];
-                var updateDrawing = true;
-                if (layer && lizMap.config.layers[cadastreConfig.layer]
-                    && 'EXP_FILTER' in getFeatureUrlData['options']
-                    && getFeatureUrlData['options']['EXP_FILTER'].startsWith('"comptecommunal"')
-
-                ) {
-                    // var selectionParam = cadastreConfig.layer + ': ' + getFeatureUrlData['options']['EXP_FILTER'];
-                    //lizMap.config.layers[cadastreConfig.layer]['request_params']['filter'] = selectionParam;
-                    //layer.params['FILTER'] = selectionParam;
-                    //layer.redraw(true);
-                    //updateDrawing = false;
-                } else {
-                    console.log('pas de filtre par comptecommunal');
-                }
-
                 lizMap.events.triggerEvent(
                     "layerSelectionChanged",
                     {
                         'featureType': cadastreConfig.layer,
                         'featureIds': lizMap.config.layers[cadastreConfig.layer]['selectedFeatures'],
-                        'updateDrawing': updateDrawing
+                        'updateDrawing': true
                     }
                 );
             } else {
@@ -221,7 +203,7 @@ lizMap.events.on({
                     //$('#'+formId+'_section').val( '' ).change();
                     //$('#'+formId+'_voie').val('').change();
                 },
-                select: function (ui) {
+                select: function (_e, ui) {
                     $(this).val($('<a>').html(ui.item.label).text());
                     $('#' + formId + '_section').val('');
                     $('#' + formId + '_voie').val(ui.item.code).change();
@@ -261,7 +243,7 @@ lizMap.events.on({
                 },
                 search: function () {
                 },
-                select: function (ui) {
+                select: function (_e, ui) {
                     $(this).val($('<a>').html(ui.item.label).text());
                     $('#' + formId + '_comptecommunal').val(ui.item.code).change();
 
@@ -330,24 +312,24 @@ lizMap.events.on({
 
             // Handle click on select and unselect buttons
             $('#' + formId + '_newselect, #' + formId + '_addselect, #' + formId + '_unselect').click(function () {
-                var fieldname = null; var filter = null;
+                var fieldname = null; var filter = null; var fids = null;
 
                 if ($('#div_form_cadastre_search ul li:first').hasClass('active')) {
                     var section = $('#' + formId + '_section').val();
                     fieldname = '#' + formId + '_geo_parcelle_lieu';
                     if ($(fieldname + ' option').size() > 1 && (section || $('#' + formId + '_voie').val())) {
                         if (section) {
-                            // Select one parcelle
                             if ($(fieldname).val()) {
+                                // Select one parcelle
                                 filter = '"geo_parcelle" IN (\'' + $(fieldname).val() + '\')';
-                            } else { // Select all parcelles on section
-                                section = $('#' + formId + '_section').val();
+                            } else {
+                                // Select all parcelles on section with section value
                                 filter = '"geo_section" IN (\'' + section + '\')';
                             }
                         }
                         if ($('#' + formId + '_voie').val()) {
                             if ($(fieldname).val() == '') {
-                                var fids = $.map($(fieldname + ' option'), function (o) { return "'" + o.value + "'"; }).join(',');
+                                fids = $.map($(fieldname + ' option'), function (o) { return "'" + o.value + "'"; }).join(',');
                             } else {
                                 fids = "'" + $(fieldname).val() + "'";
                             }

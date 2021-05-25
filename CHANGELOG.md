@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Correction d'une regression dans la recherche par propriétaire
+
 ## 1.6.0 - 2021-05-18
 
 * Recherche par propriétaire en incluant le champ `comptecommunal`
