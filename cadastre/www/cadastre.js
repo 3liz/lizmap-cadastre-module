@@ -319,11 +319,11 @@ lizMap.events.on({
                     fieldname = '#' + formId + '_geo_parcelle_lieu';
                     if ($(fieldname + ' option').size() > 1 && (section || $('#' + formId + '_voie').val())) {
                         if (section) {
-                            // Select one parcelle
                             if ($(fieldname).val()) {
+                                // Select one parcelle
                                 filter = '"geo_parcelle" IN (\'' + $(fieldname).val() + '\')';
-                            } else { // Select all parcelles on section
-                                section = $('#' + formId + '_section').val();
+                            } else {
+                                // Select all parcelles on section with section value
                                 filter = '"geo_section" IN (\'' + section + '\')';
                             }
                         }
