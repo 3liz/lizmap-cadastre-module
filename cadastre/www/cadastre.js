@@ -312,7 +312,7 @@ lizMap.events.on({
 
             // Handle click on select and unselect buttons
             $('#' + formId + '_newselect, #' + formId + '_addselect, #' + formId + '_unselect').click(function () {
-                var fieldname = null; var filter = null;
+                var fieldname = null; var filter = null; var fids = null;
 
                 if ($('#div_form_cadastre_search ul li:first').hasClass('active')) {
                     var section = $('#' + formId + '_section').val();
@@ -329,7 +329,7 @@ lizMap.events.on({
                         }
                         if ($('#' + formId + '_voie').val()) {
                             if ($(fieldname).val() == '') {
-                                var fids = $.map($(fieldname + ' option'), function (o) { return "'" + o.value + "'"; }).join(',');
+                                fids = $.map($(fieldname + ' option'), function (o) { return "'" + o.value + "'"; }).join(',');
                             } else {
                                 fids = "'" + $(fieldname).val() + "'";
                             }
