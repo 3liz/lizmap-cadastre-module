@@ -60,31 +60,12 @@ function selectParcelles(getFeatureUrlData, addToSelection) {
                 $('#mapmenu li.selectiontool:not(.active) a').click();
 
                 // Trigger selection
-                // Dot no trigger updateDrawing to avoid too big url
-                // Get layer
-                var cleanName = lizMap.cleanName(cadastreConfig.layer);
-                var layer = lizMap.map.getLayersByName(cleanName)[0];
-                var updateDrawing = true;
-                if (layer && lizMap.config.layers[cadastreConfig.layer]
-                    && 'EXP_FILTER' in getFeatureUrlData['options']
-                    && getFeatureUrlData['options']['EXP_FILTER'].startsWith('"comptecommunal"')
-
-                ) {
-                    // var selectionParam = cadastreConfig.layer + ': ' + getFeatureUrlData['options']['EXP_FILTER'];
-                    //lizMap.config.layers[cadastreConfig.layer]['request_params']['filter'] = selectionParam;
-                    //layer.params['FILTER'] = selectionParam;
-                    //layer.redraw(true);
-                    //updateDrawing = false;
-                } else {
-                    console.log('pas de filtre par comptecommunal');
-                }
-
                 lizMap.events.triggerEvent(
                     "layerSelectionChanged",
                     {
                         'featureType': cadastreConfig.layer,
                         'featureIds': lizMap.config.layers[cadastreConfig.layer]['selectedFeatures'],
-                        'updateDrawing': updateDrawing
+                        'updateDrawing': true
                     }
                 );
             } else {
