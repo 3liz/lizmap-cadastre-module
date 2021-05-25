@@ -1,4 +1,5 @@
 /* global cadastreConfig */
+/*eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_" }]*/
 
 function selectParcelles(getFeatureUrlData, addToSelection) {
     if (!(typeof cadastreConfig != 'undefined'))
@@ -221,7 +222,7 @@ lizMap.events.on({
                     //$('#'+formId+'_section').val( '' ).change();
                     //$('#'+formId+'_voie').val('').change();
                 },
-                select: function (ui) {
+                select: function (_e, ui) {
                     $(this).val($('<a>').html(ui.item.label).text());
                     $('#' + formId + '_section').val('');
                     $('#' + formId + '_voie').val(ui.item.code).change();
@@ -261,7 +262,7 @@ lizMap.events.on({
                 },
                 search: function () {
                 },
-                select: function (ui) {
+                select: function (_e, ui) {
                     $(this).val($('<a>').html(ui.item.label).text());
                     $('#' + formId + '_comptecommunal').val(ui.item.code).change();
 
