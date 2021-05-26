@@ -4,7 +4,7 @@
 
 ## 1.6.1 - 2021-05-25
 
-* Correction d'une regression dans la recherche par propriétaire
+* Correction d'une régression dans la recherche par propriétaire
 
 ## 1.6.0 - 2021-05-18
 
