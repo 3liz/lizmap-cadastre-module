@@ -13,6 +13,11 @@ class lizmapCadastreRequest extends lizmapOGCRequest
 {
     protected $tplExceptions = 'cadastre~cadastre_exception';
 
+    public function process_getcapabilities()
+    {
+        return $this->getcapabilities();
+    }
+
     protected function getcapabilities()
     {
         // Get cached session
@@ -84,6 +89,11 @@ class lizmapCadastreRequest extends lizmapOGCRequest
         );
     }
 
+    public function process_createPdf()
+    {
+        return $this->createPdf();
+    }
+
     public function createPdf()
     {
 
@@ -124,6 +134,11 @@ class lizmapCadastreRequest extends lizmapOGCRequest
         );
     }
 
+    public function process_getPdf()
+    {
+        return $this->getPdf();
+    }
+
     public function getPdf()
     {
         // Access control
@@ -146,6 +161,11 @@ class lizmapCadastreRequest extends lizmapOGCRequest
             'data' => $data,
             'cached' => false,
         );
+    }
+
+    public function process_getHtml()
+    {
+        return $this->getHtml();
     }
 
     public function getHtml()
