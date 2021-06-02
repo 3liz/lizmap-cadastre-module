@@ -780,11 +780,17 @@ lizMap.events.on({
                             $.post(link, {type:'fiche'}, function (data) {
                                 var d = $(data);
                                 if (d[0].localName == 'h2') {
+                                    // Create empty container for the main div, the tab li and content
+                                    var contentContainer = $('<div class="cadastre-popup-tab-container"></div>');
                                     var navTabs = $('<ul class="nav nav-tabs"></ul>');
                                     var tabContent = $('<div class="tab-content cadastre"></div>');
                                     var idTab = '';
                                     var tabPanes = [];
                                     var tabPane = null;
+
+                                    // Look inside the given HTML and move content to separate tabs
+                                    // Parcelle, Propriétaires, Subdivisions fiscales
+                                    // Locaux, Locaux; informations détaillées
                                     for (var c=0, clen=d.length; c <clen; c++) {
                                         var child = d[c];
                                         if (child.localName == 'h2') {
@@ -800,12 +806,17 @@ lizMap.events.on({
                                             tabPane.append(child);
                                         }
                                     }
+
+                                    // Add message if not data for a given tab content
                                     if (tabPane !== null && tabPane.children().length == 0) {
                                         tabPane.append('<p class="cadastre-no-data">Pas de données</p>');
                                     }
+
+                                    // Add content to the popup
                                     tabContent.append(tabPanes);
-                                    self.parent().append(navTabs);
-                                    self.parent().append(tabContent);
+                                    contentContainer.append(navTabs)
+                                    contentContainer.append(tabContent)
+                                    self.parent().append(contentContainer);
                                 } else {
                                     self.parent().append(d);
                                 }
