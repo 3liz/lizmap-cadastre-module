@@ -791,6 +791,7 @@ lizMap.events.on({
                                     // Look inside the given HTML and move content to separate tabs
                                     // Parcelle, Propriétaires, Subdivisions fiscales
                                     // Locaux, Locaux; informations détaillées
+                                    var firstTab = '';
                                     for (var c=0, clen=d.length; c <clen; c++) {
                                         var child = d[c];
                                         if (child.localName == 'h2') {
@@ -802,6 +803,9 @@ lizMap.events.on({
                                             var tab = '<li><a href="#'+idTab+'" data-toggle="tab">'+child.innerText+'</a></li>';
                                             navTabs.append(tab);
                                             tabPanes.push(tabPane);
+                                            if (c == 0) {
+                                                firstTab = idTab;
+                                            }
                                         } else {
                                             tabPane.append(child);
                                         }
@@ -817,6 +821,9 @@ lizMap.events.on({
                                     contentContainer.append(navTabs)
                                     contentContainer.append(tabContent)
                                     self.parent().append(contentContainer);
+
+                                    // Activate first tab
+                                    self.parent().find('.nav-tabs a[href="#' + firstTab + '"]').tab('show');
                                 } else {
                                     self.parent().append(d);
                                 }
