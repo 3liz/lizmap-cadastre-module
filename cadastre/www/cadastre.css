@@ -46,10 +46,15 @@ Popup
   font-style: italic;
 }
 
+div.cadastre-popup-tab-container ul li a{
+  font-size: 12px;
+  padding: 3px;
+}
+
 div.cadastre-popup-tab-container div.tab-pane{
     max-height: 300px;
     padding: 4px;
-    font-size: 13px;
+    font-size: 12px;
 }
 
 div.cadastre-popup-tab-container div.tab-pane h2,
