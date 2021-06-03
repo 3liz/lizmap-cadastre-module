@@ -710,6 +710,83 @@ lizMap.events.on({
             , OpenLayers.Util.getParameterString(lizUrls.params)
         )
 
+        // Parse parcelle HTML given by the cadastre QGIS Server plugin
+        // Add create HTML with bootstrap tabs
+        function parseParcelleHtmlFromPlugin(data_object, pkey) {
+            var html_object = $('<div class="cadastre-popup-tab-container"></div>');
+            var navTabs = $('<ul class="nav nav-tabs"></ul>');
+            var tabContent = $('<div class="tab-content cadastre"></div>');
+            var idTab = '';
+            var tabPanes = [];
+            var tabPane = null;
+
+            // Look inside the given HTML and move content to separate tabs
+            // Parcelle, Propriétaires, Subdivisions fiscales
+            // Locaux, Locaux; informations détaillées
+            var firstTab = '';
+            for (var c=0, clen=data_object.length; c <clen; c++) {
+                var child = data_object[c];
+                if (child.localName == 'h2') {
+                    if (tabPane !== null && tabPane.children().length == 0) {
+                        tabPane.append('<p class="cadastre-no-data">Pas de données</p>');
+                    }
+                    idTab = child.innerText.toLowerCase().replace(/\W+/g, '')+'-'+pkey;
+                    tabPane = $('<div id="'+idTab+'" class="tab-pane"></div>');
+                    var tab = '<li><a href="#'+idTab+'" data-toggle="tab">'+child.innerText+'</a></li>';
+                    navTabs.append(tab);
+                    tabPanes.push(tabPane);
+                    if (c == 0) {
+                        firstTab = idTab;
+                    }
+                } else {
+                    tabPane.append(child);
+                }
+            }
+
+            // Add message if not data for a given tab content
+            if (tabPane !== null && tabPane.children().length == 0) {
+                tabPane.append('<p class="cadastre-no-data">Pas de données</p>');
+            }
+
+            // Add content to the popup
+            tabContent.append(tabPanes);
+            html_object.append(navTabs)
+            html_object.append(tabContent)
+
+            return [html_object, firstTab];
+        }
+
+        function printHtmlContent(html)
+        {
+            var print_window = window.open('', 'PRINT', 'height=400,width=600');
+
+            print_window.document.write('<html><head><title>' + document.title  + '</title>');
+            print_window.document.write('</head><body >');
+            print_window.document.write('<h1>' + document.title  + '</h1>');
+            print_window.document.write(html);
+            print_window.document.write('</body></html>');
+
+            print_window.document.close(); // necessary for IE >= 10
+            print_window.focus(); // necessary for IE >= 10*/
+
+            print_window.print();
+            print_window.close();
+
+            return true;
+        }
+
+        function printParcelleHtml(url) {
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: {type:'fiche'},
+                success: function (data) {
+                    printHtmlContent(data);
+                },
+                async:false // To avoid browser to block popup
+            });
+        }
+
         function addCadastreToolsInfos(self) {
             var val = self.val();
             var eHtml = '';
@@ -745,13 +822,19 @@ lizMap.events.on({
 
                             // Add buttons
                             eHtml = ''
+                            // Export parcelle to PDF
                             eHtml += '<a href="';
                             eHtml += link + '&type=parcelle';
                             eHtml += '" class="btn btn-mini cadastre-export-parcelle parcelle" target="_blank" title="Relevé parcellaire"><i class="icon-file"></i>&nbsp;</a>';
 
+                            // Export propriétaire to PDF
                             eHtml += '<a href="';
                             eHtml += link + '&type=proprietaire';
                             eHtml += '" class="btn btn-mini cadastre-export-parcelle proprietaire" target="_blank" title="Relevé de propriété"><i class="icon-book"></i>&nbsp;</a>';
+
+                            // Print Parcelle info HTML detail
+                            eHtml += '<button class="btn btn-mini cadastre-export-parcelle print" title="Imprimer le détail">';
+                            eHtml += '<i class="icon-print"></i>&nbsp;</button>';
 
                             if ('attributeLayers' in config && cadastreLayer in config.attributeLayers) {
                                 eHtml += '<button class="btn btn-mini cadastre-select-parcelle-proprietaire" target="_blank" value="';
@@ -776,56 +859,27 @@ lizMap.events.on({
                                 self.after(eHtml);
                             }
 
+                            $('button.cadastre-export-parcelle.print').click(function() {
+                                printParcelleHtml(link);
+                            });
+
                             // Get Extra content
                             $.post(link, {type:'fiche'}, function (data) {
-                                var d = $(data);
-                                if (d[0].localName == 'h2') {
+                                var data_object = $(data);
+                                if (data_object[0].localName == 'h2') {
                                     // Create empty container for the main div, the tab li and content
-                                    var contentContainer = $('<div class="cadastre-popup-tab-container"></div>');
-                                    var navTabs = $('<ul class="nav nav-tabs"></ul>');
-                                    var tabContent = $('<div class="tab-content cadastre"></div>');
-                                    var idTab = '';
-                                    var tabPanes = [];
-                                    var tabPane = null;
-
-                                    // Look inside the given HTML and move content to separate tabs
-                                    // Parcelle, Propriétaires, Subdivisions fiscales
-                                    // Locaux, Locaux; informations détaillées
-                                    var firstTab = '';
-                                    for (var c=0, clen=d.length; c <clen; c++) {
-                                        var child = d[c];
-                                        if (child.localName == 'h2') {
-                                            if (tabPane !== null && tabPane.children().length == 0) {
-                                                tabPane.append('<p class="cadastre-no-data">Pas de données</p>');
-                                            }
-                                            idTab = child.innerText.toLowerCase().replace(/\W+/g, '')+'-'+feat.attributes[cadastreConfig.pk];
-                                            tabPane = $('<div id="'+idTab+'" class="tab-pane"></div>');
-                                            var tab = '<li><a href="#'+idTab+'" data-toggle="tab">'+child.innerText+'</a></li>';
-                                            navTabs.append(tab);
-                                            tabPanes.push(tabPane);
-                                            if (c == 0) {
-                                                firstTab = idTab;
-                                            }
-                                        } else {
-                                            tabPane.append(child);
-                                        }
-                                    }
-
-                                    // Add message if not data for a given tab content
-                                    if (tabPane !== null && tabPane.children().length == 0) {
-                                        tabPane.append('<p class="cadastre-no-data">Pas de données</p>');
-                                    }
-
-                                    // Add content to the popup
-                                    tabContent.append(tabPanes);
-                                    contentContainer.append(navTabs)
-                                    contentContainer.append(tabContent)
+                                    var html_parsing_result = parseParcelleHtmlFromPlugin(
+                                        data_object,
+                                        feat.attributes[cadastreConfig.pk]
+                                    );
+                                    var contentContainer = html_parsing_result[0];
+                                    var firstTab = html_parsing_result[1];
                                     self.parent().append(contentContainer);
 
                                     // Activate first tab
                                     self.parent().find('.nav-tabs a[href="#' + firstTab + '"]').tab('show');
                                 } else {
-                                    self.parent().append(d);
+                                    self.parent().append(data_object);
                                 }
                             }).fail(function () {
                                 console.log('fail cadastre fiche');
@@ -843,7 +897,7 @@ lizMap.events.on({
         }
 
 
-        // Add action buttons if needed
+        // Add action buttons and parcelle detail if needed
         $('div.lizmapPopupContent input.lizmap-popup-layer-feature-id').each(function () {
             addCadastreToolsInfos($(this));
         });

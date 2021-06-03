@@ -8,6 +8,7 @@
   - Modification de la taille des polices
   - Affichage automatique du premier onglet "Parcelle"
 * Préparation de la compatibilité pour Lizmap Web Client >= 3.4.4
+* Ajout d'un bouton pour imprimer la fiche HTML détaillée de la parcelle
 
 ## 1.6.1 - 2021-05-25
 
