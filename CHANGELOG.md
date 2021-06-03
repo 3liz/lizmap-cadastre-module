@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+* Amélioration de l'affichage de la fiche parcellaire dans la popup
+  - Ajout d'une hauteur maximale pour les contenus des onglets
+  - Modification de la taille des polices
+  - Affichage automatique du premier onglet "Parcelle"
+* Préparation de la compatibilité pour Lizmap Web Client >= 3.4.4
+
 ## 1.6.1 - 2021-05-25
 
 * Correction d'une régression dans la recherche par propriétaire
