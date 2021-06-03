@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.6.2 - 2021-06-03
+
 * Amélioration de l'affichage de la fiche parcellaire dans la popup
   - Ajout d'une hauteur maximale pour les contenus des onglets
   - Modification de la taille des polices
