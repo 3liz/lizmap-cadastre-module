@@ -34,6 +34,7 @@ Toolbar buttons
 /*
 Popup
 */
+
 .lizmapPopup.olPopup .lizmapPopupContent .cadastre.tab-content h3,
 #map-content .lizmapPopupContent .cadastre.tab-content h3,
 #popupcontent .lizmapPopupContent .cadastre.tab-content h3,
@@ -43,4 +44,19 @@ Popup
   color:#2B2B2B  !important;
   font-size: 20px;
   font-style: italic;
+}
+
+div.cadastre-popup-tab-container div.tab-pane{
+    max-height: 300px;
+    padding: 4px;
+    font-size: 13px;
+}
+
+div.cadastre-popup-tab-container div.tab-pane h2,
+div.cadastre-popup-tab-container div.tab-pane h3,
+div.cadastre-popup-tab-container div.tab-pane h4
+{
+    font-size: 15px !important;
+    margin: 2px !important;
+    font-weight: bold !important;
 }
