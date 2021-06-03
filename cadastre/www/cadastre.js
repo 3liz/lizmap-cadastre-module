@@ -692,7 +692,7 @@ lizMap.events.on({
 
         if ($('#jforms_cadastre_search_has_majic').length) {
             var has_majic = $('#jforms_cadastre_search_has_majic').val();
-            if (has_majic == '0') {
+            if (has_majic != '1') {
                 return;
             }
         }

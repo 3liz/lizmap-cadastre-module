@@ -56,9 +56,9 @@
                 $searchForm->setData('repository', $event->repository);
                 $searchForm->setData('project', $event->project);
                 $searchForm->setData('parcelleLayerId', $parcelleId);
-                $hasMajic = false;
+                $hasMajic = '0';
                 if ($hasProprietaire and jAcl2::check('cadastre.acces.donnees.proprio')) {
-                    $hasMajic = true;
+                    $hasMajic = '1';
                 }
                 $searchForm->setData('has_majic', $hasMajic);
                 $assign = array(
