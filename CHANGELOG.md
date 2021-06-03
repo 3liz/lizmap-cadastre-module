@@ -2,13 +2,14 @@
 
 ## Unreleased
 
-* Correction du bug qui affichait les boutons d'export de relevé PDF pour les utilisateurs sans droit de voir les données de propriété
 * Amélioration de l'affichage de la fiche parcellaire dans la popup
   - Ajout d'une hauteur maximale pour les contenus des onglets
   - Modification de la taille des polices
   - Affichage automatique du premier onglet "Parcelle"
 * Préparation de la compatibilité pour Lizmap Web Client >= 3.4.4
 * Ajout d'un bouton pour imprimer la fiche HTML détaillée de la parcelle
+* Correction du bug qui affichait les boutons d'export de relevé PDF pour les utilisateurs sans droit de voir les données de propriété
+* Correction du bug dans la popup: boutons sans icônes et erreur "Export en cours..."
 
 ## 1.6.1 - 2021-05-25
 

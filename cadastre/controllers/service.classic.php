@@ -209,14 +209,6 @@ class serviceCtrl extends jController
     {
         $rep = $this->getResponse('json');
         $services = lizmap::getServices();
-        // Use standard export if the standalone python PDF generator does not exist
-        $standalone_python_script = '/srv/qgis/plugins/cadastre/standalone_export.py';
-        if (version_compare($services->qgisServerVersion, '3.0', '>=')) {
-            $standalone_python_script = '/srv/qgis/plugins/cadastre/standalone/export.py';
-        }
-        if (!is_file($standalone_python_script)) {
-            return $this->getCadastrePdf();
-        }
 
         // params
         $project = $this->param('project');
@@ -224,6 +216,20 @@ class serviceCtrl extends jController
         $parcelleLayer = $this->param('layer', 'Parcelles');
         $parcelleId = $this->param('parcelle');
         $type = $this->param('type');
+
+        // Use standard export if the standalone python PDF generator does not exist
+        // The Python script, if available, if run asynchronuously
+        // and a new Export page is shown to show the user the progress
+        // If not, use a synchronous call to QGIS Server, which could reach timeouts for big export (commune)
+        $standalone_python_script = '/srv/qgis/plugins/cadastre/standalone_export.py';
+        if (version_compare($services->qgisServerVersion, '3.0', '>=')) {
+            $standalone_python_script = '/srv/qgis/plugins/cadastre/standalone/export.py';
+        }
+        // Do not use the Python script if we only need to get the HTML content
+        // Which is retrieved in AJAX calls. Hence the or $type == fiche call
+        if (!is_file($standalone_python_script) or $type == 'fiche') {
+            return $this->getCadastrePdf();
+        }
 
         // get needed values
         $p = lizmap::getProject($repository.'~'.$project);
