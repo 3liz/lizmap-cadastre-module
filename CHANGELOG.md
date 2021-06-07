@@ -7,6 +7,7 @@
   - identification de la couche Sections
   - identification de la couche Communes
 * Fonctionnalité: recherche par compte de propriété
+* Recherche par numéro de persone dans la recherche des propriétaires
 
 ## 1.6.2 - 2021-06-03
 
