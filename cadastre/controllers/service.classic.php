@@ -155,8 +155,11 @@ class serviceCtrl extends jController
 
         $term = $this->param('term');
         $field = $this->param('field', 'voie');
-        $commune = $this->param('commune');
-        $voie = $this->param('voie');
+        $extras = array(
+            'commune' => $this->param('commune'),
+            'voie' => $this->param('voie'),
+            'comptecommunal' => $this->param('comptecommunal'),
+        );
         $limit = $this->intParam('limit', 30);
 
         $project = $this->param('project');
@@ -169,7 +172,7 @@ class serviceCtrl extends jController
         $autocomplete = jClasses::getService('cadastre~search');
 
         try {
-            $result = $autocomplete->getData($repository, $project, $parcelleLayer, $term, $field, $commune, $voie, $limit);
+            $result = $autocomplete->getData($repository, $project, $parcelleLayer, $term, $field, $extras, $limit);
         } catch (Exception $e) {
             $result = null;
         }

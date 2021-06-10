@@ -28,7 +28,19 @@ class listParcellePropDatasource extends jFormsDynamicDatasource
         $repository = $form->getData($this->criteriaFrom[0]);
         $project = $form->getData($this->criteriaFrom[1]);
         $layerId = $form->getData($this->criteriaFrom[2]);
-        $comptecommunal = $form->getData($this->criteriaFrom[3]);
+        $commune = $form->getData($this->criteriaFrom[3]);
+        $comptecommunal = $form->getData($this->criteriaFrom[4]);
+        $compte = $form->getData($this->criteriaFrom[5]);
+
+        $result = array();
+
+        if (empty($commune) && empty($comptecommunal)) {
+            return $result;
+        }
+
+        if (!empty($compte)) {
+            $comptecommunal = $commune.$compte;
+        }
 
         $this->profile = cadastreProfile::getWithLayerId($repository, $project, $layerId);
 
@@ -36,6 +48,7 @@ class listParcellePropDatasource extends jFormsDynamicDatasource
             $this->dao = jDao::get($this->selector, $this->profile);
         }
 
+        $method = $this->method;
         $args = array();
         array_push($args, $comptecommunal);
 
@@ -44,9 +57,9 @@ class listParcellePropDatasource extends jFormsDynamicDatasource
 
         $found = array();
         if ($fblConfig === null) {
-            $found = call_user_func_array(array($this->dao, $this->method), $args);
+            $found = call_user_func_array(array($this->dao, $method), $args);
         } else {
-            $method = $this->method.'AndFieldIn';
+            $method .= 'AndFieldIn';
             array_push($args, $fblConfig->filterAttribute);
             if (!jAuth::isConnected()) {
                 array_push($args, null);
@@ -60,8 +73,6 @@ class listParcellePropDatasource extends jFormsDynamicDatasource
             }
             $found = call_user_func_array(array($this->dao, $method), $args);
         }
-
-        $result = array();
 
         foreach ($found as $obj) {
             $label = $this->buildLabel($obj);
@@ -116,8 +127,8 @@ class listParcellePropDatasource extends jFormsDynamicDatasource
 
     public function setCriteriaControls($criteriaFrom = null)
     {
-        if (count($criteriaFrom) !== 4) {
-            throw new Exception('4 criterias needed: repository, project, parcelleLayerId,comptecommunal');
+        if (count($criteriaFrom) !== 6) {
+            throw new Exception('6 criterias needed: repository, project, parcelleLayerId, commune_prop, comptecommunal, compte');
         }
         $this->criteriaFrom = $criteriaFrom;
     }

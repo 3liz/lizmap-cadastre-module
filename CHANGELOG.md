@@ -6,6 +6,7 @@
   - identification de la couche Parcelles
   - identification de la couche Sections
   - identification de la couche Communes
+* Fonctionnalité: recherche par compte de propriété
 
 ## 1.6.2 - 2021-06-03
 
