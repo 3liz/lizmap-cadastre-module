@@ -24,6 +24,10 @@ class cadastreListener extends jEventListener
                     'layer' => $config->parcelle->name,
                     'pk' => $config->parcelle->unique_field,
                 );
+                $cadastreConfig = array_merge(
+                    $cadastreConfig,
+                    (array) $config
+                );
             }
         }
 

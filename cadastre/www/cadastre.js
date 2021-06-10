@@ -509,8 +509,31 @@ lizMap.events.on({
                     }
                 );
             } else {
-                if (layername == 'Parcelles' && layername != cadastreConfig.layer) {
-                    layername = cadastreConfig.layer;
+                if (layername == 'Parcelles') {
+                    if ('parcelle' in cadastreConfig) {
+                        var parcelleConfig = cadastreConfig.parcelle;
+                        if (parcelleConfig.shortName !== '') {
+                            layername = parcelleConfig.shortName;
+                        } else {
+                            layername = parcelleConfig.name;
+                        }
+                    } else if (layername != cadastreConfig.layer) {
+                        layername = cadastreConfig.layer;
+                    }
+                } else if (layername == 'Sections' && ('section' in cadastreConfig)) {
+                    var sectionConfig = cadastreConfig.section;
+                    if (sectionConfig.shortName !== '') {
+                        layername = sectionConfig.shortName;
+                    } else {
+                        layername = sectionConfig.name;
+                    }
+                } else if (layername == 'Communes' && ('commune' in cadastreConfig)) {
+                    var communeConfig = cadastreConfig.commune;
+                    if (communeConfig.shortName !== '') {
+                        layername = communeConfig.shortName;
+                    } else {
+                        layername = communeConfig.name;
+                    }
                 }
                 var filter = '"' + fieldname + '" = ' + "'" + fieldval + "'";
                 var getFeatureUrlData = lizMap.getVectorLayerWfsUrl(layername, filter, null, 'extent');
