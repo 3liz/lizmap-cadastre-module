@@ -8,6 +8,9 @@
   - identification de la couche Communes
 * Fonctionnalité: recherche par compte de propriété
 * Recherche par numéro de persone dans la recherche des propriétaires
+* Export du relevé de propriété pour toutes les communes
+  - Si il existe un filtre par login à appliquer à la couche Parceles pour l'utilisateur, l'export est restreint à la commune de la parcelle sélectionnée
+  - Sinon l'export se fait sur toutes les communes
 
 ## 1.6.2 - 2021-06-03
 

@@ -57,20 +57,30 @@ class serviceCtrl extends jController
             );
             $result = $request->process();
             if ($result->code !== 200) {
-                $rep->data = array('status' => 'error', 'message' => 'This is not a cadastre project or has not been configured.');
-
-                return $rep;
             }
+        }
+
+        $config = cadastreConfig::get($repository, $project);
+        if ($config === null) {
+            $rep->data = array('status' => 'error', 'message' => 'This is not a cadastre project or has not been configured.');
+
+            return $rep;
         }
 
         $parcelleLayer = $this->param('layer');
         $parcelleId = $this->param('parcelle');
         $type = $this->param('type');
         if (!$parcelleLayer or !$parcelleId or !$type) {
-            $rep->data = array('status' => 'error', 'message' => 'layer, parcelle and type parameters are mandatory');
+            $rep->data = array('status' => 'error', 'message' => 'layer, parcelle and type parameters are mandatory.');
 
             return $rep;
         }
+        if ($parcelleLayer !== $config->parcelle->name) {
+            $rep->data = array('status' => 'error', 'message' => 'The layer has not been identified.');
+
+            return $rep;
+        }
+        $fblConfig = cadastreConfig::getFilterByLogin($repository, $project, $config->parcelle->id);
 
         if ($type == 'fiche') {
             $creq = 'getHtml';
@@ -86,6 +96,7 @@ class serviceCtrl extends jController
                 'layer' => $parcelleLayer,
                 'parcelle' => $parcelleId,
                 'type' => $type,
+                'allcities' => ($fblConfig === null),
             )
         );
         $result = $request->process();
