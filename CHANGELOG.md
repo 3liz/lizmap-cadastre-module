@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+* Utilisation complète de la configuration du plugin cadastre
+  - identification de la couche Parcelles
+  - identification de la couche Sections
+  - identification de la couche Communes
+
 ## 1.6.2 - 2021-06-03
 
 * Amélioration de l'affichage de la fiche parcellaire dans la popup
