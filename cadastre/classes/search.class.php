@@ -135,8 +135,8 @@ class search
             $sql .= ' LIMIT $'.$i;
         } elseif ($this->field == 'prop') {
             $sql = "
-            SELECT trim(ddenom) AS label, string_agg(comptecommunal, ',') AS code, dnuper,
-            trim(ddenom) ~ ".$firstTerm.' AS b
+            SELECT dnuper || ' - ' || trim(ddenom) AS label, string_agg(comptecommunal, ',') AS code, dnuper,
+            (dnuper || ' - ' || trim(ddenom)) ~ ".$firstTerm.' AS b
             FROM proprietaire p
             ';
             $sql .= '
@@ -145,7 +145,7 @@ class search
 
             $i = 1;
             foreach ($this->terms as $term) {
-                $sql .= ' AND (ddenom LIKE $'.$i.' OR comptecommunal LIKE $'.$i.')';
+                $sql .= ' AND (ddenom LIKE $'.$i.' OR dnuper LIKE $'.$i.')';
                 ++$i;
             }
 
