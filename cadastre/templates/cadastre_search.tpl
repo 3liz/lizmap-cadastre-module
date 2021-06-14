@@ -28,7 +28,7 @@
       </div>
       {ifacl2 "cadastre.acces.donnees.proprio"}
       <div class="tab-pane" id="tab2">
-        {formcontrols array('commune_prop','proprietaire','comptecommunal')}
+        {formcontrols array('commune_prop','proprietaire','comptecommunal','compte')}
           <p> {ctrl_label}&nbsp;&nbsp;{ctrl_control} </p>
         {/formcontrols}
 

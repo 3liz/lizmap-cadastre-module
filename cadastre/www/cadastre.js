@@ -166,6 +166,7 @@ lizMap.events.on({
             $('#' + formId + '_commune_prop').val('');
             $('#' + formId + '_proprietaire').val('');
             $('#' + formId + '_comptecommunal').val('');
+            $('#' + formId + '_compte').val('');
             $('#' + formId + '_geo_parcelle_prop').val('');
 
             // Autocomplete adresse
@@ -239,6 +240,7 @@ lizMap.events.on({
                     if ($(this).val().length < $(this).autocomplete('option', 'minLength')) {
                         $(this).val('').change();
                         $('#' + formId + '_comptecommunal').val('').change();
+                        $('#' + formId + '_compte').val('').change();
                     }
                 },
                 search: function () {
@@ -246,6 +248,46 @@ lizMap.events.on({
                 select: function (_e, ui) {
                     $(this).val($('<a>').html(ui.item.label).text());
                     $('#' + formId + '_comptecommunal').val(ui.item.code).change();
+
+                    return false;
+                }
+            }).autocomplete("widget").css("z-index", "1050");
+
+            // Autocomplete compte
+            $('#' + formId + '_compte').autocomplete({
+                minLength: 3,
+                autoFocus: true,
+                source: function (request, response) {
+                    request.field = 'comp';
+                    request.commune = $('#' + formId + '_commune_prop').val();
+                    request.comptecommunal = $('#' + formId + '_comptecommunal').val();
+                    request.limit = 100;
+                    request.layer = cadastreConfig.layer;
+                    request.repository = lizUrls.params.repository;
+                    request.project = lizUrls.params.project;
+                    $.post($('#form_cadastre_service_autocomplete').attr('action'),
+                        request, function (data) {
+                            response(data);
+                        }, 'json'
+                    );
+                },
+                open: function () {
+                },
+                focus: function () {
+                },
+                close: function () {
+                },
+                change: function () {
+                    if ($(this).val().length < $(this).autocomplete('option', 'minLength')) {
+                        $(this).val('').change();
+                        $('#' + formId + '_comptecommunal').change();
+                    }
+                },
+                search: function () {
+                },
+                select: function (_e, ui) {
+                    $(this).val($('<a>').html(ui.item.label).text()).change();
+                    //$('#' + formId + '_comptecommunal').val(ui.item.code).change();
 
                     return false;
                 }
@@ -266,6 +308,7 @@ lizMap.events.on({
 
             $('#' + formId + '_commune_prop').change(function () {
                 $('#' + formId + '_proprietaire').val('');
+                $('#' + formId + '_compte').val('');
                 $('#' + formId + '_geo_parcelle_prop').val('');
 
             });
@@ -339,9 +382,14 @@ lizMap.events.on({
                 }
                 else {
                     fieldname = '#' + formId + '_geo_parcelle_prop';
-                    if ($('#jforms_cadastre_search_geo_parcelle_prop option').size() > 1 && $('#' + formId + '_comptecommunal').val()) {
+                    if ($('#jforms_cadastre_search_geo_parcelle_prop option').size() > 1) {
                         if ($(fieldname).val() == '') {
-                            fids = "'" + $('#' + formId + '_comptecommunal').val().split(",").join("' , '") + "'";
+                            var comptecommunal = $('#' + formId + '_comptecommunal').val();
+                            var compte = $('#' + formId + '_compte').val();
+                            if (compte !== '') {
+                                comptecommunal = $('#' + formId + '_commune_prop').val()+compte;
+                            }
+                            fids = "'" + comptecommunal.split(",").join("' , '") + "'";
                             filter = '"comptecommunal" IN ( ' + fids + ' )';
                         } else {
                             fids = "'" + $(fieldname).val() + "'";
@@ -475,9 +523,14 @@ lizMap.events.on({
                 }
                 if ($('#' + formId + '_geo_parcelle_prop').val()) {
                     layername = 'Parcelles'; fieldname = 'geo_parcelle'; fieldval = $('#' + formId + '_geo_parcelle_prop').val();
-                }
-                if ($('#' + formId + '_comptecommunal').val() && !$('#' + formId + '_geo_parcelle_prop').val()) {
-                    layername = 'Proprietaire'; fieldname = 'prop'; fieldval = $('#' + formId + '_comptecommunal').val();
+                } else {
+                    if ($('#' + formId + '_compte').val()) {
+                        layername = 'Parcelles'; fieldname = 'comp';
+                        fieldval = $('#' + formId + '_commune_prop').val() + $('#' + formId + '_compte').val();
+                    }
+                    else if ($('#' + formId + '_comptecommunal').val()) {
+                        layername = 'Proprietaire'; fieldname = 'prop'; fieldval = $('#' + formId + '_comptecommunal').val();
+                    }
                 }
             }
 
@@ -487,7 +540,7 @@ lizMap.events.on({
 
             var format = new OpenLayers.Format.GeoJSON();
 
-            if (fieldname == 'voie' || fieldname == 'prop') {
+            if (fieldname == 'voie' || fieldname == 'prop' || fieldname == 'comp') {
                 var url = $('#form_cadastre_service_autocomplete').attr('action').replace('autocomplete', 'extent');
                 var options = {
                     field: fieldname,

@@ -23,6 +23,9 @@ class search
     /** @var string voie filter */
     protected $voie = '';
 
+    /** @var string comptecommunal filter */
+    protected $comptecommunal = '';
+
     /** @var null cadastre config */
     protected $config;
 
@@ -180,6 +183,47 @@ class search
             ';
             // limit
             $sql .= ' LIMIT $'.$i;
+        } elseif ($this->field == 'comp' && !empty($this->commune)) {
+            $sql = "
+            SELECT trim(dnupro) AS label, string_agg(comptecommunal, ',') AS code,
+            ".'true AS b
+            FROM proprietaire p
+            ';
+            $sql .= '
+            WHERE 2>1
+            ';
+
+            $i = 1;
+            foreach ($this->terms as $term) {
+                $sql .= ' AND dnupro LIKE $'.$i;
+                ++$i;
+            }
+
+            $sql .= ' AND trim(p.comptecommunal) IN (';
+            $sql .= 'SELECT DISTINCT comptecommunal FROM parcelle_info WHERE geo_parcelle LIKE $'.$i;
+            if ($pFilterConfig !== null) {
+                $sql .= ' AND ';
+                $sql .= $this->getFilterSql($pFilterConfig, $profile);
+            }
+            $sql .= ')';
+            ++$i;
+            if (!empty($this->comptecommunal)) {
+                $si = array();
+                foreach ($this->comptecommunal as $cc) {
+                    $si[] = '$'.$i;
+                    ++$i;
+                }
+                $sql .= ' AND trim(p.comptecommunal) IN (';
+                $sql .= implode(', ', $si);
+                $sql .= ')';
+            }
+
+            $sql .= '
+            GROUP BY dnupro
+            ORDER BY b DESC, dnupro
+            ';
+            // limit
+            $sql .= ' LIMIT $'.$i;
         } else {
             $sql = null;
         }
@@ -214,22 +258,34 @@ class search
      * @param string $parcelleLayer
      * @param string $term             Searched term
      * @param string $field
-     * @param string $commune
-     * @param string $voie
+     * @param array  $extras           Contains commune, voie and comptecommunal param value
      * @param int    $limit
      * @param bool   $get_total_extent
      *
      * @return null|object[] List of matching taxons
      */
-    public function getData($repository, $project, $parcelleLayer, $term, $field = 'voie', $commune = '', $voie = '', $limit = 15, $get_total_extent = false)
+    public function getData($repository, $project, $parcelleLayer, $term, $field = 'voie', $extras = array(), $limit = 15, $get_total_extent = false)
     {
-        if ($field != 'voie' && $field != 'prop') {
+        if ($field != 'voie' && $field != 'prop' && $field != 'comp') {
             return null;
         }
 
         // Access control
         if ($field != 'voie' && !jAcl2::check('cadastre.acces.donnees.proprio')) {
             return null;
+        }
+
+        $commune = '';
+        if (array_key_exists('commune', $extras)) {
+            $commune = $extras['commune'];
+        }
+        $voie = '';
+        if (array_key_exists('voie', $extras)) {
+            $voie = $extras['voie'];
+        }
+        $comptecommunal = '';
+        if (array_key_exists('comptecommunal', $extras)) {
+            $comptecommunal = $extras['comptecommunal'];
         }
 
         $profile = cadastreProfile::get($repository, $project, $parcelleLayer);
@@ -244,7 +300,7 @@ class search
         $term = $this->normalizeString($term);
         $terms = explode(' ', $term);
 
-        if ($field == 'prop') {
+        if ($field == 'prop' || $field == 'comp') {
             $stopwords = array();
         } else {
             $stopwords = self::STOPWORDS;
@@ -270,7 +326,7 @@ class search
         $this->commune = trim($commune);
         if (!empty($this->commune)) {
             $pco = trim($commune);
-            if ($field == 'prop') {
+            if ($field == 'prop' || $field == 'comp') {
                 $pco .= '%';
             }
             $pa[] = $pco;
@@ -280,6 +336,13 @@ class search
         $this->voie = trim($voie);
         if ($field == 'prop' && !empty($this->voie)) {
             $pa[] = trim($voie);
+        }
+
+        // Compte communal
+        $this->comptecommunal = trim($comptecommunal);
+        if ($field == 'comp' && !empty($this->comptecommunal)) {
+            $this->comptecommunal = explode(',', $this->comptecommunal);
+            $pa = array_merge($pa, $this->comptecommunal);
         }
 
         // Limit
@@ -311,7 +374,7 @@ class search
      */
     public function getDataExtent($repository, $project, $parcelleLayer, $field = 'voie', $value = '')
     {
-        if ($field != 'voie' && $field != 'prop') {
+        if ($field != 'voie' && $field != 'prop' && $field != 'comp') {
             return null;
         }
 
