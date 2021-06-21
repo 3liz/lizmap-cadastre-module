@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.7.0 - 2021-06-21
+
 * Utilisation complète de la configuration du plugin cadastre
   - identification de la couche Parcelles
   - identification de la couche Sections
