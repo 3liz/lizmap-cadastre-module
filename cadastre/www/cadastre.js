@@ -321,7 +321,7 @@ lizMap.events.on({
             // Click on zoom button
             $('#' + formId + '_zoom')
                 .attr("title", "Mode zoom")
-                .addClass("btn")
+                .addClass("btn").addClass("active")
                 .html("<i class='icon-zoom-in'></i>")
                 .click(function () {
                     $(this).toggleClass('active');

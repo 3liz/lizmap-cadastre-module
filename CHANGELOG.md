@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Activation de la fonction de zoom à l'ouverture du formulaire de recherche
+
 ## 1.7.0 - 2021-06-21
 
 * Utilisation complète de la configuration du plugin cadastre
