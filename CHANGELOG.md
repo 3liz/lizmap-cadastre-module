@@ -3,6 +3,7 @@
 ## Unreleased
 
 * Activation de la fonction de zoom à l'ouverture du formulaire de recherche
+* UI - force le margin bottom des éléments p à 10 pixel dans le formulaire de recherche
 
 ## 1.7.0 - 2021-06-21
 

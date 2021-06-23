@@ -17,6 +17,10 @@ Left Menu button
 Toolbar buttons
 */
 
+#cadastre p {
+  margin: 0 0 10px;
+}
+
 #cadastre h3 .icon {
     background-image: url(getfile?targetmodule=cadastre&file=cadastre-icon-white.png);
     background-position: 0 0;
