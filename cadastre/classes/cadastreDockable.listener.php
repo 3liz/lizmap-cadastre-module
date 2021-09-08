@@ -39,9 +39,6 @@
             if ($isCadastreProject
                 and cadastreProfile::checkAccess($profile)
             ) {
-                $lproj = lizmap::getProject($event->repository.'~'.$event->project);
-                $configOptions = $lproj->getOptions();
-                $bp = jApp::config()->urlengine['basePath'];
 
                 // Check if database has MAJIC content or not
                 $hasProprietaire = cadastreProfile::checkTableContent('proprietaire', $profile);
