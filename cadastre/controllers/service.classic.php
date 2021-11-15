@@ -138,17 +138,16 @@ class serviceCtrl extends jController
             }
             $pdfs[$token] = $result->data;
         }
-        if (count($pdfs) == 1) {
+
+        if (count($pdfs) == 0) {
+            $rep = $this->getResponse('text');
+            $rep->content = 'Erreur de création du relevé.';
+        } elseif (count($pdfs) == 1) {
             $rep = $this->getResponse('binary');
             $rep->mimeType = 'application/pdf';
             $rep->content = $pdfs[$tok];
             $rep->doDownload = false;
             $rep->outputFileName = 'cadastre_'.$tok.'.pdf';
-        } elseif (count($pdfs) == 0) {
-            $rep = $this->getResponse('text');
-            $rep->content = 'Erreur de création du relevé.';
-
-            return $rep;
         } else {
             $rep = $this->getResponse('zip');
             $rep->zipFilename = 'releves_cadastre.zip';
