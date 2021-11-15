@@ -57,6 +57,9 @@ class serviceCtrl extends jController
             );
             $result = $request->process();
             if ($result->code !== 200) {
+                $rep->data = array('status' => 'error', 'message' => 'Cadastre module is not well installed.');
+
+                return $rep;
             }
         }
 
