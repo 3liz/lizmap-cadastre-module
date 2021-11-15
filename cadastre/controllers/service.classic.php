@@ -41,7 +41,7 @@ class serviceCtrl extends jController
 
         $p = lizmap::getProject($repository.'~'.$project);
         if (!$p) {
-            $rep->data = array('status' => 'error', 'message' => 'A problem occured while loading project with Lizmap');
+            $rep->data = array('status' => 'error', 'message' => 'A problem occurred while loading project with Lizmap');
 
             return $rep;
         }
@@ -57,6 +57,9 @@ class serviceCtrl extends jController
             );
             $result = $request->process();
             if ($result->code !== 200) {
+                $rep->data = array('status' => 'error', 'message' => 'Cadastre module is not well installed.');
+
+                return $rep;
             }
         }
 
@@ -135,17 +138,17 @@ class serviceCtrl extends jController
             }
             $pdfs[$token] = $result->data;
         }
-        if (count($pdfs) == 1) {
+
+        if (count($pdfs) == 0) {
+            $rep = $this->getResponse('text');
+            $rep->content = 'Erreur de création du relevé.';
+        } elseif (count($pdfs) == 1) {
             $rep = $this->getResponse('binary');
             $rep->mimeType = 'application/pdf';
             $rep->content = $pdfs[$tok];
             $rep->doDownload = false;
+            $rep->setLifetime(300);
             $rep->outputFileName = 'cadastre_'.$tok.'.pdf';
-        } elseif (count($pdfs) == 0) {
-            $rep = $this->getResponse('text');
-            $rep->content = 'Erreur de création du relevé.';
-
-            return $rep;
         } else {
             $rep = $this->getResponse('zip');
             $rep->zipFilename = 'releves_cadastre.zip';
@@ -232,7 +235,7 @@ class serviceCtrl extends jController
         $type = $this->param('type');
 
         // Use standard export if the standalone python PDF generator does not exist
-        // The Python script, if available, if run asynchronuously
+        // The Python script, if available, if run asynchronously
         // and a new Export page is shown to show the user the progress
         // If not, use a synchronous call to QGIS Server, which could reach timeouts for big export (commune)
         $standalone_python_script = '/srv/qgis/plugins/cadastre/standalone_export.py';
@@ -255,7 +258,7 @@ class serviceCtrl extends jController
             return $rep;
         }
         if (!$p) {
-            $rep->data = array('status' => 'error', 'message' => 'A problem occured while loading project with Lizmap');
+            $rep->data = array('status' => 'error', 'message' => 'A problem occurred while loading project with Lizmap');
 
             return $rep;
         }
@@ -318,7 +321,7 @@ class serviceCtrl extends jController
             return $rep;
         }
         if (!$p) {
-            $rep->data = array('status' => 'error', 'message' => 'A problem occured while loading project with Lizmap');
+            $rep->data = array('status' => 'error', 'message' => 'A problem occurred while loading project with Lizmap');
 
             return $rep;
         }
@@ -406,7 +409,7 @@ class serviceCtrl extends jController
             return $rep;
         }
         if (!$p) {
-            $rep->data = array('status' => 'error', 'message' => 'A problem occured while loading project with Lizmap');
+            $rep->data = array('status' => 'error', 'message' => 'A problem occurred while loading project with Lizmap');
 
             return $rep;
         }
@@ -429,6 +432,7 @@ class serviceCtrl extends jController
                 $rep->mimeType = 'application/pdf';
                 $rep->content = jFile::read($logcontent);
                 $rep->doDownload = false;
+                $rep->setLifetime(300);
                 $rep->outputFileName = 'cadastre_'.$token.'.pdf';
                 unlink($logcontent);
                 unlink($log);
@@ -473,7 +477,7 @@ class serviceCtrl extends jController
         $repository = $this->param('repository');
         $p = lizmap::getProject($repository.'~'.$project);
         if (!$p) {
-            $rep->data = array('status' => 'error', 'message' => 'A problem occured while loading project with Lizmap');
+            $rep->data = array('status' => 'error', 'message' => 'A problem occurred while loading project with Lizmap');
 
             return $rep;
         }
