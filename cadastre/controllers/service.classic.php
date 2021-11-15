@@ -147,6 +147,7 @@ class serviceCtrl extends jController
             $rep->mimeType = 'application/pdf';
             $rep->content = $pdfs[$tok];
             $rep->doDownload = false;
+            $rep->setLifetime(300);
             $rep->outputFileName = 'cadastre_'.$tok.'.pdf';
         } else {
             $rep = $this->getResponse('zip');
@@ -431,6 +432,7 @@ class serviceCtrl extends jController
                 $rep->mimeType = 'application/pdf';
                 $rep->content = jFile::read($logcontent);
                 $rep->doDownload = false;
+                $rep->setLifetime(300);
                 $rep->outputFileName = 'cadastre_'.$token.'.pdf';
                 unlink($logcontent);
                 unlink($log);
