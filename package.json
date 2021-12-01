@@ -17,6 +17,6 @@
   },
   "homepage": "https://github.com/3liz/lizmap-cadastre-module#readme",
   "dependencies": {
-    "eslint": "^7.27.0"
+    "eslint": "^8.3.0"
   }
 }
