@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Nécessite la version 3.4.8 de Lizmap Web Client minimum
+
 ## 1.7.1 - 2021-11-15
 
 * Activation de la fonction de zoom à l'ouverture du formulaire de recherche

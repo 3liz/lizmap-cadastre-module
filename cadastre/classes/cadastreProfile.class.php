@@ -34,7 +34,7 @@ class cadastreProfile
             $layerId = $layer->id;
             $qgisLayer = $p->getLayer($layerId);
             if ($qgisLayer) {
-                $profile = $qgisLayer->getDatasourceProfile();
+                $profile = $qgisLayer->getDatasourceProfile(31);
             }
         }
         //jLog::log(json_encode($profile));
@@ -63,7 +63,7 @@ class cadastreProfile
         }
         $qgisLayer = $p->getLayer($layerId);
         if ($qgisLayer) {
-            $profile = $qgisLayer->getDatasourceProfile();
+            $profile = $qgisLayer->getDatasourceProfile(31);
         }
         //jLog::log(json_encode($profile));
         return $profile;
