@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.8.0 - 2022-01-19
+
 * Nécessite la version 3.4.8 de Lizmap Web Client minimum
 
 ## 1.7.1 - 2021-11-15
