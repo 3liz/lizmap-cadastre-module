@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.8.1 - 2022-03-29
+
 * Ajout du paramètre Version pour toutes les requêtes au service CADASTRE
 
 ## 1.8.0 - 2022-01-19
