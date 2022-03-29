@@ -27,6 +27,7 @@ class cadastreConfig
                 $p,
                 array(
                     'service' => 'CADASTRE',
+                    'version' => '1.0.0',
                     'request' => 'GetCapabilities',
                 )
             );

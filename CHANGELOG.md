@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Ajout du paramètre Version pour toutes les requêtes au service CADASTRE
+
 ## 1.8.0 - 2022-01-19
 
 * Nécessite la version 3.4.8 de Lizmap Web Client minimum

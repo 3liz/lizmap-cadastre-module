@@ -52,6 +52,7 @@ class serviceCtrl extends jController
                 $p,
                 array(
                     'service' => 'CADASTRE',
+                    'version' => '1.0.0',
                     'request' => 'GetCapabilities',
                 )
             );
@@ -95,6 +96,7 @@ class serviceCtrl extends jController
             $p,
             array(
                 'service' => 'CADASTRE',
+                'version' => '1.0.0',
                 'request' => $creq,
                 'layer' => $parcelleLayer,
                 'parcelle' => $parcelleId,
@@ -128,6 +130,7 @@ class serviceCtrl extends jController
                 $p,
                 array(
                     'service' => 'CADASTRE',
+                    'version' => '1.0.0',
                     'request' => 'getPdf',
                     'token' => $token,
                 )
