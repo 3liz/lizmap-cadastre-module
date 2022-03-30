@@ -4,7 +4,8 @@
 
 ## 1.8.1 - 2022-03-29
 
-* Ajout du paramètre Version pour toutes les requêtes au service CADASTRE
+* Mise à jour **obligatoire** pour Lizmap Web Client 3.4.10 et 3.5.2
+* Ajout du paramètre Version pour toutes les requêtes au service `CADASTRE`
 
 ## 1.8.0 - 2022-01-19
 
@@ -23,10 +24,10 @@
   - identification de la couche Parcelles
   - identification de la couche Sections
   - identification de la couche Communes
-* Fonctionnalité: recherche par compte de propriété
-* Recherche par numéro de persone dans la recherche des propriétaires
+* Fonctionnalité : recherche par compte de propriété
+* Recherche par numéro de personne dans la recherche des propriétaires
 * Export du relevé de propriété pour toutes les communes
-  - Si il existe un filtre par login à appliquer à la couche Parceles pour l'utilisateur, l'export est restreint à la commune de la parcelle sélectionnée
+  - S'il existe un filtre par login à appliquer à la couche Parcelles pour l'utilisateur, l'export est restreint à la commune de la parcelle sélectionnée
   - Sinon l'export se fait sur toutes les communes
 
 ## 1.6.2 - 2021-06-03
@@ -65,4 +66,4 @@
 * Fix locauxProprios: download CSV
 * Export - Add space above information texts
 * Configuration to install the module with Composer
-* Requête WFS: utilisation du nom de la couche Parcelles
+* Requête WFS : utilisation du nom de la couche Parcelles
