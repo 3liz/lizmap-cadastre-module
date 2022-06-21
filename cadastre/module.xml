@@ -10,8 +10,7 @@
         <homepageURL>http://3liz.com</homepageURL>
     </info>
     <dependencies>
-        <jelix minversion="1.6.8" maxversion="1.6.*"/>
-        <module name="lizmap" minversion="3.4.8" maxversion="3.*"/>
+        <module name="lizmap" minversion="3.4.8" maxversion="3.6.*"/>
     </dependencies>
     <autoload>
         <class name="lizmapCadastreRequest" file="classes/lizmapCadastreRequest.class.php" />

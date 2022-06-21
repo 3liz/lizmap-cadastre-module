@@ -37,7 +37,6 @@ class cadastreListener extends jEventListener
         $css = array();
 
         if ($hasCadastreConfig) {
-            $bp = jApp::config()->urlengine['basePath'];
 
             $js = array(
                 jUrl::get('jelix~www:getfile', array('targetmodule' => 'cadastre', 'file' => 'cadastre.js')),
