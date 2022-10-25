@@ -30,7 +30,7 @@ services:
       - ${LIZMAP_DIR}/var/lizmap-log:/www/lizmap/var/log
       - ${LIZMAP_DIR}/var/lizmap-temp:/www/temp/lizmap/
       - ${LIZMAP_DIR}/etc:/srv/etc:ro
-      - ${GOBSAPI_MODULE_SRC}/tests:/www/lizmap/lizmap-modules/tests
+      - ${MODULE_SRC}/cadastre:/www/lizmap/lizmap-modules/cadastre
     command:
       - php-fpm
     depends_on:

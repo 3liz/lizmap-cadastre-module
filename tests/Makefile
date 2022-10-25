@@ -122,3 +122,12 @@ import-lizmap-acl:
 		php lizmap/cmd.php acl2right add __anonymous "lizmap.tools.layer.export" tests ; \
 		php lizmap/cmd.php acl2right add users "lizmap.tools.layer.export" tests ; \
 		php lizmap/cmd.php acl2right add admins "lizmap.tools.layer.export" tests'
+	@echo "Cadastre"
+	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
+		php lizmap/cmd.php acl2right add __anonymous "cadastre.acces.donnees.proprio" tests ; \
+		php lizmap/cmd.php acl2right add users "cadastre.acces.donnees.proprio" tests ; \
+		php lizmap/cmd.php acl2right add admins "cadastre.acces.donnees.proprio" tests'
+	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
+		php lizmap/cmd.php acl2right add __anonymous "cadastre.use.search.tool" tests ; \
+		php lizmap/cmd.php acl2right add users "cadastre.use.search.tool" tests ; \
+		php lizmap/cmd.php acl2right add admins "cadastre.use.search.tool" tests'
