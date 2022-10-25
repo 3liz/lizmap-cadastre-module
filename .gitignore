@@ -17,3 +17,11 @@ node_modules/
 # Python, for the packaging on the CI
 .venv
 venv
+
+# Tests
+tests/.env
+tests/lizmap/www/
+tests/lizmap/var/
+tests/lizmap/qgis-server-plugins/
+tests/lizmap/cache-python
+tests/lizmap/local-python
