@@ -16,8 +16,6 @@ make import-lizmap-acl
 
 - Open your browser at http://localhost:9085
 
-For more information, refer to the [docker compose documentation](https://docs.docker.com/compose/)
-
 ## Access to the dockerized PostgreSQL instance
 
 You can access the docker PostgreSQL test database `lizmap` from your host by configuring a
@@ -47,9 +45,9 @@ execute `make shell`.
 
 ## Add the test data
 
-### PostgreSQL data
+### Majic
 
-You can add some data in your docker test PostgreSQL database by running the SQL `tests/sql/test_data.sql`.
+You can provide some MAJIC SQL data in the `sql/majic`. There isn't MAJIC SQL data by default.
 
 ```bash
 make import-data
