@@ -1,6 +1,7 @@
 <?php
 /**
  * @author    Michael Douchin
+ *
  * @contributor Laurent Jouanneau
  *
  * @copyright 2018-2020 3liz
@@ -32,7 +33,7 @@ class search
     protected $repository = '';
     protected $project = '';
 
-    const STOPWORDS = array('ALLEE', 'AQUEDUC', 'ARCEAUX', 'AVENUE', 'AVENUES',
+    public const STOPWORDS = array('ALLEE', 'AQUEDUC', 'ARCEAUX', 'AVENUE', 'AVENUES',
         'BOULEVARD', 'CARREFOUR', 'CARRER', 'CHEMIN', 'CHEMINS', 'CHEMIN RURAL',
         'CLOS', 'COUR', 'COURS', 'DESCENTE', 'ENCLOS', 'ESCALIER', 'ESPACE',
         'ESPLANADE', 'GRAND RUE', 'IMPASSE', 'MAIL', 'MONTEE', 'PARVIS',
@@ -80,14 +81,14 @@ class search
             foreach ($value as $v) {
                 $preparedValues[] = $cnx->quote(trim($v));
             }
-            $sql .= '"'.$field.'" IN ('.implode(', ', $preparedValues).', '.$cnx->quote('all').')';
+            $sql .= '"' . $field . '" IN (' . implode(', ', $preparedValues) . ', ' . $cnx->quote('all') . ')';
         } elseif (is_string($value) || is_numeric($value)) {
-            $sql .= '"'.$field.'" IN ('.$cnx->quote(trim($value)).', '.$cnx->quote('all').')';
+            $sql .= '"' . $field . '" IN (' . $cnx->quote(trim($value)) . ', ' . $cnx->quote('all') . ')';
         } else {
-            $sql .= '"'.$field.'" = '.$cnx->quote('all');
+            $sql .= '"' . $field . '" = ' . $cnx->quote('all');
         }
         if ($tableAlias !== '') {
-            $sql = $tableAlias.'.'.$sql;
+            $sql = $tableAlias . '.' . $sql;
         }
 
         return $sql;
@@ -99,7 +100,7 @@ class search
         $pFilterConfig = cadastreConfig::getFilterByLogin($this->repository, $this->project, $this->config->parcelle->id);
 
         $cnx = jDb::getConnection($profile);
-        $firstTerm = $cnx->quote('^'.$this->terms[0]);
+        $firstTerm = $cnx->quote('^' . $this->terms[0]);
 
         if ($this->field == 'voie') {
             $sql = "
@@ -110,18 +111,18 @@ class search
                     Coalesce(trim(natvoi) || ' ', ''),
                     trim(libvoi)
                 )) AS label,
-                trim(libvoi) ~ ".$firstTerm.' AS b
+                trim(libvoi) ~ " . $firstTerm . ' AS b
             FROM voie v
             INNER JOIN geo_commune c ON c.commune = v.commune
             WHERE 2>1
             ';
             $i = 1;
             foreach ($this->terms as $term) {
-                $sql .= ' AND libvoi LIKE $'.$i;
+                $sql .= ' AND libvoi LIKE $' . $i;
                 ++$i;
             }
             if (!empty($this->commune)) {
-                $sql .= ' AND trim(c.geo_commune) = $'.$i;
+                $sql .= ' AND trim(c.geo_commune) = $' . $i;
                 ++$i;
             }
             if ($cFilterConfig !== null) {
@@ -132,11 +133,11 @@ class search
             ORDER BY b DESC, label
             ';
             // limit
-            $sql .= ' LIMIT $'.$i;
+            $sql .= ' LIMIT $' . $i;
         } elseif ($this->field == 'prop') {
             $sql = "
             SELECT dnuper || ' - ' || trim(ddenom) AS label, string_agg(comptecommunal, ',') AS code, dnuper,
-            (dnuper || ' - ' || trim(ddenom)) ~ ".$firstTerm.' AS b
+            (dnuper || ' - ' || trim(ddenom)) ~ " . $firstTerm . ' AS b
             FROM proprietaire p
             ';
             $sql .= '
@@ -145,13 +146,13 @@ class search
 
             $i = 1;
             foreach ($this->terms as $term) {
-                $sql .= ' AND (ddenom LIKE $'.$i.' OR dnuper LIKE $'.$i.')';
+                $sql .= ' AND (ddenom LIKE $' . $i . ' OR dnuper LIKE $' . $i . ')';
                 ++$i;
             }
 
             if (!empty($this->voie)) {
                 $sql .= ' AND trim(p.comptecommunal) IN (';
-                $sql .= 'SELECT DISTINCT comptecommunal FROM parcelle_info WHERE voie = $'.$i;
+                $sql .= 'SELECT DISTINCT comptecommunal FROM parcelle_info WHERE voie = $' . $i;
                 if ($pFilterConfig !== null) {
                     $sql .= ' AND ';
                     $sql .= $this->getFilterSql($pFilterConfig, $profile);
@@ -161,7 +162,7 @@ class search
             }
             if (!empty($this->commune)) {
                 $sql .= ' AND trim(p.comptecommunal) IN (';
-                $sql .= 'SELECT DISTINCT comptecommunal FROM parcelle_info WHERE geo_parcelle LIKE $'.$i;
+                $sql .= 'SELECT DISTINCT comptecommunal FROM parcelle_info WHERE geo_parcelle LIKE $' . $i;
                 if ($pFilterConfig !== null) {
                     $sql .= ' AND ';
                     $sql .= $this->getFilterSql($pFilterConfig, $profile);
@@ -182,11 +183,11 @@ class search
             ORDER BY b DESC, ddenom
             ';
             // limit
-            $sql .= ' LIMIT $'.$i;
+            $sql .= ' LIMIT $' . $i;
         } elseif ($this->field == 'comp' && !empty($this->commune)) {
             $sql = "
             SELECT trim(dnupro) AS label, string_agg(comptecommunal, ',') AS code,
-            ".'true AS b
+            " . 'true AS b
             FROM proprietaire p
             ';
             $sql .= '
@@ -195,12 +196,12 @@ class search
 
             $i = 1;
             foreach ($this->terms as $term) {
-                $sql .= ' AND dnupro LIKE $'.$i;
+                $sql .= ' AND dnupro LIKE $' . $i;
                 ++$i;
             }
 
             $sql .= ' AND trim(p.comptecommunal) IN (';
-            $sql .= 'SELECT DISTINCT comptecommunal FROM parcelle_info WHERE geo_parcelle LIKE $'.$i;
+            $sql .= 'SELECT DISTINCT comptecommunal FROM parcelle_info WHERE geo_parcelle LIKE $' . $i;
             if ($pFilterConfig !== null) {
                 $sql .= ' AND ';
                 $sql .= $this->getFilterSql($pFilterConfig, $profile);
@@ -210,7 +211,7 @@ class search
             if (!empty($this->comptecommunal)) {
                 $si = array();
                 foreach ($this->comptecommunal as $cc) {
-                    $si[] = '$'.$i;
+                    $si[] = '$' . $i;
                     ++$i;
                 }
                 $sql .= ' AND trim(p.comptecommunal) IN (';
@@ -223,7 +224,7 @@ class search
             ORDER BY b DESC, dnupro
             ';
             // limit
-            $sql .= ' LIMIT $'.$i;
+            $sql .= ' LIMIT $' . $i;
         } else {
             $sql = null;
         }
@@ -311,7 +312,7 @@ class search
             if (in_array($term, $stopwords)) {
                 continue;
             }
-            $pa[] = '%'.$term.'%';
+            $pa[] = '%' . $term . '%';
             $this->terms[] = $term;
         }
 

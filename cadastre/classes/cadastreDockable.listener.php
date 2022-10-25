@@ -39,7 +39,6 @@
             if ($isCadastreProject
                 and cadastreProfile::checkAccess($profile)
             ) {
-
                 // Check if database has MAJIC content or not
                 $hasProprietaire = cadastreProfile::checkTableContent('proprietaire', $profile);
                 $form_name = 'cadastre~search';

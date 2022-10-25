@@ -1,6 +1,6 @@
 <?php
 
-require_once JELIX_LIB_PATH.'forms/jFormsDatasource.class.php';
+require_once JELIX_LIB_PATH . 'forms/jFormsDatasource.class.php';
 
 class listParcellePropDatasource extends jFormsDynamicDatasource
 {
@@ -39,7 +39,7 @@ class listParcellePropDatasource extends jFormsDynamicDatasource
         }
 
         if (!empty($compte)) {
-            $comptecommunal = $commune.$compte;
+            $comptecommunal = $commune . $compte;
         }
 
         $this->profile = cadastreProfile::getWithLayerId($repository, $project, $layerId);
@@ -115,7 +115,7 @@ class listParcellePropDatasource extends jFormsDynamicDatasource
         $label = '';
         foreach ((array) $this->labelProperty as $property) {
             if ((string) $rec->{$property} !== '') {
-                $label .= $rec->{$property}.$this->labelSeparator;
+                $label .= $rec->{$property} . $this->labelSeparator;
             }
         }
         if ($this->labelSeparator != '') {

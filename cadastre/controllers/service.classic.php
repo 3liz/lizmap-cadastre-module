@@ -39,7 +39,7 @@ class serviceCtrl extends jController
             return $rep;
         }
 
-        $p = lizmap::getProject($repository.'~'.$project);
+        $p = lizmap::getProject($repository . '~' . $project);
         if (!$p) {
             $rep->data = array('status' => 'error', 'message' => 'A problem occurred while loading project with Lizmap');
 
@@ -88,7 +88,7 @@ class serviceCtrl extends jController
 
         if ($type == 'fiche') {
             $creq = 'getHtml';
-        //jLog::log($creq);
+        // jLog::log($creq);
         } else {
             $creq = 'createPdf';
         }
@@ -151,12 +151,12 @@ class serviceCtrl extends jController
             $rep->content = $pdfs[$tok];
             $rep->doDownload = false;
             $rep->setLifetime(300);
-            $rep->outputFileName = 'cadastre_'.$tok.'.pdf';
+            $rep->outputFileName = 'cadastre_' . $tok . '.pdf';
         } else {
             $rep = $this->getResponse('zip');
             $rep->zipFilename = 'releves_cadastre.zip';
             foreach ($pdfs as $token => $pdf) {
-                $rep->content->addContentFile('cadastre_'.$token.'.pdf', $pdf);
+                $rep->content->addContentFile('cadastre_' . $token . '.pdf', $pdf);
             }
         }
 
@@ -184,7 +184,7 @@ class serviceCtrl extends jController
 
         // Get profile
         $parcelleLayer = $this->param('layer', 'Parcelles');
-        //$profile = cadastreProfile::get($repository, $project, $parcelleLayer);
+        // $profile = cadastreProfile::get($repository, $project, $parcelleLayer);
 
         $autocomplete = jClasses::getService('cadastre~search');
 
@@ -252,7 +252,7 @@ class serviceCtrl extends jController
         }
 
         // get needed values
-        $p = lizmap::getProject($repository.'~'.$project);
+        $p = lizmap::getProject($repository . '~' . $project);
 
         // checks
         if (!jAcl2::check('cadastre.acces.donnees.proprio')) {
@@ -267,24 +267,24 @@ class serviceCtrl extends jController
         }
 
         // Create token
-        $token = md5($repository.$project.$parcelleLayer.$parcelleId.$type.microtime(true));
-        $_SESSION['cadastre_export_'.$token] = 'wait';
+        $token = md5($repository . $project . $parcelleLayer . $parcelleId . $type . microtime(true));
+        $_SESSION['cadastre_export_' . $token] = 'wait';
 
         // Create file path
-        $log = jApp::tempPath($token.'.log');
+        $log = jApp::tempPath($token . '.log');
 
         // Run python code
-        $cmd = 'python '.$standalone_python_script;
+        $cmd = 'python ' . $standalone_python_script;
         if (version_compare($services->qgisServerVersion, '3.0', '>=')) {
-            $cmd = 'python3 '.$standalone_python_script;
+            $cmd = 'python3 ' . $standalone_python_script;
         }
-        $cmd .= ' -P '.$p->getQgisPath();
-        $cmd .= ' -L "'.$parcelleLayer.'"';
-        $cmd .= ' -I '.$parcelleId;
-        $cmd .= ' -T '.$type;
-        $cmd .= ' -D '.jApp::tempPath();
-        $cmd .= ' -O '.$log;
-        //jLog::log($cmd);
+        $cmd .= ' -P ' . $p->getQgisPath();
+        $cmd .= ' -L "' . $parcelleLayer . '"';
+        $cmd .= ' -I ' . $parcelleId;
+        $cmd .= ' -T ' . $type;
+        $cmd .= ' -D ' . jApp::tempPath();
+        $cmd .= ' -O ' . $log;
+        // jLog::log($cmd);
         $this->execInBackground($cmd);
 
         // Redirect to display page
@@ -299,9 +299,9 @@ class serviceCtrl extends jController
     private function execInBackground($cmd)
     {
         if (substr(php_uname(), 0, 7) == 'Windows') {
-            pclose(popen('start /B '.$cmd, 'r'));
+            pclose(popen('start /B ' . $cmd, 'r'));
         } else {
-            exec($cmd.' > /dev/null &');
+            exec($cmd . ' > /dev/null &');
         }
     }
 
@@ -315,7 +315,7 @@ class serviceCtrl extends jController
         $token = $this->param('token');
 
         // get needed values
-        $p = lizmap::getProject($repository.'~'.$project);
+        $p = lizmap::getProject($repository . '~' . $project);
 
         // checks
         if (!jAcl2::check('cadastre.acces.donnees.proprio')) {
@@ -336,12 +336,12 @@ class serviceCtrl extends jController
         $rep->body->assign('user', jAuth::getUserSession());
 
         // Add JS code to refresh
-        $rep->addJSCode("var token = '".$token."'; ");
+        $rep->addJSCode("var token = '" . $token . "'; ");
         $checkUrl = jUrl::getFull(
             'cadastre~service:checkExport',
             $this->params()
         );
-        $rep->addJSCode("var checkUrl = '".$checkUrl."'; ");
+        $rep->addJSCode("var checkUrl = '" . $checkUrl . "'; ");
         $jslink = jUrl::get(
             'jelix~www:getfile',
             array('targetmodule' => 'cadastre', 'file' => 'cadastre-export.js')
@@ -362,15 +362,15 @@ class serviceCtrl extends jController
         $token = $this->param('token');
 
         // Get log path
-        $log = jApp::tempPath($token.'.log');
+        $log = jApp::tempPath($token . '.log');
         $logcontent = jFile::read($log);
-        if (!array_key_exists('cadastre_export_'.$token, $_SESSION)) {
+        if (!array_key_exists('cadastre_export_' . $token, $_SESSION)) {
             $data = array(
                 'status' => 'error',
                 'message' => 'La requête est périmée.',
             );
         } else {
-            $ses = $_SESSION['cadastre_export_'.$token];
+            $ses = $_SESSION['cadastre_export_' . $token];
             if (!empty($logcontent)) {
                 $data = array(
                     'status' => 'ok',
@@ -402,7 +402,7 @@ class serviceCtrl extends jController
         $token = $this->param('token');
 
         // get needed values
-        $p = lizmap::getProject($repository.'~'.$project);
+        $p = lizmap::getProject($repository . '~' . $project);
 
         // checks
         if (!jAcl2::check('cadastre.acces.donnees.proprio')) {
@@ -417,9 +417,9 @@ class serviceCtrl extends jController
         }
 
         // Get log path
-        $log = jApp::tempPath($token.'.log');
+        $log = jApp::tempPath($token . '.log');
         $logcontent = jFile::read($log);
-        if (!array_key_exists('cadastre_export_'.$token, $_SESSION)) {
+        if (!array_key_exists('cadastre_export_' . $token, $_SESSION)) {
             $data = array(
                 'status' => 'error',
                 'message' => 'La requête est périmée.',
@@ -435,10 +435,10 @@ class serviceCtrl extends jController
                 $rep->content = jFile::read($logcontent);
                 $rep->doDownload = false;
                 $rep->setLifetime(300);
-                $rep->outputFileName = 'cadastre_'.$token.'.pdf';
+                $rep->outputFileName = 'cadastre_' . $token . '.pdf';
                 unlink($logcontent);
                 unlink($log);
-                unset($_SESSION['cadastre_export_'.$token]);
+                unset($_SESSION['cadastre_export_' . $token]);
 
                 return $rep;
             }
@@ -446,14 +446,14 @@ class serviceCtrl extends jController
             $rep = $this->getResponse('zip');
             $rep->zipFilename = "Export_cadastre_${token}.zip";
             foreach ($files as $file) {
-                $fp = $file.'.pdf';
+                $fp = $file . '.pdf';
                 if (is_file($fp)) {
                     $rep->content->addContentFile(basename($fp), jFile::read($fp));
                     unlink($fp);
                 }
             }
             unlink($log);
-            unset($_SESSION['cadastre_export_'.$token]);
+            unset($_SESSION['cadastre_export_' . $token]);
 
             return $rep;
         }
@@ -477,7 +477,7 @@ class serviceCtrl extends jController
 
         $project = $this->param('project');
         $repository = $this->param('repository');
-        $p = lizmap::getProject($repository.'~'.$project);
+        $p = lizmap::getProject($repository . '~' . $project);
         if (!$p) {
             $rep->data = array('status' => 'error', 'message' => 'A problem occurred while loading project with Lizmap');
 

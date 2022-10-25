@@ -21,7 +21,7 @@ class cadastreConfig
      */
     public static function get($repository, $project)
     {
-        $p = lizmap::getProject($repository.'~'.$project);
+        $p = lizmap::getProject($repository . '~' . $project);
         if ($p) {
             $request = new lizmapCadastreRequest(
                 $p,
@@ -45,7 +45,7 @@ class cadastreConfig
 
     public static function getFilterByLogin($repository, $project, $layerId)
     {
-        $p = lizmap::getProject($repository.'~'.$project);
+        $p = lizmap::getProject($repository . '~' . $project);
 
         $qgisLayer = $p->getLayer($layerId);
         if (!$qgisLayer) {

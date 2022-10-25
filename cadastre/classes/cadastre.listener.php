@@ -37,7 +37,6 @@ class cadastreListener extends jEventListener
         $css = array();
 
         if ($hasCadastreConfig) {
-
             $js = array(
                 jUrl::get('jelix~www:getfile', array('targetmodule' => 'cadastre', 'file' => 'cadastre.js')),
             );
@@ -45,7 +44,7 @@ class cadastreListener extends jEventListener
             $cadastreConfig['url'] = jUrl::get('cadastre~service:initExport');
 
             $jscode = array(
-                'var cadastreConfig = '.json_encode($cadastreConfig),
+                'var cadastreConfig = ' . json_encode($cadastreConfig),
             );
             $css = array(
                 jUrl::get('jelix~www:getfile', array('targetmodule' => 'cadastre', 'file' => 'cadastre.css')),

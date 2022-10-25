@@ -1,6 +1,6 @@
 <?php
 
-require_once JELIX_LIB_PATH.'forms/jFormsDatasource.class.php';
+require_once JELIX_LIB_PATH . 'forms/jFormsDatasource.class.php';
 
 class listParcelleLieuNoMajicDatasource extends jFormsDynamicDatasource
 {
@@ -42,7 +42,7 @@ class listParcelleLieuNoMajicDatasource extends jFormsDynamicDatasource
         if ($fblConfig === null) {
             $found = call_user_func_array(array($this->dao, $this->method), $args);
         } else {
-            $method = $this->method.'AndFieldIn';
+            $method = $this->method . 'AndFieldIn';
             array_push($args, $fblConfig->filterAttribute);
             if (!jAuth::isConnected()) {
                 array_push($args, null);
@@ -100,7 +100,7 @@ class listParcelleLieuNoMajicDatasource extends jFormsDynamicDatasource
         $label = '';
         foreach ((array) $this->labelProperty as $property) {
             if ((string) $rec->{$property} !== '') {
-                $label .= $rec->{$property}.$this->labelSeparator;
+                $label .= $rec->{$property} . $this->labelSeparator;
             }
         }
         if ($this->labelSeparator != '') {

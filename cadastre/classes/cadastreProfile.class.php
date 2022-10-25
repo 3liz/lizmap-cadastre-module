@@ -25,7 +25,7 @@ class cadastreProfile
      */
     public static function get($repository, $project, $layerName, $profile = 'cadastre')
     {
-        $p = lizmap::getProject($repository.'~'.$project);
+        $p = lizmap::getProject($repository . '~' . $project);
         if ($p === null) {
             throw new Exception("Cadastre profile: Unknown repository/project ${repository}.'~'.${project}");
         }
@@ -37,7 +37,7 @@ class cadastreProfile
                 $profile = $qgisLayer->getDatasourceProfile(31);
             }
         }
-        //jLog::log(json_encode($profile));
+        // jLog::log(json_encode($profile));
         return $profile;
     }
 
@@ -57,7 +57,7 @@ class cadastreProfile
      */
     public static function getWithLayerId($repository, $project, $layerId, $profile = 'cadastre')
     {
-        $p = lizmap::getProject($repository.'~'.$project);
+        $p = lizmap::getProject($repository . '~' . $project);
         if ($p === null) {
             throw new Exception("Cadastre profile: Unknown repository/project ${repository}.'~'.${project}");
         }
@@ -65,7 +65,7 @@ class cadastreProfile
         if ($qgisLayer) {
             $profile = $qgisLayer->getDatasourceProfile(31);
         }
-        //jLog::log(json_encode($profile));
+        // jLog::log(json_encode($profile));
         return $profile;
     }
 
@@ -116,7 +116,7 @@ class cadastreProfile
         try {
             // try to get the specific search profile to do not rebuild it
             $cnx = jDb::getConnection($profile);
-            $res = $cnx->query('SELECT * FROM "'.$table.'" LIMIT 1');
+            $res = $cnx->query('SELECT * FROM "' . $table . '" LIMIT 1');
             foreach ($res as $rec) {
                 $ok = true;
             }

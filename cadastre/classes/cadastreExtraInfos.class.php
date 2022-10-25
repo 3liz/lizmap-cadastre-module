@@ -89,12 +89,12 @@ class cadastreExtraInfos
 
         $pids = array();
         foreach ($parcelle_ids as $pid) {
-            $pids[] = "'".$pid."'";
+            $pids[] = "'" . $pid . "'";
         }
 
         $sql .= '
         WHERE
-            p.parcelle IN ( '.implode(', ', $pids).' )
+            p.parcelle IN ( ' . implode(', ', $pids) . ' )
         ';
 
         return $sql;
@@ -128,7 +128,7 @@ class cadastreExtraInfos
      */
     protected function buildCsv($rows)
     {
-        $path = tempnam(sys_get_temp_dir(), 'cadastre_'.session_id().'_');
+        $path = tempnam(sys_get_temp_dir(), 'cadastre_' . session_id() . '_');
 
         $fd = fopen($path, 'w');
         fputcsv($fd, array_keys((array) reset($rows)));

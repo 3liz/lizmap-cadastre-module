@@ -25,8 +25,8 @@ class atlasPrintListener extends jEventListener
 
         // We must generate a HTML file in the temp folder with the parcelle detail
         $params = $event->params;
-        if (!(array_key_exists('layer', $params))
-            or !(array_key_exists('exp_filter', $params))
+        if (!array_key_exists('layer', $params)
+            or !array_key_exists('exp_filter', $params)
         ) {
             $event->add(
                 array('status' => $status, 'file' => $file)
@@ -52,14 +52,14 @@ class atlasPrintListener extends jEventListener
         $fid = intval($match[0]);
 
         if ($fid > 0) {
-            $sql = 'SELECT geo_parcelle FROM parcelle_info WHERE ogc_fid = '.$fid;
+            $sql = 'SELECT geo_parcelle FROM parcelle_info WHERE ogc_fid = ' . $fid;
             $cnx = jDb::getConnection('cadastre');
             $result = $cnx->query($sql);
             $geo_parcelle = -1;
             foreach ($result as $line) {
                 $geo_parcelle = $line->geo_parcelle;
             }
-            $p = lizmap::getProject($event->repository.'~'.$event->project);
+            $p = lizmap::getProject($event->repository . '~' . $event->project);
             $request = new lizmapCadastreRequest(
                 $p,
                 array(
@@ -75,12 +75,12 @@ class atlasPrintListener extends jEventListener
 
             // File path. Needs to be made from geo_parcelle
             // so that atlas composer can call it via
-            //concat(
-            //'/var/www/LIZMAP/release_3_2/temp/lizmap/www/fiche_cadastre_',
-            //"geo_parcelle" ,
-            //'.html'
-            //)
-            $path = jApp::tempPath('fiche_cadastre_'.$geo_parcelle.'.html');
+            // concat(
+            // '/var/www/LIZMAP/release_3_2/temp/lizmap/www/fiche_cadastre_',
+            // "geo_parcelle" ,
+            // '.html'
+            // )
+            $path = jApp::tempPath('fiche_cadastre_' . $geo_parcelle . '.html');
             if (file_exists($path)) {
                 unlink($path);
             }
@@ -102,7 +102,7 @@ class atlasPrintListener extends jEventListener
                 fwrite($file, $piece, strlen($piece));
             }
             fclose($file);
-            //jLog::log($path);
+            // jLog::log($path);
             $file = $path;
             $status = 'success';
         }

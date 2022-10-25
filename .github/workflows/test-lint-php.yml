@@ -1,4 +1,4 @@
-name: PHP Lint 🎳
+name: Lint PHP 🚨
 
 on:
   push:
@@ -9,13 +9,12 @@ on:
       - '**.php'
 
 jobs:
-  test-php-cs-fixer:
-    name: "PHP-CS-Fixer"
+  php-cs-fixer:
+    name: PHP-CS-Fixer
     runs-on: ubuntu-latest
     steps:
-
     - uses: actions/checkout@v3
-
-    - uses: docker://oskarstark/php-cs-fixer-ga:2.19.0
+    - name: PHP-CS-Fixer
+      uses: docker://oskarstark/php-cs-fixer-ga
       with:
-        args: --config=.php_cs.dist --allow-risky=yes --dry-run --diff -- cadastre
+        args: --config=.php-cs-fixer.dist.php --diff --dry-run

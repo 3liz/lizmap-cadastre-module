@@ -21,13 +21,13 @@ class lizmapCadastreRequest extends lizmapOGCRequest
     protected function getcapabilities()
     {
         // Get cached session
-        $key = session_id().'-'.
-               $this->project->getRepository()->getKey().'-'.
-               $this->project->getKey().'-'.
-               $this->param('service').'-getcapabilities';
+        $key = session_id() . '-' .
+               $this->project->getRepository()->getKey() . '-' .
+               $this->project->getKey() . '-' .
+               $this->param('service') . '-getcapabilities';
         if (jAuth::isConnected()) {
             $juser = jAuth::getUserSession();
-            $key .= '-'.$juser->login;
+            $key .= '-' . $juser->login;
         }
         $key = sha1($key);
         $cached = false;
@@ -96,7 +96,6 @@ class lizmapCadastreRequest extends lizmapOGCRequest
 
     public function createPdf()
     {
-
         // Access control
         if (!jAcl2::check('cadastre.acces.donnees.proprio')) {
             jMessage::add('Cadastre - Droits insuffisants pour accéder aux données de propriété', 'Error');
@@ -105,7 +104,7 @@ class lizmapCadastreRequest extends lizmapOGCRequest
         }
 
         $querystring = $this->constructUrl();
-        //jLog::log( $querystring );
+        // jLog::log( $querystring );
         // Get remote data
         list($data, $mime, $code) = lizmapProxy::getRemoteData($querystring);
 
@@ -149,7 +148,7 @@ class lizmapCadastreRequest extends lizmapOGCRequest
         }
 
         $querystring = $this->constructUrl();
-        //jLog::log($querystring);
+        // jLog::log($querystring);
         // Get remote data
         list($data, $mime, $code) = lizmapProxy::getRemoteData($querystring);
 
@@ -178,7 +177,7 @@ class lizmapCadastreRequest extends lizmapOGCRequest
         }
 
         $querystring = $this->constructUrl();
-        //jLog::log($querystring);
+        // jLog::log($querystring);
         // Get remote data
         list($data, $mime, $code) = lizmapProxy::getRemoteData($querystring);
         $data = json_decode($data);

@@ -1,16 +1,18 @@
 <?php
 /**
  * @author    Michaël Douchin
+ *
  * @contributor Laurent Jouanneau
+ *
  * @copyright 2014-2022 3liz
  *
  * @see      http://3liz.com
  *
  * @license Mozilla Public License : http://www.mozilla.org/MPL/
  */
-class cadastreModuleInstaller extends  \Jelix\Installer\Module\Installer
+class cadastreModuleInstaller extends \Jelix\Installer\Module\Installer
 {
-    public function install(\Jelix\Installer\Module\API\InstallHelpers $helpers)
+    public function install(Jelix\Installer\Module\API\InstallHelpers $helpers)
     {
         $helpers->database()->useDbProfile('auth');
 
@@ -38,6 +40,5 @@ class cadastreModuleInstaller extends  \Jelix\Installer\Module\Installer
 
         // Add admin users to cadastre group
         jAcl2DbUserGroup::addUserToGroup('admin', 'cadastre_lizmap');
-
     }
 }
