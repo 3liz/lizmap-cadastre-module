@@ -26,7 +26,7 @@ The service file can be stored in your user home `~/.pg_service.conf` and should
 [lizmap-cadastre]
 dbname=lizmap
 host=localhost
-port=9086
+port=9087
 user=lizmap
 password=lizmap1234!
 ```
@@ -35,7 +35,7 @@ Then you can use any PostgreSQL client (psql, QGIS, PgAdmin, DBeaver) and use th
 instead of the other credentials (host, port, database name, user and password).
 
 ```bash
-psql service=lizmap-tests
+psql service=lizmap-cadastre
 ```
 
 ## Access to the lizmap container
