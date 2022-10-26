@@ -103,6 +103,12 @@ class search
         $firstTerm = $cnx->quote('^' . $this->terms[0]);
 
         if ($this->field == 'voie') {
+            $condition = cadastreConfig::getLayerSql($this->repository, $this->project, $this->config->commune->id);
+            $geo_commune = 'geo_commune';
+            if ($condition) {
+                $geo_commune = '(SELECT * FROM geo_commune WHERE (' . $condition . '))';
+            }
+
             $sql = "
             SELECT DISTINCT
                 v.voie AS code,
@@ -113,9 +119,10 @@ class search
                 )) AS label,
                 trim(libvoi) ~ " . $firstTerm . ' AS b
             FROM voie v
-            INNER JOIN geo_commune c ON c.commune = v.commune
+            INNER JOIN ' . $geo_commune . ' c ON c.commune = v.commune
             WHERE 2>1
             ';
+
             $i = 1;
             foreach ($this->terms as $term) {
                 $sql .= ' AND libvoi LIKE $' . $i;
@@ -150,12 +157,17 @@ class search
                 ++$i;
             }
 
+            $condition = cadastreConfig::getLayerSql($this->repository, $this->project, $this->config->parcelle->id);
+
             if (!empty($this->voie)) {
                 $sql .= ' AND trim(p.comptecommunal) IN (';
                 $sql .= 'SELECT DISTINCT comptecommunal FROM parcelle_info WHERE voie = $' . $i;
                 if ($pFilterConfig !== null) {
                     $sql .= ' AND ';
                     $sql .= $this->getFilterSql($pFilterConfig, $profile);
+                }
+                if ($condition) {
+                    $sql .= ' AND (' . $condition . ')';
                 }
                 $sql .= ')';
                 ++$i;
@@ -167,6 +179,9 @@ class search
                     $sql .= ' AND ';
                     $sql .= $this->getFilterSql($pFilterConfig, $profile);
                 }
+                if ($condition) {
+                    $sql .= ' AND (' . $condition . ')';
+                }
                 $sql .= ')';
                 ++$i;
             } elseif ($pFilterConfig !== null) {
@@ -175,6 +190,9 @@ class search
                 if ($pFilterConfig !== null) {
                     $sql .= ' AND ';
                     $sql .= $this->getFilterSql($pFilterConfig, $profile);
+                }
+                if ($condition) {
+                    $sql .= ' AND (' . $condition . ')';
                 }
                 $sql .= ')';
             }
@@ -200,11 +218,16 @@ class search
                 ++$i;
             }
 
+            $condition = cadastreConfig::getLayerSql($this->repository, $this->project, $this->config->parcelle->id);
+
             $sql .= ' AND trim(p.comptecommunal) IN (';
             $sql .= 'SELECT DISTINCT comptecommunal FROM parcelle_info WHERE geo_parcelle LIKE $' . $i;
             if ($pFilterConfig !== null) {
                 $sql .= ' AND ';
                 $sql .= $this->getFilterSql($pFilterConfig, $profile);
+            }
+            if ($condition) {
+                $sql .= ' AND (' . $condition . ')';
             }
             $sql .= ')';
             ++$i;
@@ -390,6 +413,7 @@ class search
         $this->config = cadastreConfig::get($repository, $project);
 
         $pFilterConfig = cadastreConfig::getFilterByLogin($this->repository, $this->project, $this->config->parcelle->id);
+        $condition = cadastreConfig::getLayerSql($this->repository, $this->project, $this->config->parcelle->id);
 
         // Search field
         $this->field = $field;
@@ -409,6 +433,9 @@ class search
                 $sql .= ' AND ';
                 $sql .= $this->getFilterSql($pFilterConfig, $profile);
             }
+            if ($condition) {
+                $sql .= ' AND (' . $condition . ')';
+            }
         } else {
             $sql = '
             SELECT ST_AsGeojson(ST_Envelope(ST_Extent(ST_Transform(geom,4326)))) AS geom
@@ -418,6 +445,9 @@ class search
             if ($pFilterConfig !== null) {
                 $sql .= ' AND ';
                 $sql .= $this->getFilterSql($pFilterConfig, $profile);
+            }
+            if ($condition) {
+                $sql .= ' AND (' . $condition . ')';
             }
         }
 

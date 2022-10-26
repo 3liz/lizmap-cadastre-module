@@ -9,6 +9,40 @@
  */
 class cadastreExtraInfos
 {
+    protected function getFilterSql($filterConfig, $profile = 'cadastre', $tableAlias = '')
+    {
+        $cnx = jDb::getConnection($profile);
+        $field = $filterConfig->filterAttribute;
+        $value = null;
+        if (jAuth::isConnected()) {
+            if (property_exists($filterConfig, 'filterPrivate') && $filterConfig->filterPrivate == 'True') {
+                $user = jAuth::getUserSession();
+                $value = $user->login;
+            } else {
+                $value = jAcl2DbUserGroup::getGroups();
+            }
+        }
+
+        $sql = '';
+
+        if (is_array($value)) {
+            $preparedValues = array();
+            foreach ($value as $v) {
+                $preparedValues[] = $cnx->quote(trim($v));
+            }
+            $sql .= '"' . $field . '" IN (' . implode(', ', $preparedValues) . ', ' . $cnx->quote('all') . ')';
+        } elseif (is_string($value) || is_numeric($value)) {
+            $sql .= '"' . $field . '" IN (' . $cnx->quote(trim($value)) . ', ' . $cnx->quote('all') . ')';
+        } else {
+            $sql .= '"' . $field . '" = ' . $cnx->quote('all');
+        }
+        if ($tableAlias !== '') {
+            $sql = $tableAlias . '.' . $sql;
+        }
+
+        return $sql;
+    }
+
     /**
      * Get SQL request to get locaux and proprios data for parcelle ids.
      *
@@ -74,7 +108,7 @@ class cadastreExtraInfos
 
         $sql .= '
         FROM parcelle p
-            INNER JOIN geo_parcelle gp ON gp.geo_parcelle = p.parcelle
+            INNER JOIN parcelle_info gp ON gp.geo_parcelle = p.parcelle
             INNER JOIN local00 l ON l.parcelle = p.parcelle
             INNER JOIN local10 l10 ON l10.local00 = l.local00
             LEFT JOIN voie v ON v.voie = l.voie
@@ -96,6 +130,17 @@ class cadastreExtraInfos
         WHERE
             p.parcelle IN ( ' . implode(', ', $pids) . ' )
         ';
+
+        $filterConfig = cadastreConfig::getFilterByLogin($this->repository, $this->project, $this->config->parcelle->id);
+        $condition = cadastreConfig::getLayerSql($this->repository, $this->project, $this->config->parcelle->id);
+
+        if ($filterConfig !== null) {
+            $sql .= ' AND ';
+            $sql .= $this->getFilterSql($pFilterConfig, $profile);
+        }
+        if ($condition) {
+            $sql .= ' AND (' . $condition . ')';
+        }
 
         return $sql;
     }
@@ -146,12 +191,21 @@ class cadastreExtraInfos
      * @param $parcelle_ids The ids of parcelles
      * @param $withGeom With geometry data (optional)
      * @param mixed $profile
+     * @param mixed $repository
+     * @param mixed $project
+     * @param mixed $parcelleLayer
      *
      * @return The CSV file path
      */
-    public function getLocauxAndProprioInfos($profile, $parcelle_ids, $withGeom = false)
+    public function getLocauxAndProprioInfos($repository, $project, $parcelleLayer, $parcelle_ids, $withGeom = false)
     {
+        $this->repository = $repository;
+        $this->project = $project;
+        $this->config = cadastreConfig::get($repository, $project);
+
         $sql = $this->getLocauxAndProprioSql($parcelle_ids, $withGeom);
+
+        $profile = cadastreProfile::get($repository, $project, $parcelleLayer);
         $rows = $this->query($sql, array(), $profile);
 
         return $this->buildCsv($rows);

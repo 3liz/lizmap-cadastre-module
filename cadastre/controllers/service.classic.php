@@ -490,10 +490,9 @@ class serviceCtrl extends jController
 
         // Get profile
         $parcelleLayer = $this->param('layer', 'Parcelles');
-        $profile = cadastreProfile::get($repository, $project, $parcelleLayer);
 
         $extra_infos = jClasses::getService('cadastre~cadastreExtraInfos');
-        $path = $extra_infos->getLocauxAndProprioInfos($profile, $parcelleIds);
+        $path = $extra_infos->getLocauxAndProprioInfos($repository, $project, $parcelleLayer, $parcelleIds);
 
         $rep->fileName = $path;
         $rep->deleteFileAfterSending = true;

@@ -49,6 +49,7 @@
         <method type="php" name="findParcelleByLieu">
             <parameter name="geo_section" />
             <parameter name="voie" />
+            <parameter name="condition" />
             <body><![CDATA[
 
             $sql = $this->_selectClause . $this->_fromClause . $this->_whereClause;
@@ -57,6 +58,11 @@
             $sql.= ' geo_section = ' . $this->_prepareValue($geo_section,'string');
             $sql.= ' OR voie = ' . $this->_prepareValue($voie,'string');
             $sql.= ' )';
+
+            if ($condition) {
+                $sql.= ' AND ('. $condition .')';
+            }
+
             $sql.= ' ORDER BY geo_parcelle';
 
             $rs = $this->_conn->query($sql);
@@ -67,6 +73,7 @@
 
         <method type="php" name="findParcelleByProp">
             <parameter name="comptecommunal" />
+            <parameter name="condition" />
 
             <body><![CDATA[
 
@@ -81,6 +88,11 @@
                 $or = ' OR ';
             }
             $sql.= ' )';
+
+            if ($condition) {
+                $sql.= ' AND ('. $condition .')';
+            }
+
             $sql.= ' ORDER BY geo_parcelle';
 
             $rs = $this->_conn->query($sql);
@@ -93,6 +105,7 @@
         <method type="php" name="findByFieldIn">
             <parameter name="field" />
             <parameter name="value" />
+            <parameter name="condition" />
 
             <body><![CDATA[
             $sql = $this->_selectClause . $this->_fromClause . $this->_whereClause;
@@ -108,6 +121,10 @@
                 $sql.= '"'.$field.'" IN ('.$this->_prepareValue(trim($value),'string').', '.$this->_prepareValue('all','string').')';
             } else {
                 $sql.= '"'.$field.'" = '.$this->_prepareValue('all','string');
+            }
+
+            if ($condition) {
+                $sql.= ' AND ('. $condition .')';
             }
 
             $sql.= ' ORDER BY name';
@@ -255,6 +272,7 @@
             <parameter name="comptecommunal" />
             <parameter name="field" />
             <parameter name="value" />
+            <parameter name="condition" />
 
             <body><![CDATA[
 
@@ -283,6 +301,10 @@
                 $sql.= '"'.$field.'" IN ('.$this->_prepareValue(trim($value),'string').', '.$this->_prepareValue('all','string').')';
             } else {
                 $sql.= '"'.$field.'" = '.$this->_prepareValue('all','string');
+            }
+
+            if ($condition) {
+                $sql.= ' AND ('. $condition .')';
             }
 
             $sql.= ' ORDER BY geo_parcelle';
