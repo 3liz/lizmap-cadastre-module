@@ -2,9 +2,17 @@
 
 ## Unreleased
 
+### Added
+
+* Possibilité de faire une relevé pour un tiers
+
 ### Fixed
 
 * Lorsque certains paramètres de récupération des données du "Datasource" d'un champ Jelix sont vides, on renvoie directement une liste vide.
+
+### Funded
+
+* Conseil Départemental du Calvados https://www.calvados.fr
 
 ## 1.8.2 - 2022-10-15
 

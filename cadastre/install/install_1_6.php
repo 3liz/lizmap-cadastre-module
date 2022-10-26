@@ -19,6 +19,7 @@ class cadastreModuleInstaller extends jInstallerModule
 
             // Add right subject
             jAcl2DbManager::addSubject('cadastre.acces.donnees.proprio', 'cadastre~search.cadastre.acces.donnees.proprio', 'cadastre.subject.group');
+            jAcl2DbManager::addSubject('cadastre.acces.donnees.proprio.simple', 'cadastre~search.cadastre.acces.donnees.proprio.simple', 'cadastre.subject.group');
             jAcl2DbManager::addSubject('cadastre.use.search.tool', 'cadastre~search.cadastre.use.search.tool', 'cadastre.subject.group');
 
             // Create cadastre group
@@ -32,6 +33,7 @@ class cadastreModuleInstaller extends jInstallerModule
                 'cadastre_lizmap',
                 array(
                     'cadastre.use.search.tool' => true,
+                    'cadastre.acces.donnees.proprio.simple' => true,
                     'cadastre.acces.donnees.proprio' => true,
                 )
             );

@@ -91,6 +91,11 @@ class serviceCtrl extends jController
         } else {
             $creq = 'createPdf';
         }
+        $advanced = jAcl2::check('cadastre.acces.donnees.proprio');
+        if ($type == 'parcelle-tiers') {
+            $advanced = false;
+            $type = 'parcelle';
+        }
         $request = new lizmapCadastreRequest(
             $p,
             array(
@@ -100,6 +105,7 @@ class serviceCtrl extends jController
                 'layer' => $parcelleLayer,
                 'parcelle' => $parcelleId,
                 'type' => $type,
+                'advanced' => $advanced,
             )
         );
         $result = $request->process();
@@ -245,7 +251,7 @@ class serviceCtrl extends jController
         }
         // Do not use the Python script if we only need to get the HTML content
         // Which is retrieved in AJAX calls. Hence the or $type == fiche call
-        if (!is_file($standalone_python_script) or $type == 'fiche') {
+        if (!is_file($standalone_python_script) or $type != 'proprietaire') {
             return $this->getCadastrePdf();
         }
 
