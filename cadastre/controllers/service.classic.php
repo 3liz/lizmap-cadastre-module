@@ -84,7 +84,6 @@ class serviceCtrl extends jController
 
             return $rep;
         }
-        $fblConfig = cadastreConfig::getFilterByLogin($repository, $project, $config->parcelle->id);
 
         if ($type == 'fiche') {
             $creq = 'getHtml';
@@ -101,7 +100,6 @@ class serviceCtrl extends jController
                 'layer' => $parcelleLayer,
                 'parcelle' => $parcelleId,
                 'type' => $type,
-                'allcities' => ($fblConfig === null),
             )
         );
         $result = $request->process();

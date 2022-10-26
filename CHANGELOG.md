@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Désactivation du paramètre ALLCITIES pour la génération du relevé de propriété
+
 ## 1.8.1 - 2022-03-29
 
 * Mise à jour **obligatoire** pour Lizmap Web Client 3.4.10 et 3.5.2
