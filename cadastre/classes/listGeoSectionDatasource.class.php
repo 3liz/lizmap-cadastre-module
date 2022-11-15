@@ -35,10 +35,12 @@ class listGeoSectionDatasource extends jFormsDynamicDatasource
         array_push($args, $form->getData($this->criteriaFrom[3]));
 
         $config = cadastreConfig::get($repository, $project);
+        $condition = cadastreConfig::getLayerSql($repository, $project, $config->section->id);
         $fblConfig = cadastreConfig::getFilterByLogin($repository, $project, $config->section->id);
 
         $found = array();
         if ($fblConfig === null) {
+            array_push($args, $condition);
             $found = call_user_func_array(array($this->dao, $this->method), $args);
         } else {
             $method = $this->method . 'AndFieldIn';
@@ -53,6 +55,7 @@ class listGeoSectionDatasource extends jFormsDynamicDatasource
                     array_push($args, jAcl2DbUserGroup::getGroups());
                 }
             }
+            array_push($args, $condition);
             $found = call_user_func_array(array($this->dao, $method), $args);
         }
 

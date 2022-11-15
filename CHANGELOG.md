@@ -5,6 +5,7 @@
 ### Fixed
 
 * Désactivation du paramètre ALLCITIES pour la génération du relevé de propriété
+* Application du paramètre sql du datasource des couches Communes, Sections, Parcelles
 
 ## 1.8.1 - 2022-03-29
 

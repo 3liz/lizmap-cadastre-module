@@ -53,10 +53,12 @@ class listParcellePropDatasource extends jFormsDynamicDatasource
         array_push($args, $comptecommunal);
 
         $config = cadastreConfig::get($repository, $project);
+        $condition = cadastreConfig::getLayerSql($repository, $project, $config->parcelle->id);
         $fblConfig = cadastreConfig::getFilterByLogin($repository, $project, $config->parcelle->id);
 
         $found = array();
         if ($fblConfig === null) {
+            array_push($args, $condition);
             $found = call_user_func_array(array($this->dao, $method), $args);
         } else {
             $method .= 'AndFieldIn';
@@ -71,6 +73,7 @@ class listParcellePropDatasource extends jFormsDynamicDatasource
                     array_push($args, jAcl2DbUserGroup::getGroups());
                 }
             }
+            array_push($args, $condition);
             $found = call_user_func_array(array($this->dao, $method), $args);
         }
 

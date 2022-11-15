@@ -43,6 +43,20 @@ class cadastreConfig
         return null;
     }
 
+    public static function getLayerSql($repository, $project, $layerId)
+    {
+        $p = lizmap::getProject($repository . '~' . $project);
+
+        $qgisLayer = $p->getLayer($layerId);
+        if (!$qgisLayer) {
+            return null;
+        }
+
+        $dtParams = $qgisLayer->getDatasourceParameters();
+
+        return $dtParams->sql;
+    }
+
     public static function getFilterByLogin($repository, $project, $layerId)
     {
         $p = lizmap::getProject($repository . '~' . $project);

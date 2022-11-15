@@ -13,15 +13,28 @@
         updatepattern="" insertpattern="" selectpattern=""/>-->
     </record>
     <factory>
-        <method name="findAllCommune" type="select">
-            <order>
-                <orderitem property="name" way="asc" />
-            </order>
+        <method name="findAllCommune" type="php">
+            <parameter name="condition" />
+            <body><![CDATA[
+            $sql = $this->_selectClause . $this->_fromClause . $this->_whereClause;
+
+            if ($condition) {
+                $sql.= ($this->_whereClause == ''?' WHERE ':' AND ');
+                $sql.= '('. $condition .')';
+            }
+
+            $sql.= ' ORDER BY name';
+
+            $rs = $this->_conn->query($sql);
+            $rs->setFetchMode(8,$this->_DaoRecordClassName);
+            return $rs;
+            ]]></body>
         </method>
 
         <method type="php" name="findByFieldIn">
             <parameter name="field" />
             <parameter name="value" />
+            <parameter name="condition" />
 
             <body><![CDATA[
             $sql = $this->_selectClause . $this->_fromClause . $this->_whereClause;
@@ -37,6 +50,10 @@
                 $sql.= '"'.$field.'" IN ('.$this->_prepareValue(trim($value),'string').', '.$this->_prepareValue('all','string').')';
             } else {
                 $sql.= '"'.$field.'" = '.$this->_prepareValue('all','string');
+            }
+
+            if ($condition) {
+                $sql.= ' AND ('. $condition .')';
             }
 
             $sql.= ' ORDER BY name';

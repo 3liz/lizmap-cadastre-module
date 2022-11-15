@@ -31,11 +31,12 @@ class listGeoCommuneDatasource extends jFormsDynamicDatasource
         }
 
         $config = cadastreConfig::get($repository, $project);
+        $condition = cadastreConfig::getLayerSql($repository, $project, $config->commune->id);
         $fblConfig = cadastreConfig::getFilterByLogin($repository, $project, $config->commune->id);
 
         $found = array();
         if ($fblConfig === null) {
-            $found = $this->dao->{$this->method}();
+            $found = $this->dao->{$this->method}($condition);
         } else {
             $method = 'findByFieldIn';
             $args = array();
@@ -50,6 +51,7 @@ class listGeoCommuneDatasource extends jFormsDynamicDatasource
                     array_push($args, jAcl2DbUserGroup::getGroups());
                 }
             }
+            array_push($args, $condition);
             $found = call_user_func_array(array($this->dao, $method), $args);
         }
 

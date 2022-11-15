@@ -14,14 +14,25 @@
         updatepattern="" insertpattern="" selectpattern=""/>-->
     </record>
     <factory>
-        <method name="findBySection" type="select">
+        <method name="findBySection" type="php">
             <parameter name="geo_section" />
-            <conditions logic="and">
-                <eq property="geo_section" expr="$geo_section" />
-            </conditions>
-            <order>
-                <orderitem property="name" way="asc" />
-            </order>
+            <parameter name="condition" />
+            <body><![CDATA[
+            $sql = $this->_selectClause . $this->_fromClause . $this->_whereClause;
+            $sql.= ($this->_whereClause == ''?' WHERE ':' AND ');
+
+            $sql.= '"geo_section" = '.$this->_prepareValue($geo_section,'string');
+
+            if ($condition) {
+                $sql.= ' AND ('. $condition .')';
+            }
+
+            $sql.= ' ORDER BY name';
+
+            $rs = $this->_conn->query($sql);
+            $rs->setFetchMode(8,$this->_DaoRecordClassName);
+            return $rs;
+            ]]></body>
         </method>
 
 
@@ -57,6 +68,7 @@
             <parameter name="geo_section" />
             <parameter name="field" />
             <parameter name="value" />
+            <parameter name="condition" />
 
             <body><![CDATA[
             $sql = $this->_selectClause . $this->_fromClause . $this->_whereClause;
@@ -75,6 +87,10 @@
                 $sql.= '"'.$field.'" IN ('.$this->_prepareValue(trim($value),'string').', '.$this->_prepareValue('all','string').')';
             } else {
                 $sql.= '"'.$field.'" = '.$this->_prepareValue('all','string');
+            }
+
+            if ($condition) {
+                $sql.= ' AND ('. $condition .')';
             }
 
             $sql.= ' ORDER BY name';
