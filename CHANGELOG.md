@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.8.2 - 2022-10-15
+
 ### Fixed
 
 * Désactivation du paramètre ALLCITIES pour la génération du relevé de propriété
