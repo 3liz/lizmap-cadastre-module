@@ -32,14 +32,16 @@ class listParcellePropDatasource extends jFormsDynamicDatasource
         $comptecommunal = $form->getData($this->criteriaFrom[4]);
         $compte = $form->getData($this->criteriaFrom[5]);
 
-        $result = array();
-
         if (empty($commune) && empty($comptecommunal)) {
-            return $result;
+            return array();
         }
 
-        if (!empty($compte)) {
+        if (!empty($commune) && !empty($compte)) {
             $comptecommunal = $commune . $compte;
+        }
+
+        if (empty($comptecommunal)) {
+            return array();
         }
 
         $this->profile = cadastreProfile::getWithLayerId($repository, $project, $layerId);
@@ -76,6 +78,8 @@ class listParcellePropDatasource extends jFormsDynamicDatasource
             array_push($args, $condition);
             $found = call_user_func_array(array($this->dao, $method), $args);
         }
+
+        $result = array();
 
         foreach ($found as $obj) {
             $label = $this->buildLabel($obj);
