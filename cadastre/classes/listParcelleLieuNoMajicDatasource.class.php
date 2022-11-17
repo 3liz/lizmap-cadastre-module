@@ -26,6 +26,11 @@ class listParcelleLieuNoMajicDatasource extends jFormsDynamicDatasource
         $project = $form->getData($this->criteriaFrom[1]);
         $layerId = $form->getData($this->criteriaFrom[2]);
         $section = $form->getData($this->criteriaFrom[3]);
+
+        if (empty($section)) {
+            return array();
+        }
+
         $this->profile = cadastreProfile::getWithLayerId($repository, $project, $layerId);
 
         if ($this->dao === null) {

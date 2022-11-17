@@ -25,6 +25,12 @@ class listGeoSectionDatasource extends jFormsDynamicDatasource
         $repository = $form->getData($this->criteriaFrom[0]);
         $project = $form->getData($this->criteriaFrom[1]);
         $layerId = $form->getData($this->criteriaFrom[2]);
+        $commune = $form->getData($this->criteriaFrom[3]);
+
+        if (empty($commune)) {
+            return array();
+        }
+
         $this->profile = cadastreProfile::getWithLayerId($repository, $project, $layerId);
 
         if ($this->dao === null) {
@@ -32,7 +38,7 @@ class listGeoSectionDatasource extends jFormsDynamicDatasource
         }
 
         $args = array();
-        array_push($args, $form->getData($this->criteriaFrom[3]));
+        array_push($args, $commune);
 
         $config = cadastreConfig::get($repository, $project);
         $condition = cadastreConfig::getLayerSql($repository, $project, $config->section->id);
