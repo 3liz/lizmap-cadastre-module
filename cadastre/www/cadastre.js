@@ -900,13 +900,20 @@ lizMap.events.on({
                             eHtml = ''
                             // Export parcelle to PDF
                             eHtml += '<a href="';
-                            eHtml += link + '&type=parcelle';
-                            eHtml += '" class="btn btn-mini cadastre-export-parcelle parcelle" target="_blank" title="Relevé parcellaire"><i class="icon-file"></i>&nbsp;</a>';
+                            eHtml += link + '&type=parcelle-tiers';
+                            eHtml += '" class="btn btn-mini cadastre-export-parcelle parcelle-tiers" target="_blank" title="Relevé parcellaire pour un tiers"><i class="icon-file"></i>&nbsp;</a>';
 
-                            // Export propriétaire to PDF
-                            eHtml += '<a href="';
-                            eHtml += link + '&type=proprietaire';
-                            eHtml += '" class="btn btn-mini cadastre-export-parcelle proprietaire" target="_blank" title="Relevé de propriété"><i class="icon-book"></i>&nbsp;</a>';
+                            if (cadastreConfig['advanced']) {
+                                // Export parcelle to PDF
+                                eHtml += '<a href="';
+                                eHtml += link + '&type=parcelle';
+                                eHtml += '" class="btn btn-mini cadastre-export-parcelle parcelle" target="_blank" title="Relevé parcellaire"><i class="icon-file"></i>&nbsp;</a>';
+
+                                // Export propriétaire to PDF
+                                eHtml += '<a href="';
+                                eHtml += link + '&type=proprietaire';
+                                eHtml += '" class="btn btn-mini cadastre-export-parcelle proprietaire" target="_blank" title="Relevé de propriété"><i class="icon-book"></i>&nbsp;</a>';
+                            }
 
                             // Print Parcelle info HTML detail
                             eHtml += '<button class="btn btn-mini cadastre-export-parcelle print" title="Imprimer le détail">';

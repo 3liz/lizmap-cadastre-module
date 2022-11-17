@@ -42,6 +42,7 @@ class cadastreListener extends jEventListener
             );
 
             $cadastreConfig['url'] = jUrl::get('cadastre~service:initExport');
+            $cadastreConfig['advanced'] = jAcl2::check('cadastre.acces.donnees.proprio');
 
             $jscode = array(
                 'var cadastreConfig = ' . json_encode($cadastreConfig),
