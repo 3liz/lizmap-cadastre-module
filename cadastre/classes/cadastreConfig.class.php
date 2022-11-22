@@ -59,6 +59,10 @@ class cadastreConfig
 
     public static function getFilterByLogin($repository, $project, $layerId)
     {
+        if (jAuth::isConnected() && jAcl2::check('lizmap.tools.loginFilteredLayers.override', $repository)) {
+            return null;
+        }
+
         $p = lizmap::getProject($repository . '~' . $project);
 
         $qgisLayer = $p->getLayer($layerId);
@@ -72,10 +76,27 @@ class cadastreConfig
             return null;
         }
 
+        return $loginFilterConfig;
+    }
+
+    public static function getPolygonFilter($repository, $project, $layerId)
+    {
         if (jAuth::isConnected() && jAcl2::check('lizmap.tools.loginFilteredLayers.override', $repository)) {
             return null;
         }
 
-        return $loginFilterConfig;
+        $p = lizmap::getProject($repository . '~' . $project);
+
+        $qgisLayer = $p->getLayer($layerId);
+        if (!$qgisLayer) {
+            return null;
+        }
+
+        $polygonFilter = $qgisLayer->getPolygonFilter();
+        if (!$polygonFilter) {
+            return null;
+        }
+
+        return $polygonFilter;
     }
 }

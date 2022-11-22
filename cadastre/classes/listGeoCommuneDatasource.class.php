@@ -31,7 +31,16 @@ class listGeoCommuneDatasource extends jFormsDynamicDatasource
         }
 
         $config = cadastreConfig::get($repository, $project);
-        $layerConditions = cadastreConfig::getLayerSql($repository, $project, $config->commune->id);
+        $layerConditions = null;
+        $layerSql = cadastreConfig::getLayerSql($repository, $project, $config->commune->id);
+        $polygonFilter = cadastreConfig::getPolygonFilter($repository, $project, $config->commune->id);
+        if ($layerSql !== null && $polygonFilter !== null) {
+            $layerConditions .= '(' . $layerSql . ') AND (' . $polygonFilter . ')';
+        } elseif ($layerSql !== null) {
+            $layerConditions = $layerSql;
+        } elseif ($polygonFilter !== null) {
+            $layerConditions = $polygonFilter;
+        }
         $fblConfig = cadastreConfig::getFilterByLogin($repository, $project, $config->commune->id);
 
         $searchConditions = jDao::createConditions();

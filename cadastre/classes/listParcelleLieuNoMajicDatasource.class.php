@@ -41,7 +41,16 @@ class listParcelleLieuNoMajicDatasource extends jFormsDynamicDatasource
         $searchConditions->addCondition('geo_section', '=', $section);
 
         $config = cadastreConfig::get($repository, $project);
-        $layerConditions = cadastreConfig::getLayerSql($repository, $project, $config->parcelle->id);
+        $layerConditions = null;
+        $layerSql = cadastreConfig::getLayerSql($repository, $project, $config->parcelle->id);
+        $polygonFilter = cadastreConfig::getPolygonFilter($repository, $project, $config->parcelle->id);
+        if ($layerSql !== null && $polygonFilter !== null) {
+            $layerConditions .= '(' . $layerSql . ') AND (' . $polygonFilter . ')';
+        } elseif ($layerSql !== null) {
+            $layerConditions = $layerSql;
+        } elseif ($polygonFilter !== null) {
+            $layerConditions = $polygonFilter;
+        }
         $fblConfig = cadastreConfig::getFilterByLogin($repository, $project, $config->parcelle->id);
 
         if ($fblConfig !== null) {
