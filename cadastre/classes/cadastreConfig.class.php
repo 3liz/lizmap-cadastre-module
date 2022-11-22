@@ -17,7 +17,7 @@ class cadastreConfig
      * @param mixed $repository
      * @param mixed $project
      *
-     * @return object|null The cadastre config or null
+     * @return null|object The cadastre config or null
      */
     public static function get($repository, $project)
     {

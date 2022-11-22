@@ -12,10 +12,10 @@ class cadastreProfile
     /**
      * Get the Name of the cadastre DB profile.
      *
-     * @param string $project Project key
+     * @param string $project    Project key
      * @param string $repository Repository key
-     * @param string $layerName Name of the Parcelle layer
-     * @param string $profile The default cadastre DB profile
+     * @param string $layerName  Name of the Parcelle layer
+     * @param string $profile    The default cadastre DB profile
      *
      * @return string Name of the cadastre DB profile
      */
@@ -40,10 +40,10 @@ class cadastreProfile
     /**
      * Get the Name of the cadastre DB profile.
      *
-     * @param string $project Project key
+     * @param string $project    Project key
      * @param string $repository Repository key
-     * @param string $layerId Id of the Parcelle layer
-     * @param string $profile The default cadastre DB profile
+     * @param string $layerId    Id of the Parcelle layer
+     * @param string $profile    The default cadastre DB profile
      *
      * @return string Name of the cadastre DB profile
      */
@@ -66,7 +66,7 @@ class cadastreProfile
      *
      * @param string $profile The DB profile to test
      *
-     * @return boolean true if data is accessible
+     * @return bool true if data is accessible
      */
     public static function checkAccess($profile)
     {
@@ -93,10 +93,10 @@ class cadastreProfile
     /**
      * Check access to table data.
      *
-     * @param string $table Name of the table to test for content
+     * @param string $table   Name of the table to test for content
      * @param string $profile The DB profile to test
      *
-     * @return boolean true if data is accessible
+     * @return bool true if data is accessible
      */
     public static function checkTableContent($table, $profile)
     {

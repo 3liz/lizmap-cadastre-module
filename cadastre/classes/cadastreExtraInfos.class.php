@@ -47,7 +47,7 @@ class cadastreExtraInfos
      * Get SQL request to get locaux and proprios data for parcelle ids.
      *
      * @param array $parcelle_ids The ids of parcelles
-     * @param boolean $withGeom With geometry data (optional)
+     * @param bool  $withGeom     With geometry data (optional)
      *
      * @return string The SQL
      */
@@ -148,9 +148,9 @@ class cadastreExtraInfos
     /**
      * Get data from database and return an array.
      *
-     * @param string $sql Query to run
-     * @param array|null $filterParams
-     * @param string $profile Name of the DB profile
+     * @param string     $sql          Query to run
+     * @param null|array $filterParams
+     * @param string     $profile      Name of the DB profile
      *
      * @return array Result as an array
      */
@@ -199,9 +199,9 @@ class cadastreExtraInfos
      *
      * @param string $repository
      * @param string $project
-     * @param mixed $parcelleLayer
-     * @param array $parcelle_ids The ids of parcelles
-     * @param boolean $withGeom With geometry data (optional)
+     * @param mixed  $parcelleLayer
+     * @param array  $parcelle_ids  The ids of parcelles
+     * @param bool   $withGeom      With geometry data (optional)
      *
      * @return string The CSV file path
      */
