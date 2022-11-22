@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.8.3 - 2022-11-22
+
 ### Added
 
 * Possibilité de faire une relevé pour un tiers
