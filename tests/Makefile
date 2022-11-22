@@ -104,7 +104,7 @@ install-plugins: dirs
 import-data:
 	sql/import.sh
 
-import-lizmap-acl:
+import-lizmap-acl-35:
 	@echo "Set repositories and users rights if needed"
 	@echo "Set view project"
 	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
@@ -135,3 +135,40 @@ import-lizmap-acl:
 		php lizmap/cmd.php acl2right add __anonymous "cadastre.use.search.tool" tests ; \
 		php lizmap/cmd.php acl2right add users "cadastre.use.search.tool" tests ; \
 		php lizmap/cmd.php acl2right add admins "cadastre.use.search.tool" tests'
+
+import-lizmap-acl:
+	@echo "Set repositories and users rights if needed"
+	@echo "Set view project"
+	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
+		php lizmap/console.php acl2:add __anonymous "lizmap.repositories.view" tests ; \
+		php lizmap/console.php acl2:add users "lizmap.repositories.view" tests ; \
+		php lizmap/console.php acl2:add admins "lizmap.repositories.view" tests'
+	@echo "Display WMS links"
+	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
+		php lizmap/console.php acl2:add __anonymous "lizmap.tools.displayGetCapabilitiesLinks" tests ; \
+		php lizmap/console.php acl2:add users "lizmap.tools.displayGetCapabilitiesLinks" tests ; \
+		php lizmap/console.php acl2:add admins "lizmap.tools.displayGetCapabilitiesLinks" tests'
+	@echo "Edition"
+	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
+		php lizmap/console.php acl2:add __anonymous "lizmap.tools.edition.use" tests ; \
+		php lizmap/console.php acl2:add users "lizmap.tools.edition.use" tests ; \
+		php lizmap/console.php acl2:add admins "lizmap.tools.edition.use" tests'
+	@echo "Export layers"
+	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
+		php lizmap/console.php acl2:add __anonymous "lizmap.tools.layer.export" tests ; \
+		php lizmap/console.php acl2:add users "lizmap.tools.layer.export" tests ; \
+		php lizmap/console.php acl2:add admins "lizmap.tools.layer.export" tests'
+	@echo "Cadastre"
+	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
+		php lizmap/console.php acl2:add __anonymous "cadastre.acces.donnees.proprio" tests ; \
+		php lizmap/console.php acl2:add users "cadastre.acces.donnees.proprio" tests ; \
+		php lizmap/console.php acl2:add admins "cadastre.acces.donnees.proprio" tests'
+	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
+		php lizmap/console.php acl2:add __anonymous "cadastre.use.search.tool" tests ; \
+		php lizmap/console.php acl2:add users "cadastre.use.search.tool" tests ; \
+		php lizmap/console.php acl2:add admins "cadastre.use.search.tool" tests'
+
+install-module:
+	docker compose exec -u ${LIZMAP_USER_ID} lizmap php /www/lizmap/install/configurator.php cadastre
+	docker compose exec -u ${LIZMAP_USER_ID} lizmap php /www/lizmap/install/installer.php -v --no-clean-temp
+	docker compose exec  lizmap /www/lizmap/install/clean_vartmp.sh

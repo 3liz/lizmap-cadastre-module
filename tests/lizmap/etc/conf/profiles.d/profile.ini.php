@@ -1,4 +1,4 @@
-[jdb:gobsapi]
+[jdb:cadastre]
 
 driver=pgsql
 host=pgsql
