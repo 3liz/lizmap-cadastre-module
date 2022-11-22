@@ -497,6 +497,7 @@ class serviceCtrl extends jController
         // Get profile
         $parcelleLayer = $this->param('layer', 'Parcelles');
 
+        /** @var cadastreExtraInfos $extra_infos */
         $extra_infos = jClasses::getService('cadastre~cadastreExtraInfos');
         $path = $extra_infos->getLocauxAndProprioInfos($repository, $project, $parcelleLayer, $parcelleIds);
 

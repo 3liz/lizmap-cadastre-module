@@ -46,10 +46,10 @@ class cadastreExtraInfos
     /**
      * Get SQL request to get locaux and proprios data for parcelle ids.
      *
-     * @param $parcelle_ids The ids of parcelles
-     * @param $withGeom With geometry data (optional)
+     * @param array $parcelle_ids The ids of parcelles
+     * @param boolean $withGeom With geometry data (optional)
      *
-     * @return The SQL
+     * @return string The SQL
      */
     protected function getLocauxAndProprioSql($parcelle_ids, $withGeom = false)
     {
@@ -136,7 +136,7 @@ class cadastreExtraInfos
 
         if ($filterConfig !== null) {
             $sql .= ' AND ';
-            $sql .= $this->getFilterSql($pFilterConfig, $profile);
+            $sql .= $this->getFilterSql($filterConfig);
         }
         if ($condition) {
             $sql .= ' AND (' . $condition . ')';
@@ -148,11 +148,11 @@ class cadastreExtraInfos
     /**
      * Get data from database and return an array.
      *
-     * @param $sql Query to run
-     * @param $profile Name of the DB profile
-     * @param mixed $filterParams
+     * @param string $sql Query to run
+     * @param array|null $filterParams
+     * @param string $profile Name of the DB profile
      *
-     * @return Result as an array
+     * @return array Result as an array
      */
     protected function query($sql, $filterParams, $profile = 'cadastre')
     {
@@ -167,9 +167,9 @@ class cadastreExtraInfos
     /**
      * Build CSV file and return its path.
      *
-     * @param $rows The rows to write to CSV
+     * @param array $rows The rows to write to CSV
      *
-     * @return The CSV file path
+     * @return string The CSV file path
      */
     protected function buildCsv($rows)
     {
@@ -185,17 +185,25 @@ class cadastreExtraInfos
         return $path;
     }
 
+    /** @var string */
+    protected $repository;
+
+    /** @var string */
+    protected $project;
+
+    /** @var object */
+    protected $config;
+
     /**
      * Build the locaux and proprios CSV file and return its path.
      *
-     * @param $parcelle_ids The ids of parcelles
-     * @param $withGeom With geometry data (optional)
-     * @param mixed $profile
-     * @param mixed $repository
-     * @param mixed $project
+     * @param string $repository
+     * @param string $project
      * @param mixed $parcelleLayer
+     * @param array $parcelle_ids The ids of parcelles
+     * @param boolean $withGeom With geometry data (optional)
      *
-     * @return The CSV file path
+     * @return string The CSV file path
      */
     public function getLocauxAndProprioInfos($repository, $project, $parcelleLayer, $parcelle_ids, $withGeom = false)
     {

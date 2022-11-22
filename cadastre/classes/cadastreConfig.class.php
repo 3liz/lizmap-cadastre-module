@@ -12,12 +12,12 @@ class cadastreConfig
     /**
      * Get the cadastre config.
      *
-     * @param project Project key
-     * @param repository Repository key
+     * @param string project Project key
+     * @param string repository Repository key
      * @param mixed $repository
      * @param mixed $project
      *
-     * @return The cadastre config or null
+     * @return object|null The cadastre config or null
      */
     public static function get($repository, $project)
     {

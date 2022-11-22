@@ -12,16 +12,12 @@ class cadastreProfile
     /**
      * Get the Name of the cadastre DB profile.
      *
-     * @param project Project key
-     * @param repository Repository key
-     * @param layerName Name of the Parcelle layer
-     * @param profile The default cadastre DB profile
-     * @param mixed $repository
-     * @param mixed $project
-     * @param mixed $layerName
-     * @param mixed $profile
+     * @param string $project Project key
+     * @param string $repository Repository key
+     * @param string $layerName Name of the Parcelle layer
+     * @param string $profile The default cadastre DB profile
      *
-     * @return Name of the cadastre DB profile
+     * @return string Name of the cadastre DB profile
      */
     public static function get($repository, $project, $layerName, $profile = 'cadastre')
     {
@@ -44,16 +40,12 @@ class cadastreProfile
     /**
      * Get the Name of the cadastre DB profile.
      *
-     * @param project Project key
-     * @param repository Repository key
-     * @param layerId Id of the Parcelle layer
-     * @param profile The default cadastre DB profile
-     * @param mixed $repository
-     * @param mixed $project
-     * @param mixed $layerId
-     * @param mixed $profile
+     * @param string $project Project key
+     * @param string $repository Repository key
+     * @param string $layerId Id of the Parcelle layer
+     * @param string $profile The default cadastre DB profile
      *
-     * @return Name of the cadastre DB profile
+     * @return string Name of the cadastre DB profile
      */
     public static function getWithLayerId($repository, $project, $layerId, $profile = 'cadastre')
     {
@@ -72,19 +64,18 @@ class cadastreProfile
     /**
      * Check access to table data.
      *
-     * @param profile The DB profile to test
-     * @param mixed $profile
+     * @param string $profile The DB profile to test
      *
-     * @return true if data is accessible
+     * @return boolean true if data is accessible
      */
     public static function checkAccess($profile)
     {
-        $ok = false;
-
         // Access control
         if (!jAcl2::check('cadastre.use.search.tool')) {
             return false;
         }
+
+        $ok = false;
 
         // Try to get data from geo_commune
         try {
@@ -102,12 +93,10 @@ class cadastreProfile
     /**
      * Check access to table data.
      *
-     * @param table Name of the table to test for content
-     * @param profile The DB profile to test
-     * @param mixed $table
-     * @param mixed $profile
+     * @param string $table Name of the table to test for content
+     * @param string $profile The DB profile to test
      *
-     * @return true if data is accessible
+     * @return boolean true if data is accessible
      */
     public static function checkTableContent($table, $profile)
     {
