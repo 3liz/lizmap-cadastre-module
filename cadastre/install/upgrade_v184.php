@@ -7,10 +7,10 @@
  *
  * @license Mozilla Public License : http://www.mozilla.org/MPL/
  */
-class cadastreModuleUpgrader_v183 extends jInstallerModule
+class cadastreModuleUpgrader_v184 extends jInstallerModule
 {
-    public $targetVersions = array('1.8.3');
-    public $date = '2022-11-16';
+    public $targetVersions = array('1.8.4');
+    public $date = '2022-11-29';
 
     public function install()
     {
@@ -21,9 +21,18 @@ class cadastreModuleUpgrader_v183 extends jInstallerModule
 
             // Add rights on group
             if (jAcl2DbUserGroup::getGroup('cadastre_lizmap')) {
+                // reset rights
+                jAcl2DbManager::addRight(
+                    'cadastre_lizmap',
+                    'cadastre.use.search.tool'
+                );
                 jAcl2DbManager::addRight(
                     'cadastre_lizmap',
                     'cadastre.acces.donnees.proprio.simple'
+                );
+                jAcl2DbManager::addRight(
+                    'cadastre_lizmap',
+                    'cadastre.acces.donnees.proprio'
                 );
             }
         }
