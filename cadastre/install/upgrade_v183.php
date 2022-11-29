@@ -20,12 +20,12 @@ class cadastreModuleUpgrader_v183 extends jInstallerModule
             jAcl2DbManager::addSubject('cadastre.acces.donnees.proprio.simple', 'cadastre~search.cadastre.acces.donnees.proprio.simple', 'cadastre.subject.group');
 
             // Add rights on group
-            jAcl2DbManager::setRightsOnGroup(
-                'cadastre_lizmap',
-                array(
-                    'cadastre.acces.donnees.proprio.simple' => true,
-                )
-            );
+            if (jAcl2DbUserGroup::getGroup('cadastre_lizmap')) {
+                jAcl2DbManager::addRight(
+                    'cadastre_lizmap',
+                    'cadastre.acces.donnees.proprio.simple'
+                );
+            }
         }
     }
 }
