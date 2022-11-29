@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 1.8.4 - 2022-11-29
+
+### Fixed
+
+* Correction des scripts de mises à jour des droits du groupe `cadastre_lizmap``.
+
 ## 1.8.3 - 2022-11-22
 
 ### Added
