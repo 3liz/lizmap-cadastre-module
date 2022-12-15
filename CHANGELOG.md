@@ -2,9 +2,15 @@
 
 ## Unreleased
 
+## 1.8.5 - 2022-12-15
+
 ### Fixed
 
 * Correction des accès aux données propriétaires avec le droit simple
+
+### Funded
+
+* Conseil Départemental du Calvados https://www.calvados.fr
 
 ## 1.8.4 - 2022-11-29
 
