@@ -295,7 +295,7 @@ class search
         }
 
         // Access control
-        if ($field != 'voie' && !jAcl2::check('cadastre.acces.donnees.proprio')) {
+        if ($field != 'voie' && !jAcl2::check('cadastre.acces.donnees.proprio') && !jAcl2::check('cadastre.acces.donnees.proprio.simple')) {
             return null;
         }
 
@@ -403,7 +403,7 @@ class search
         }
 
         // Access control
-        if ($field != 'voie' && !jAcl2::check('cadastre.acces.donnees.proprio')) {
+        if ($field != 'voie' && !jAcl2::check('cadastre.acces.donnees.proprio') && !jAcl2::check('cadastre.acces.donnees.proprio.simple')) {
             return null;
         }
 

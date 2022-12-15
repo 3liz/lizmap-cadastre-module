@@ -53,12 +53,14 @@
                 $searchForm->setData('project', $event->project);
                 $searchForm->setData('parcelleLayerId', $parcelleId);
                 $hasMajic = '0';
-                if ($hasProprietaire and jAcl2::check('cadastre.acces.donnees.proprio')) {
+                if ($hasProprietaire
+                    && (jAcl2::check('cadastre.acces.donnees.proprio') || jAcl2::check('cadastre.acces.donnees.proprio.simple'))) {
                     $hasMajic = '1';
                 }
                 $searchForm->setData('has_majic', $hasMajic);
                 $assign = array(
                     'form' => $searchForm,
+                    'has_majic' => $hasMajic,
                 );
                 $content = array('cadastre~cadastre_search', $assign);
 

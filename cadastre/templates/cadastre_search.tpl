@@ -9,9 +9,9 @@
 <div id="div_form_cadastre_search" class="menu-content">
   <ul class="nav nav-tabs" style="margin-bottom: 5px;">
     <li class="active"><a href="#tab1" data-toggle="tab">{@cadastre~search.group.search.lieu@}</a></li>
-    {ifacl2 "cadastre.acces.donnees.proprio"}
+    {if $has_majic === '1'}
     <li><a href="#tab2" data-toggle="tab">{@cadastre~search.group.search.proprietaire@}</a></li>
-    {/ifacl2}
+    {/if}
   </ul>
 
   {form $form, 'cadastre~service:search', array(), 'htmlbootstrap'}
@@ -26,7 +26,7 @@
            <p> {ctrl_label} {ctrl_control} </p>
         {/formcontrols}
       </div>
-      {ifacl2 "cadastre.acces.donnees.proprio"}
+      {if $has_majic === '1'}
       <div class="tab-pane" id="tab2">
         {formcontrols array('commune_prop','proprietaire','comptecommunal','compte')}
           <p> {ctrl_label}&nbsp;&nbsp;{ctrl_control} </p>
@@ -36,7 +36,7 @@
            <p> {ctrl_label} {ctrl_control} </p>
         {/formcontrols}
       </div>
-      {/ifacl2}
+      {/if}
 
     </div>
 
@@ -52,12 +52,12 @@
     <div>{formreset}</div>
 
   {/form}
-  {ifacl2 "cadastre.acces.donnees.proprio"}
+  {if $has_majic === '1'}
   <div>
     <h4>Données de la sélection</h4>
     <p><a id="cadastre-export-locaux-proprios" class="btn" href="{jurl 'cadastre~service:locauxProprios'}">Locaux et propriétaires <i class="icon-download-alt"></i></a></p>
   </div>
-  {/ifacl2}
+  {/if}
 
 
 </div>

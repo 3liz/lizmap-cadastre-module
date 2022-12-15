@@ -29,6 +29,7 @@ make import-lizmap-acl-35
 ```
 
 - Open your browser at http://localhost:9085
+- You can authentify as `admin` or `cadastre` (the password is the same as the login)
 
 ## Access to the dockerized PostgreSQL instance
 

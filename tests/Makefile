@@ -128,13 +128,15 @@ import-lizmap-acl-35:
 		php lizmap/cmd.php acl2right add admins "lizmap.tools.layer.export" tests'
 	@echo "Cadastre"
 	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
-		php lizmap/cmd.php acl2right add __anonymous "cadastre.acces.donnees.proprio" tests ; \
-		php lizmap/cmd.php acl2right add users "cadastre.acces.donnees.proprio" tests ; \
-		php lizmap/cmd.php acl2right add admins "cadastre.acces.donnees.proprio" tests'
+		php lizmap/cmd.php acl2right add __anonymous "cadastre.use.search.tool"; \
+		php lizmap/cmd.php acl2right add users "cadastre.use.search.tool"; \
+		php lizmap/cmd.php acl2right add admins "cadastre.use.search.tool"; \
+		php lizmap/cmd.php acl2right add users "cadastre.acces.donnees.proprio.simple"; \
+		php lizmap/cmd.php acl2right add admins "cadastre.acces.donnees.proprio.simple"; \
+		php lizmap/cmd.php acl2right add admins "cadastre.acces.donnees.proprio"'
+	@echo "Add 'cadastre' user"
 	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
-		php lizmap/cmd.php acl2right add __anonymous "cadastre.use.search.tool" tests ; \
-		php lizmap/cmd.php acl2right add users "cadastre.use.search.tool" tests ; \
-		php lizmap/cmd.php acl2right add admins "cadastre.use.search.tool" tests'
+		php lizmap/scripts/script.php jcommunity~user:create -v --no-error-if-exists cadastre cadastre@lizmap.local cadastre'
 
 import-lizmap-acl:
 	@echo "Set repositories and users rights if needed"
