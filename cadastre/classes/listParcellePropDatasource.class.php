@@ -22,7 +22,7 @@ class listParcellePropDatasource extends jFormsDynamicDatasource
 
     public function getData($form)
     {
-        if (!jAcl2::check('cadastre.acces.donnees.proprio')) {
+        if (!jAcl2::check('cadastre.acces.donnees.proprio') && !jAcl2::check('cadastre.acces.donnees.proprio.simple')) {
             return array();
         }
         $repository = $form->getData($this->criteriaFrom[0]);

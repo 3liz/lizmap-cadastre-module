@@ -25,7 +25,7 @@ class serviceCtrl extends jController
 
         $rep = $this->getResponse('json');
 
-        if (!jAcl2::check('cadastre.acces.donnees.proprio')) {
+        if (!jAcl2::check('cadastre.acces.donnees.proprio') && !jAcl2::check('cadastre.acces.donnees.proprio.simple')) {
             $rep->data = array('status' => 'error', 'message' => 'Vous n\'avez pas les droits pour voir les données de propriété.');
 
             return $rep;
@@ -259,7 +259,7 @@ class serviceCtrl extends jController
         $p = lizmap::getProject($repository . '~' . $project);
 
         // checks
-        if (!jAcl2::check('cadastre.acces.donnees.proprio')) {
+        if (!jAcl2::check('cadastre.acces.donnees.proprio') && !jAcl2::check('cadastre.acces.donnees.proprio.simple')) {
             $rep->data = array('status' => 'error', 'message' => 'Vous n\'avez pas les droits pour voir les données de propriété.');
 
             return $rep;
@@ -322,7 +322,7 @@ class serviceCtrl extends jController
         $p = lizmap::getProject($repository . '~' . $project);
 
         // checks
-        if (!jAcl2::check('cadastre.acces.donnees.proprio')) {
+        if (!jAcl2::check('cadastre.acces.donnees.proprio') && !jAcl2::check('cadastre.acces.donnees.proprio.simple')) {
             $rep->data = array('status' => 'error', 'message' => 'Vous n\'avez pas les droits pour voir les données de propriété.');
 
             return $rep;
@@ -409,7 +409,7 @@ class serviceCtrl extends jController
         $p = lizmap::getProject($repository . '~' . $project);
 
         // checks
-        if (!jAcl2::check('cadastre.acces.donnees.proprio')) {
+        if (!jAcl2::check('cadastre.acces.donnees.proprio') && !jAcl2::check('cadastre.acces.donnees.proprio.simple')) {
             $rep->data = array('status' => 'error', 'message' => 'Vous n\'avez pas les droits pour voir les données de propriété.');
 
             return $rep;
@@ -470,7 +470,7 @@ class serviceCtrl extends jController
     {
         $rep = $this->getResponse('json');
 
-        if (!jAcl2::check('cadastre.acces.donnees.proprio')) {
+        if (!jAcl2::check('cadastre.acces.donnees.proprio') && !jAcl2::check('cadastre.acces.donnees.proprio.simple')) {
             $rep->data = array(
                 'status' => 'error',
                 'message' => 'Vous n\'avez pas les droits pour voir les données de propriété.',

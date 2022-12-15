@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixed
+
+* Correction des accès aux données propriétaires avec le droit simple
+
 ## 1.8.4 - 2022-11-29
 
 ### Fixed
