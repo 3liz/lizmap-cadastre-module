@@ -54,8 +54,16 @@
   {/form}
   {if $has_majic === '1'}
   <div>
-    <h4>Données de la sélection</h4>
-    <p><a id="cadastre-export-locaux-proprios" class="btn" href="{jurl 'cadastre~service:locauxProprios'}">Locaux et propriétaires <i class="icon-download-alt"></i></a></p>
+    <h4 style="border: 1px solid darkgray; border-bottom-color: transparent; margin-bottom: 0; padding: 5px;">Données de la sélection</h4>
+    <div style="border: 1px solid lightgrey; padding: 5px;">
+      <h5>Locaux et propriétaires</h5>
+      <p>
+        <a id="cadastre-export-locaux-proprios-simple" class="btn" href="{jurl 'cadastre~service:locauxProprios'}">Pour un tiers <i class="icon-download-alt"></i></a>
+        {ifacl2 'cadastre.acces.donnees.proprio'}
+        <a id="cadastre-export-locaux-proprios" class="btn" href="{jurl 'cadastre~service:locauxProprios', array('advanced'=>'1')}">Complet <i class="icon-download-alt"></i></a>
+        {/ifacl2}
+      </p>
+    </div>
   </div>
   {/if}
 

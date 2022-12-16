@@ -676,7 +676,7 @@ lizMap.events.on({
             xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
             xhr.send($.param(parameters));
         }
-        function getLocauxAndProprioInfos() {
+        function getLocauxAndProprioInfos(href) {
             if (!(typeof cadastreConfig != 'undefined'))
                 return;
 
@@ -731,7 +731,7 @@ lizMap.events.on({
                     return feat.properties[cadastreConfig.pk];
                 });
                 downloadFile(
-                    $('#cadastre-export-locaux-proprios').attr('href'),
+                    href,
                     {
                         parcelles: parcellePks.join(),
                         layer: cadastreConfig.layer,
@@ -744,7 +744,17 @@ lizMap.events.on({
         if ($('#cadastre-export-locaux-proprios').length != 0) {
             $('#cadastre-export-locaux-proprios').click(function () {
                 try {
-                    getLocauxAndProprioInfos();
+                    getLocauxAndProprioInfos($(this).attr('href'));
+                } catch (e) {
+                    console.log(e);
+                }
+                return false;
+            });
+        }
+        if ($('#cadastre-export-locaux-proprios-simple').length != 0) {
+            $('#cadastre-export-locaux-proprios-simple').click(function () {
+                try {
+                    getLocauxAndProprioInfos($(this).attr('href'));
                 } catch (e) {
                     console.log(e);
                 }

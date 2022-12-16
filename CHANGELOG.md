@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Fixed
+
+* Amélioration de l'export des données Locaux et propriétaires
+
+### Funded
+
+* Conseil Départemental des Pyrénnées Atlantiques https://www.le64.fr/
+
 ## 1.8.5 - 2022-12-15
 
 ### Fixed
