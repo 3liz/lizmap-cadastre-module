@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.8.6 - 2022-12-16
+
 ### Fixed
 
 * Amélioration de l'export des données Locaux et propriétaires
