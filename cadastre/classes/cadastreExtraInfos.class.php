@@ -46,12 +46,13 @@ class cadastreExtraInfos
     /**
      * Get SQL request to get locaux and proprios data for parcelle ids.
      *
-     * @param array $parcelle_ids The ids of parcelles
-     * @param bool  $withGeom     With geometry data (optional)
+     * @param array $parcelle_ids  The ids of parcelles
+     * @param bool  $withGeom      With geometry data (optional)
+     * @param bool  $forThirdParty Without infos for third party (optional)
      *
      * @return string The SQL
      */
-    protected function getLocauxAndProprioSql($parcelle_ids, $withGeom = false)
+    protected function getLocauxAndProprioSql($parcelle_ids, $withGeom = false, $forThirdParty = false)
     {
         $sql = "
         --SET SEARCH_PATH TO cadastre_caen, public;
@@ -91,12 +92,18 @@ class cadastreExtraInfos
                 trim(coalesce(pr.ddenom, ''))
                     AS p_nom,
             ltrim(trim(coalesce(pr.dlign4, '')), '0') || trim(coalesce(pr.dlign5, '')) || ' ' || trim(coalesce(pr.dlign6, '')) AS p_adresse,
-            Coalesce( trim(cast(pr.jdatnss AS text) ), '-') AS p_date_naissance,
+        ";
+        if (!$forThirdParty) {
+            $sql .= "
+            coalesce( trim(cast(pr.jdatnss AS text) ), '-') AS p_date_naissance,
             coalesce(trim(pr.dldnss), '-') AS p_lieu_naissance,
+            ";
+        }
+        $sql .= "
             pr.ccodro AS p_code_droit,
-            Coalesce(ccodro_lib, '') AS p_code_droit_lib,
+            coalesce(ccodro_lib, '') AS p_code_droit_lib,
             pr.ccodem AS p_code_demembrement,
-            Coalesce(ccodem_lib, '') AS p_code_demembrement_lib
+            coalesce(ccodem_lib, '') AS p_code_demembrement_lib
         ";
 
         if ($withGeom) {
@@ -176,7 +183,11 @@ class cadastreExtraInfos
         $path = tempnam(sys_get_temp_dir(), 'cadastre_' . session_id() . '_');
 
         $fd = fopen($path, 'w');
-        fputcsv($fd, array_keys((array) reset($rows)));
+        $headers = array_keys((array) reset($rows));
+        if (count($headers) < 2) {
+            $headers = array('Aucun local pour ces parcelles');
+        }
+        fputcsv($fd, $headers);
         foreach ($rows as $row) {
             fputcsv($fd, (array) $row);
         }
@@ -202,16 +213,17 @@ class cadastreExtraInfos
      * @param mixed  $parcelleLayer
      * @param array  $parcelle_ids  The ids of parcelles
      * @param bool   $withGeom      With geometry data (optional)
+     * @param bool   $forThirdParty Without infos for third party (optional)
      *
      * @return string The CSV file path
      */
-    public function getLocauxAndProprioInfos($repository, $project, $parcelleLayer, $parcelle_ids, $withGeom = false)
+    public function getLocauxAndProprioInfos($repository, $project, $parcelleLayer, $parcelle_ids, $withGeom = false, $forThirdParty = false)
     {
         $this->repository = $repository;
         $this->project = $project;
         $this->config = cadastreConfig::get($repository, $project);
 
-        $sql = $this->getLocauxAndProprioSql($parcelle_ids, $withGeom);
+        $sql = $this->getLocauxAndProprioSql($parcelle_ids, $withGeom, $forThirdParty);
 
         $profile = cadastreProfile::get($repository, $project, $parcelleLayer);
         $rows = $this->query($sql, array(), $profile);

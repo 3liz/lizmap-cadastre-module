@@ -490,6 +490,12 @@ class serviceCtrl extends jController
 
         $parcelleIds = $this->param('parcelles');
         $parcelleIds = explode(',', $parcelleIds);
+        $withGeom = false;
+        $forThirdParty = true;
+        if (jAcl2::check('cadastre.acces.donnees.proprio')) {
+            $advanced = $this->param('advanced');
+            $forThirdParty = ($advanced !== '1');
+        }
 
         $rep = $this->getResponse('binary');
         $rep->mimeType = 'text/csv';
@@ -499,7 +505,7 @@ class serviceCtrl extends jController
 
         /** @var cadastreExtraInfos $extra_infos */
         $extra_infos = jClasses::getService('cadastre~cadastreExtraInfos');
-        $path = $extra_infos->getLocauxAndProprioInfos($repository, $project, $parcelleLayer, $parcelleIds);
+        $path = $extra_infos->getLocauxAndProprioInfos($repository, $project, $parcelleLayer, $parcelleIds, $withGeom, $forThirdParty);
 
         $rep->fileName = $path;
         $rep->deleteFileAfterSending = true;
