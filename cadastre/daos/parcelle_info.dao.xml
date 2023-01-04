@@ -6,9 +6,17 @@
     <record>
         <property name="ogc_fid" fieldname="ogc_fid" datatype="integer" required="true"/>
         <property name="geo_parcelle" fieldname="geo_parcelle" datatype="text" required="true"/>
+        <property name="idu" fieldname="idu" datatype="text"/>
+        <property name="tex" fieldname="tex" datatype="text"/>
         <property name="geo_section" fieldname="geo_section" datatype="text" required="true"/>
-        <property name="voie" fieldname="voie" datatype="text" required="true"/>
+        <property name="nomcommune" fieldname="nomcommune" datatype="text"/>
+        <property name="codecommune" fieldname="codecommune" datatype="text"/>
+        <property name="adresse" fieldname="adresse" datatype="text"/>
+        <property name="code" fieldname="code" datatype="text"/>
         <property name="comptecommunal" fieldname="comptecommunal" datatype="text" required="true"/>
+        <property name="voie" fieldname="voie" datatype="text" required="true"/>
+        <property name="proprietaire" fieldname="proprietaire" datatype="text"/>
+        <property name="lot" fieldname="lot" datatype="text"/>
         <property name="name" fieldname="name" datatype="text" required="true"
                   selectpattern="codecommune || ' - ' || CASE WHEN substr(idu,4,3) != '000' THEN substr(idu,4,3) || ' - ' ELSE '' END || substr(idu,7,6)"/>
         <property name="geom" fieldname="geom" datatype="text" required="true" selectpattern="ST_AsText(geom)"/>
@@ -45,6 +53,36 @@
             <order>
                 <orderitem property="name" way="asc" />
             </order>
+        </method>
+
+        <method type="php" name="findByConditions">
+            <parameter name="layerConditions" />
+            <parameter name="searchConditions" />
+
+            <body><![CDATA[
+            $sql = $this->_selectClause . $this->_fromClause . $this->_whereClause;
+
+            if ($layerConditions || $searchConditions->hasConditions()) {
+                $sql.= ($this->_whereClause == ''?' WHERE ':' AND ');
+            }
+
+            if ($layerConditions) {
+                $sql.= '('. $layerConditions .')';
+            }
+
+            if ($searchConditions->hasConditions()) {
+                if ($layerConditions) {
+                    $sql.= ' AND ';
+                }
+                $sql.= '('. $this->_createConditionsClause($searchConditions) .')';
+            }
+
+            $sql.= $this->_createOrderClause($searchConditions);
+
+            $rs = $this->_conn->query($sql);
+            $rs->setFetchMode(8,$this->_DaoRecordClassName);
+            return $rs;
+            ]]></body>
         </method>
 
         <method type="php" name="findParcelleByLieu">
