@@ -49,7 +49,7 @@ class listGeoCommuneDatasource extends jFormsDynamicDatasource
         }
 
         foreach ((array) $this->labelProperty as $property) {
-            $searchConditions->addItemOrder($property,'asc');
+            $searchConditions->addItemOrder($property, 'asc');
         }
 
         $found = $this->dao->{$this->method}($layerConditions, $searchConditions);
