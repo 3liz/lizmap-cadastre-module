@@ -6,6 +6,7 @@
 
 * Ajout du prefixe de section au nom des parcelles si celui est différent de `000`
 * Ordre Alphabétique des communes dans le formulaire de recherche
+* Amélioration du code de la classe et de la dao `geo_section`
 
 ### Funded
 

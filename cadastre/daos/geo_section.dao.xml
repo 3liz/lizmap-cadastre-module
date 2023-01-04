@@ -13,96 +13,29 @@
         updatepattern="" insertpattern="" selectpattern=""/>-->
     </record>
     <factory>
-        <method name="findByCommune" type="php">
-            <parameter name="geo_commune" />
-            <parameter name="condition" />
-            <body><![CDATA[
-            $sql = $this->_selectClause . $this->_fromClause . $this->_whereClause;
-            $sql.= ($this->_whereClause == ''?' WHERE ':' AND ');
-
-            $sql.= '"geo_commune" = '.$this->_prepareValue($geo_commune,'string');
-
-            if ($condition) {
-                $sql.= ' AND ('. $condition .')';
-            }
-
-            $sql.= ' ORDER BY name';
-
-            $rs = $this->_conn->query($sql);
-            $rs->setFetchMode(8,$this->_DaoRecordClassName);
-            return $rs;
-            ]]></body>
-            <!--conditions logic="and">
-                <eq property="geo_commune" expr="$geo_commune" />
-            </conditions>
-            <order>
-                <orderitem property="name" way="asc" />
-            </order-->
-        </method>
-
-        <method type="php" name="findByFieldIn">
-            <parameter name="field" />
-            <parameter name="value" />
-            <parameter name="condition" />
+        <method type="php" name="findByConditions">
+            <parameter name="layerConditions" />
+            <parameter name="searchConditions" />
 
             <body><![CDATA[
             $sql = $this->_selectClause . $this->_fromClause . $this->_whereClause;
-            $sql.= ($this->_whereClause == ''?' WHERE ':' AND ');
 
-            if (is_array($value)) {
-              $preparedValues = array();
-              foreach($value as $v) {
-                $preparedValues[] = $this->_prepareValue(trim($v),'string');
-              }
-              $sql.= '"'.$field.'" IN ('.implode(', ', $preparedValues).', '.$this->_prepareValue('all','string').')';
-            } else if (is_string($value) || is_numeric($value)) {
-                $sql.= '"'.$field.'" IN ('.$this->_prepareValue(trim($value),'string').', '.$this->_prepareValue('all','string').')';
-            } else {
-                $sql.= '"'.$field.'" = '.$this->_prepareValue('all','string');
+            if ($layerConditions || $searchConditions->hasConditions()) {
+                $sql.= ($this->_whereClause == ''?' WHERE ':' AND ');
             }
 
-            if ($condition) {
-                $sql.= ' AND ('. $condition .')';
+            if ($layerConditions) {
+                $sql.= '('. $layerConditions .')';
             }
 
-            $sql.= ' ORDER BY name';
-
-            $rs = $this->_conn->query($sql);
-            $rs->setFetchMode(8,$this->_DaoRecordClassName);
-            return $rs;
-            ]]></body>
-        </method>
-
-        <method type="php" name="findByCommuneAndFieldIn">
-            <parameter name="geo_commune" />
-            <parameter name="field" />
-            <parameter name="value" />
-            <parameter name="condition" />
-
-            <body><![CDATA[
-            $sql = $this->_selectClause . $this->_fromClause . $this->_whereClause;
-            $sql.= ($this->_whereClause == ''?' WHERE ':' AND ');
-
-            $sql.= ' geo_commune = '.$this->_prepareValue(trim($geo_commune),'string');
-            $sql.= ' AND ';
-
-            if (is_array($value)) {
-              $preparedValues = array();
-              foreach($value as $v) {
-                $preparedValues[] = $this->_prepareValue(trim($v),'string');
-              }
-              $sql.= '"'.$field.'" IN ('.implode(', ', $preparedValues).', '.$this->_prepareValue('all','string').')';
-            } else if (is_string($value) || is_numeric($value)) {
-                $sql.= '"'.$field.'" IN ('.$this->_prepareValue(trim($value),'string').', '.$this->_prepareValue('all','string').')';
-            } else {
-                $sql.= '"'.$field.'" = '.$this->_prepareValue('all','string');
+            if ($searchConditions->hasConditions()) {
+                if ($layerConditions) {
+                    $sql.= ' AND ';
+                }
+                $sql.= '('. $this->_createConditionsClause($searchConditions) .')';
             }
 
-            if ($condition) {
-                $sql.= ' AND ('. $condition .')';
-            }
-
-            $sql.= ' ORDER BY name';
+            $sql.= $this->_createOrderClause($searchConditions);
 
             $rs = $this->_conn->query($sql);
             $rs->setFetchMode(8,$this->_DaoRecordClassName);
