@@ -9,7 +9,8 @@
         <property name="geo_section" fieldname="geo_section" datatype="text" required="true"/>
         <property name="voie" fieldname="voie" datatype="text" required="true"/>
         <property name="comptecommunal" fieldname="comptecommunal" datatype="text" required="true"/>
-        <property name="name" fieldname="idu" datatype="text" required="true" selectpattern="codecommune || ' - ' || substr(idu,7,6)"/>
+        <property name="name" fieldname="name" datatype="text" required="true"
+                  selectpattern="codecommune || ' - ' || CASE WHEN substr(idu,4,3) != '000' THEN substr(idu,4,3) || ' - ' ELSE '' END || substr(idu,7,6)"/>
         <property name="geom" fieldname="geom" datatype="text" required="true" selectpattern="ST_AsText(geom)"/>
         <!--<property name="" fieldname="" datatype="string/int/float/date"
         required="yes" maxlength="" minlength="" regexp="" sequence=""

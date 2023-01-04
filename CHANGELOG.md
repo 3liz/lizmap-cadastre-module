@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Fixed
+
+* Ajout du prefixe de section au nom des parcelles si celui est différent de `000`
+
+### Funded
+
+* Conseil Départemental du Calvados https://www.calvados.fr
+
 ## 1.8.6 - 2022-12-16
 
 ### Fixed
