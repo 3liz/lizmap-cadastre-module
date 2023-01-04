@@ -5,7 +5,7 @@ require_once JELIX_LIB_PATH . 'forms/jFormsDatasource.class.php';
 class listGeoCommuneDatasource extends jFormsDynamicDatasource
 {
     protected $selector = 'cadastre~geo_commune';
-    protected $method = 'findAllCommune';
+    protected $method = 'findByConditions';
 
     protected $labelProperty = array('nom_court');
     protected $labelSeparator;
@@ -31,29 +31,28 @@ class listGeoCommuneDatasource extends jFormsDynamicDatasource
         }
 
         $config = cadastreConfig::get($repository, $project);
-        $condition = cadastreConfig::getLayerSql($repository, $project, $config->commune->id);
+        $layerConditions = cadastreConfig::getLayerSql($repository, $project, $config->commune->id);
         $fblConfig = cadastreConfig::getFilterByLogin($repository, $project, $config->commune->id);
 
-        $found = array();
-        if ($fblConfig === null) {
-            $found = $this->dao->{$this->method}($condition);
-        } else {
-            $method = 'findByFieldIn';
-            $args = array();
-            array_push($args, $fblConfig->filterAttribute);
-            if (!jAuth::isConnected()) {
-                array_push($args, null);
-            } else {
+        $searchConditions = jDao::createConditions();
+        if ($fblConfig !== null) {
+            $filterValues = array('all');
+            if (jAuth::isConnected()) {
                 if (property_exists($fblConfig, 'filterPrivate') && $fblConfig->filterPrivate == 'True') {
                     $user = jAuth::getUserSession();
-                    array_push($args, $user->login);
+                    $filterValues[] = $user->login;
                 } else {
-                    array_push($args, jAcl2DbUserGroup::getGroups());
+                    $filterValues = array_merge($filterValues, jAcl2DbUserGroup::getGroups());
                 }
             }
-            array_push($args, $condition);
-            $found = call_user_func_array(array($this->dao, $method), $args);
+            $searchConditions->addCondition($fblConfig->filterAttribute, 'IN', $filterValues);
         }
+
+        foreach ((array) $this->labelProperty as $property) {
+            $searchConditions->addItemOrder($property,'asc');
+        }
+
+        $found = $this->dao->{$this->method}($layerConditions, $searchConditions);
 
         $result = array();
 
