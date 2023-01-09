@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.8.7 - 2023-01-09
+
 ### Fixed
 
 * Ajout du prefixe de section au nom des parcelles si celui est différent de `000`
