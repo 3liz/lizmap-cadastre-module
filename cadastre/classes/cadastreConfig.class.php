@@ -53,6 +53,9 @@ class cadastreConfig
         }
 
         $dtParams = $qgisLayer->getDatasourceParameters();
+        if (!$dtParams->sql) {
+            return null;
+        }
 
         return $dtParams->sql;
     }
