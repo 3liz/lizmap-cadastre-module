@@ -103,10 +103,20 @@ class search
         $firstTerm = $cnx->quote('^' . $this->terms[0]);
 
         if ($this->field == 'voie') {
-            $condition = cadastreConfig::getLayerSql($this->repository, $this->project, $this->config->commune->id);
+            $layerConditions = null;
+            $layerSql = cadastreConfig::getLayerSql($this->repository, $this->project, $this->config->commune->id);
+            $polygonFilter = cadastreConfig::getPolygonFilter($this->repository, $this->project, $this->config->commune->id);
+            if ($layerSql !== null && $polygonFilter !== null) {
+                $layerConditions .= '(' . $layerSql . ') AND (' . $polygonFilter . ')';
+            } elseif ($layerSql !== null) {
+                $layerConditions = $layerSql;
+            } elseif ($polygonFilter !== null) {
+                $layerConditions = $polygonFilter;
+            }
+            \jLog::log($layerConditions, 'error');
             $geo_commune = 'geo_commune';
-            if ($condition) {
-                $geo_commune = '(SELECT * FROM geo_commune WHERE (' . $condition . '))';
+            if ($layerConditions) {
+                $geo_commune = '(SELECT * FROM geo_commune WHERE (' . $layerConditions . '))';
             }
 
             $sql = "
@@ -157,7 +167,16 @@ class search
                 ++$i;
             }
 
-            $condition = cadastreConfig::getLayerSql($this->repository, $this->project, $this->config->parcelle->id);
+            $layerConditions = null;
+            $layerSql = cadastreConfig::getLayerSql($this->repository, $this->project, $this->config->parcelle->id);
+            $polygonFilter = cadastreConfig::getPolygonFilter($this->repository, $this->project, $this->config->parcelle->id);
+            if ($layerSql !== null && $polygonFilter !== null) {
+                $layerConditions .= '(' . $layerSql . ') AND (' . $polygonFilter . ')';
+            } elseif ($layerSql !== null) {
+                $layerConditions = $layerSql;
+            } elseif ($polygonFilter !== null) {
+                $layerConditions = $polygonFilter;
+            }
 
             if (!empty($this->voie)) {
                 $sql .= ' AND trim(p.comptecommunal) IN (';
@@ -166,8 +185,8 @@ class search
                     $sql .= ' AND ';
                     $sql .= $this->getFilterSql($pFilterConfig, $profile);
                 }
-                if ($condition) {
-                    $sql .= ' AND (' . $condition . ')';
+                if ($layerConditions) {
+                    $sql .= ' AND (' . $layerConditions . ')';
                 }
                 $sql .= ')';
                 ++$i;
@@ -179,8 +198,8 @@ class search
                     $sql .= ' AND ';
                     $sql .= $this->getFilterSql($pFilterConfig, $profile);
                 }
-                if ($condition) {
-                    $sql .= ' AND (' . $condition . ')';
+                if ($layerConditions) {
+                    $sql .= ' AND (' . $layerConditions . ')';
                 }
                 $sql .= ')';
                 ++$i;
@@ -191,8 +210,8 @@ class search
                     $sql .= ' AND ';
                     $sql .= $this->getFilterSql($pFilterConfig, $profile);
                 }
-                if ($condition) {
-                    $sql .= ' AND (' . $condition . ')';
+                if ($layerConditions) {
+                    $sql .= ' AND (' . $layerConditions . ')';
                 }
                 $sql .= ')';
             }
@@ -218,7 +237,16 @@ class search
                 ++$i;
             }
 
-            $condition = cadastreConfig::getLayerSql($this->repository, $this->project, $this->config->parcelle->id);
+            $layerConditions = null;
+            $layerSql = cadastreConfig::getLayerSql($this->repository, $this->project, $this->config->parcelle->id);
+            $polygonFilter = cadastreConfig::getPolygonFilter($this->repository, $this->project, $this->config->parcelle->id);
+            if ($layerSql !== null && $polygonFilter !== null) {
+                $layerConditions .= '(' . $layerSql . ') AND (' . $polygonFilter . ')';
+            } elseif ($layerSql !== null) {
+                $layerConditions = $layerSql;
+            } elseif ($polygonFilter !== null) {
+                $layerConditions = $polygonFilter;
+            }
 
             $sql .= ' AND trim(p.comptecommunal) IN (';
             $sql .= 'SELECT DISTINCT comptecommunal FROM parcelle_info WHERE geo_parcelle LIKE $' . $i;
@@ -226,8 +254,8 @@ class search
                 $sql .= ' AND ';
                 $sql .= $this->getFilterSql($pFilterConfig, $profile);
             }
-            if ($condition) {
-                $sql .= ' AND (' . $condition . ')';
+            if ($layerConditions) {
+                $sql .= ' AND (' . $layerConditions . ')';
             }
             $sql .= ')';
             ++$i;

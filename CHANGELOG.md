@@ -5,6 +5,7 @@
 ### Fixed
 
 * Return null for layer SQL when it it is empty
+* Application du filtre géographique dans autocomplete
 
 ## 1.9.0 - 2023-01-10
 
