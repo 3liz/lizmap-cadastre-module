@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.9.1 - 2023-01-10
+
 ### Fixed
 
 * Return null for layer SQL when it it is empty
