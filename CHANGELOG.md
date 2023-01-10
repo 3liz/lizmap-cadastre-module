@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.9.0 - 2023-01-10
+
 ### Added
 
 * Compatibilité avec Lizmap Web Client 3.5 minimum
