@@ -139,14 +139,18 @@ class cadastreExtraInfos
         ';
 
         $filterConfig = cadastreConfig::getFilterByLogin($this->repository, $this->project, $this->config->parcelle->id);
-        $condition = cadastreConfig::getLayerSql($this->repository, $this->project, $this->config->parcelle->id);
+        $layerSql = cadastreConfig::getLayerSql($this->repository, $this->project, $this->config->parcelle->id);
+        $polygonFilter = cadastreConfig::getPolygonFilter($this->repository, $this->project, $this->config->parcelle->id);
 
         if ($filterConfig !== null) {
             $sql .= ' AND ';
             $sql .= $this->getFilterSql($filterConfig);
         }
-        if ($condition) {
-            $sql .= ' AND (' . $condition . ')';
+        if ($layerSql) {
+            $sql .= ' AND (' . $layerSql . ')';
+        }
+        if ($polygonFilter) {
+            $sql .= ' AND (' . $polygonFilter . ')';
         }
 
         return $sql;

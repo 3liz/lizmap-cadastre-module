@@ -41,7 +41,16 @@ class listGeoSectionDatasource extends jFormsDynamicDatasource
         $searchConditions->addCondition('geo_commune', '=', $commune);
 
         $config = cadastreConfig::get($repository, $project);
-        $layerConditions = cadastreConfig::getLayerSql($repository, $project, $config->section->id);
+        $layerConditions = null;
+        $layerSql = cadastreConfig::getLayerSql($repository, $project, $config->section->id);
+        $polygonFilter = cadastreConfig::getPolygonFilter($repository, $project, $config->section->id);
+        if ($layerSql !== null && $polygonFilter !== null) {
+            $layerConditions .= '(' . $layerSql . ') AND (' . $polygonFilter . ')';
+        } elseif ($layerSql !== null) {
+            $layerConditions = $layerSql;
+        } elseif ($polygonFilter !== null) {
+            $layerConditions = $polygonFilter;
+        }
         $fblConfig = cadastreConfig::getFilterByLogin($repository, $project, $config->section->id);
 
         if ($fblConfig !== null) {
