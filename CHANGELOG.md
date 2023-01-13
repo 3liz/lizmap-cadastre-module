@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 2.0.0 - 2023-01-13
+
 ### Fixed
 
 * Disparition des icônes avec Lizmap Web Client 3.6
