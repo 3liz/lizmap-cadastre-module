@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Fixed
+
+* Disparition des icônes avec Lizmap Web Client 3.6
+
+### Added
+
+* Compatibilité avec Lizmap Web Client 3.6 minimum
+
+### Funded
+
+* Le Grand Narbonne Communauté d'Agglomération https://www.legrandnarbonne.com
+
 ## 1.9.1 - 2023-01-10
 
 ### Fixed

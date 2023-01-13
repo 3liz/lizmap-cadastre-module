@@ -3,12 +3,12 @@ Left Menu button
 */
 
 #mapmenu .nav-list > li.cadastre .icon {
-  background-image: url(getfile?targetmodule=cadastre&file=cadastre-icon-white.png);
+  background-image: url(cadastre-icon-white.png);
   background-position: 0 0;
 }
 #mapmenu .nav-list > li.cadastre.active .icon,
 #mapmenu .nav-list > li.cadastre a:hover .icon {
-  background-image: url(getfile?targetmodule=cadastre&file=cadastre-icon-dark.png);
+  background-image: url(cadastre-icon-dark.png);
   background-position: 0 0;
 }
 
@@ -22,7 +22,7 @@ Toolbar buttons
 }
 
 #cadastre h3 .icon {
-    background-image: url(getfile?targetmodule=cadastre&file=cadastre-icon-white.png);
+    background-image: url(cadastre-icon-white.png);
     background-position: 0 0;
 }
 
