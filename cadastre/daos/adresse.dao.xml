@@ -8,7 +8,11 @@
         <property name="voie" fieldname="voie" datatype="text" required="true"/>
         <property name="natvoi" fieldname="natvoi" datatype="text" required="true"/>
         <property name="libvoi" fieldname="libvoi" datatype="text" required="true"/>
-        <property name="commune" fieldname="commune" datatype="text" required="true"/>
+        <property name="commune" fieldname="commune" datatype="text" required="true" table="voie"/>
+        <property name="geo_commune" fieldname="geo_commune" datatype="text" table="geo_commune"/>
+        <property name="idu" fieldname="idu" datatype="text" table="geo_commune"/>
+        <property name="annee" fieldname="annee" datatype="text" table="geo_commune"/>
+        <property name="lot" fieldname="lot" datatype="text" table="geo_commune"/>
         <property name="name" fieldname="libvoi" datatype="text" selectpattern="trim(concat(libvoi, ' (', libvoi, ')'))"/>
         <!--<property name="" fieldname="" datatype="string/int/float/date"
         required="yes" maxlength="" minlength="" regexp="" sequence=""
