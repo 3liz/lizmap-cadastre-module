@@ -7,6 +7,9 @@
         <property name="ogc_fid" fieldname="ogc_fid" datatype="integer" required="true"/>
         <property name="geo_section" fieldname="geo_section" datatype="text" required="true"/>
         <property name="geo_commune" fieldname="geo_commune" datatype="text" required="true"/>
+        <property name="idu" fieldname="idu" datatype="text"/>
+        <property name="annee" fieldname="annee" datatype="text"/>
+        <property name="lot" fieldname="lot" datatype="text"/>
         <property name="name" fieldname="tex" datatype="text" required="true"/>
         <!--<property name="" fieldname="" datatype="string/int/float/date"
         required="yes" maxlength="" minlength="" regexp="" sequence=""
