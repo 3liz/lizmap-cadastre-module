@@ -13,7 +13,7 @@
         <property name="idu" fieldname="idu" datatype="text" table="geo_commune"/>
         <property name="annee" fieldname="annee" datatype="text" table="geo_commune"/>
         <property name="lot" fieldname="lot" datatype="text" table="geo_commune"/>
-        <property name="name" fieldname="libvoi" datatype="text" selectpattern="trim(concat(libvoi, ' (', libvoi, ')'))"/>
+        <property name="name" fieldname="libvoi" datatype="text" selectpattern="concat(trim(libvoi), ' (', trim(natvoi), ')')"/>
         <!--<property name="" fieldname="" datatype="string/int/float/date"
         required="yes" maxlength="" minlength="" regexp="" sequence=""
         updatepattern="" insertpattern="" selectpattern=""/>-->
