@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 2.0.1 - 2023-01-18
+
 ### Fixed
 
 * Les DAOs ne contenaient pas asse d'attributs pour pouvoir appliquer des filtres par utilisateur
