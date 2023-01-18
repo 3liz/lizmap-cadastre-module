@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Fixed
+
+* Les DAOs ne contenaient pas asse d'attributs pour pouvoir appliquer des filtres par utilisateur
+* Dao adresse: mise à jour du champs name
+
 ## 1.9.1 - 2023-01-10
 
 ### Fixed
