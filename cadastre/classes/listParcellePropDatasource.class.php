@@ -43,6 +43,8 @@ class listParcellePropDatasource extends jFormsDynamicDatasource
         if (empty($comptecommunal)) {
             return array();
         }
+        $comptescommunaux = explode(',', $comptecommunal);
+        $comptescommunaux = array_map('trim', $comptescommunaux);
 
         $this->profile = cadastreProfile::getWithLayerId($repository, $project, $layerId);
 
@@ -51,7 +53,7 @@ class listParcellePropDatasource extends jFormsDynamicDatasource
         }
 
         $searchConditions = jDao::createConditions();
-        $searchConditions->addCondition('comptecommunal', '=', $comptecommunal);
+        $searchConditions->addCondition('comptecommunal', 'IN', $comptescommunaux);
 
         $config = cadastreConfig::get($repository, $project);
         $layerConditions = cadastreConfig::getLayerSql($repository, $project, $config->parcelle->id);
