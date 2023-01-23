@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Fixed
+
+* Un propriétaire peut avoir plusiseurs comptes communaux
+
+### Funded 
+
+* Terre de Provence Agglomération https://www.terredeprovence-agglo.com/
+
 ## 2.0.1 - 2023-01-18
 
 ### Fixed
