@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module xmlns="http://jelix.org/ns/module/1.0">
     <info id="cadastre" name="cadastre" createdate="2016-07-07">
-        <version date="2023-01-18">2.0.1</version>
+        <version date="2023-01-26">2.0.2</version>
         <label lang="en_US">cadastre</label>
         <description lang="en_US" />
         <license URL="">Mozilla Public Licence (MPL)</license>
