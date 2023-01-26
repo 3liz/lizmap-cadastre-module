@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.9.3 - 2023-01-26
+
 ### Fixed
 
 * Un propriétaire peut avoir plusiseurs comptes communaux
