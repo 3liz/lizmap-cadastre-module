@@ -341,7 +341,7 @@ class serviceCtrl extends jController
 
         // Add JS code to refresh
         $rep->addJSCode("var token = '" . $token . "'; ");
-        $checkUrl = jUrl::getFull(
+        $checkUrl = jUrl::get(
             'cadastre~service:checkExport',
             $this->params()
         );
