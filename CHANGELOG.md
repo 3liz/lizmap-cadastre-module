@@ -2,13 +2,23 @@
 
 ## Unreleased
 
+## 2.0.3 - 2023-04-03
+
+### Fixed
+
+* Pour le relevé de propriété, l'URL de contrôle doit-être relative
+
+### Funded
+
+* Le Grand Narbonne Communauté d'Agglomération https://www.legrandnarbonne.com
+
 ## 2.0.2 - 2023-01-26
 
 ### Fixed
 
-* Un propriétaire peut avoir plusiseurs comptes communaux
+* Un propriétaire peut avoir plusieurs comptes communaux
 
-### Funded 
+### Funded
 
 * Terre de Provence Agglomération https://www.terredeprovence-agglo.com/
 
