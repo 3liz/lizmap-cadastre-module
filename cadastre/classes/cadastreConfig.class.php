@@ -82,6 +82,27 @@ class cadastreConfig
         return $loginFilterConfig;
     }
 
+    public static function getLoginFilter($repository, $project, $layerId)
+    {
+        if (jAuth::isConnected() && jAcl2::check('lizmap.tools.loginFilteredLayers.override', $repository)) {
+            return null;
+        }
+
+        $p = lizmap::getProject($repository . '~' . $project);
+
+        $qgisLayer = $p->getLayer($layerId);
+        if (!$qgisLayer) {
+            return null;
+        }
+
+        $loginFilterObj = $p->getLoginFilter($qgisLayer->getName());
+        if (!empty($loginFilterObj) && array_key_exists('filter', $loginFilterObj)) {
+            return $loginFilterObj['filter'];
+        }
+
+        return null;
+    }
+
     public static function getPolygonFilter($repository, $project, $layerId)
     {
         if (jAuth::isConnected() && jAcl2::check('lizmap.tools.loginFilteredLayers.override', $repository)) {
