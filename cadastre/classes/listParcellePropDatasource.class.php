@@ -16,9 +16,7 @@ class listParcellePropDatasource extends jFormsDynamicDatasource
     protected $profile;
     protected $dao;
 
-    public function __construct($formid)
-    {
-    }
+    public function __construct($formid) {}
 
     public function getData($form)
     {

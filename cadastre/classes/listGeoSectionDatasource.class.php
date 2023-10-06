@@ -16,9 +16,7 @@ class listGeoSectionDatasource extends jFormsDynamicDatasource
 
     protected $dao;
 
-    public function __construct($formid)
-    {
-    }
+    public function __construct($formid) {}
 
     public function getData($form)
     {

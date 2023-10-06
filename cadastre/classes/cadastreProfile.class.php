@@ -33,6 +33,7 @@ class cadastreProfile
                 $profile = $qgisLayer->getDatasourceProfile(31);
             }
         }
+
         // jLog::log(json_encode($profile));
         return $profile;
     }
@@ -57,6 +58,7 @@ class cadastreProfile
         if ($qgisLayer) {
             $profile = $qgisLayer->getDatasourceProfile(31);
         }
+
         // jLog::log(json_encode($profile));
         return $profile;
     }
@@ -101,6 +103,7 @@ class cadastreProfile
     public static function checkTableContent($table, $profile)
     {
         $ok = false;
+
         // Try to get data from geo_commune
         try {
             // try to get the specific search profile to do not rebuild it

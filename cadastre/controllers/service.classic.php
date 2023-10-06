@@ -87,7 +87,7 @@ class serviceCtrl extends jController
 
         if ($type == 'fiche') {
             $creq = 'getHtml';
-        // jLog::log($creq);
+            // jLog::log($creq);
         } else {
             $creq = 'createPdf';
         }

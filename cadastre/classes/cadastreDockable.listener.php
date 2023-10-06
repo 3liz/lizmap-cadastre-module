@@ -76,15 +76,9 @@ class cadastreDockableListener extends jEventListener
         }
     }
 
-    public function onmapMiniDockable($event)
-    {
-    }
+    public function onmapMiniDockable($event) {}
 
-    public function onmapRightDockable($event)
-    {
-    }
+    public function onmapRightDockable($event) {}
 
-    public function onmapBottomDockable($event)
-    {
-    }
+    public function onmapBottomDockable($event) {}
 }
