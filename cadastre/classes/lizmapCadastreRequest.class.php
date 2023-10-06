@@ -20,28 +20,28 @@ class lizmapCadastreRequest extends lizmapOGCRequest
 
     protected function getcapabilities()
     {
+        $appContext = $this->appContext;
         // Get cached session
-        $key = session_id() . '-' .
-               $this->project->getRepository()->getKey() . '-' .
-               $this->project->getKey() . '-' .
-               $this->param('service') . '-getcapabilities';
-        if (jAuth::isConnected()) {
-            $juser = jAuth::getUserSession();
+        // the cache should be unique between each user/service because the
+        // request content depends on rights of the user
+        $key = session_id() . '-' . $this->param('service');
+        $version = $this->param('version');
+        if ($version) {
+            $key .= '-' . $version;
+        }
+        if ($appContext->UserIsConnected()) {
+            $juser = $appContext->getUserSession();
             $key .= '-' . $juser->login;
         }
-        $key = sha1($key);
+        $key = 'getcapabilities-' . sha1($key);
         $cached = false;
 
         try {
-            $cached = jCache::get($key, 'qgisprojects');
+            $cached = $this->project->getCacheHandler()->getProjectRelatedDataCache($key);
         } catch (Exception $e) {
             // if qgisprojects profile does not exist, or if there is an
             // other error about the cache, let's log it
             jLog::logEx($e, 'error');
-        }
-        // invalid cache
-        if ($cached !== false && $cached['mtime'] < $this->project->getFileTime()) {
-            $cached = false;
         }
         // return cached data
         if ($cached !== false) {
@@ -53,38 +53,40 @@ class lizmapCadastreRequest extends lizmapOGCRequest
             );
         }
 
-        $querystring = $this->constructUrl();
-
         // Get remote data
-        list($data, $mime, $code) = lizmapProxy::getRemoteData($querystring);
+        $response = $this->request();
 
         // Retry if 500 error ( hackish, but QGIS Server segfault sometimes with cache issue )
         if ($code == 500) {
             // Get remote data
-            list($data, $mime, $code) = lizmapProxy::getRemoteData($querystring);
+            $response = $this->request();
         }
 
-        if ($mime != 'text/json' && $mime != 'application/json') {
-            $code = 400;
-            $mime = 'application/json';
-            $data = json_encode((object) array(
-                'status' => 'fail',
-                'message' => 'Cadastre - Plugin non disponible',
-            ));
+        if ($response->mime != 'text/json' && $response->mime != 'application/json') {
+            return (object) array(
+                'code' => 400,
+                'mime' => 'application/json',
+                'data' => json_encode((object) array(
+                    'status' => 'fail',
+                    'message' => 'Cadastre - Plugin non disponible',
+                )),
+                'cached' => false,
+            );
         }
 
-        $cached = array(
-            'mtime' => $this->project->getFileTime(),
-            'code' => $code,
-            'mime' => $mime,
-            'data' => $data,
-        );
-        $cached = jCache::set($key, $cached, 3600, 'qgisprojects');
+        if ($response->code == 200) {
+            $cachedContent = array(
+                'code' => $response->code,
+                'mime' => $response->mime,
+                'data' => $response->data,
+            );
+            $cached = $this->project->getCacheHandler()->setProjectRelatedDataCache($key, $cachedContent, 3600);
+        }
 
         return (object) array(
-            'code' => $code,
-            'mime' => $mime,
-            'data' => $data,
+            'code' => $response->code,
+            'mime' => $response->mime,
+            'data' => $response->data,
             'cached' => $cached,
         );
     }
