@@ -32,29 +32,26 @@ class listGeoCommuneDatasource extends jFormsDynamicDatasource
         $layerConditions = null;
         $layerSql = cadastreConfig::getLayerSql($repository, $project, $config->commune->id);
         $polygonFilter = cadastreConfig::getPolygonFilter($repository, $project, $config->commune->id);
-        if ($layerSql !== null && $polygonFilter !== null) {
-            $layerConditions .= '(' . $layerSql . ') AND (' . $polygonFilter . ')';
-        } elseif ($layerSql !== null) {
-            $layerConditions = $layerSql;
-        } elseif ($polygonFilter !== null) {
-            $layerConditions = $polygonFilter;
+        $loginFilter = cadastreConfig::getLoginFilter($repository, $project, $config->parcelle->id);
+        $layerFilters = array();
+        if ($layerSql !== null) {
+            $layerFilters[] = $layerSql;
         }
-        $fblConfig = cadastreConfig::getFilterByLogin($repository, $project, $config->commune->id);
+        if ($polygonFilter !== null) {
+            $layerFilters[] = $polygonFilter;
+        }
+        if ($loginFilter !== null) {
+            $layerFilters[] = $loginFilter;
+        }
+        if (count($layerFilters) != 0) {
+            if (count($layerFilters) == 1) {
+                $layerConditions = $layerFilters[0];
+            } else {
+                $layerConditions = '(' . implode(') AND (', $layerFilters) . ')';
+            }
+        }
 
         $searchConditions = jDao::createConditions();
-        if ($fblConfig !== null) {
-            $filterValues = array('all');
-            if (jAuth::isConnected()) {
-                if (property_exists($fblConfig, 'filterPrivate') && $fblConfig->filterPrivate == 'True') {
-                    $user = jAuth::getUserSession();
-                    $filterValues[] = $user->login;
-                } else {
-                    $filterValues = array_merge($filterValues, jAcl2DbUserGroup::getGroups());
-                }
-            }
-            $searchConditions->addCondition($fblConfig->filterAttribute, 'IN', $filterValues);
-        }
-
         foreach ((array) $this->labelProperty as $property) {
             $searchConditions->addItemOrder($property, 'asc');
         }
