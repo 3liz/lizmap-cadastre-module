@@ -37,10 +37,14 @@ class listParcelleLieuDatasource extends jFormsDynamicDatasource
         }
 
         $searchConditions = jDao::createConditions();
-        $searchConditions->startGroup('OR');
-        $searchConditions->addCondition('geo_section', '=', $section);
-        $searchConditions->addCondition('voie', '=', $voie);
-        $searchConditions->endGroup();
+        if (empty($voie)) {
+            $searchConditions->addCondition('geo_section', '=', $section);
+        } elseif (empty($section)) {
+            $searchConditions->addCondition('voie', '=', $voie);
+        } else {
+            $searchConditions->addCondition('geo_section', '=', $section);
+            $searchConditions->addCondition('voie', '=', $voie);
+        }
 
         $config = cadastreConfig::get($repository, $project);
         $layerConditions = null;
