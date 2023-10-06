@@ -415,12 +415,11 @@ class search
     /**
      * Method called by the autocomplete input field.
      *
-     * @param string $term          Searched term
-     * @param mixed  $repository
-     * @param mixed  $project
-     * @param mixed  $parcelleLayer
-     * @param mixed  $field
-     * @param mixed  $value
+     * @param mixed $repository
+     * @param mixed $project
+     * @param mixed $parcelleLayer
+     * @param mixed $field
+     * @param mixed $value
      *
      * @return object[] List of matching taxons
      */

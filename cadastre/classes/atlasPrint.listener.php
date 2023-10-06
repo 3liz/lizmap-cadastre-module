@@ -14,9 +14,7 @@ class atlasPrintListener extends jEventListener
     /**
      * When a user logs in.
      *
-     * @param string $login The login
-     * @param object $user  jAuth user
-     * @param mixed  $event
+     * @param mixed $event
      */
     public function onBeforePdfCreation($event)
     {
