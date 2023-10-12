@@ -37,35 +37,36 @@ class listParcelleLieuDatasource extends jFormsDynamicDatasource
         }
 
         $searchConditions = jDao::createConditions();
-        $searchConditions->startGroup('OR');
-        $searchConditions->addCondition('geo_section', '=', $section);
-        $searchConditions->addCondition('voie', '=', $voie);
-        $searchConditions->endGroup();
+        if (empty($voie)) {
+            $searchConditions->addCondition('geo_section', '=', $section);
+        } elseif (empty($section)) {
+            $searchConditions->addCondition('voie', '=', $voie);
+        } else {
+            $searchConditions->addCondition('geo_section', '=', $section);
+            $searchConditions->addCondition('voie', '=', $voie);
+        }
 
         $config = cadastreConfig::get($repository, $project);
         $layerConditions = null;
         $layerSql = cadastreConfig::getLayerSql($repository, $project, $config->parcelle->id);
         $polygonFilter = cadastreConfig::getPolygonFilter($repository, $project, $config->parcelle->id);
-        if ($layerSql !== null && $polygonFilter !== null) {
-            $layerConditions .= '(' . $layerSql . ') AND (' . $polygonFilter . ')';
-        } elseif ($layerSql !== null) {
-            $layerConditions = $layerSql;
-        } elseif ($polygonFilter !== null) {
-            $layerConditions = $polygonFilter;
+        $loginFilter = cadastreConfig::getLoginFilter($repository, $project, $config->parcelle->id);
+        $layerFilters = array();
+        if ($layerSql !== null) {
+            $layerFilters[] = $layerSql;
         }
-        $fblConfig = cadastreConfig::getFilterByLogin($repository, $project, $config->parcelle->id);
-
-        if ($fblConfig !== null) {
-            $filterValues = array('all');
-            if (jAuth::isConnected()) {
-                if (property_exists($fblConfig, 'filterPrivate') && $fblConfig->filterPrivate == 'True') {
-                    $user = jAuth::getUserSession();
-                    $filterValues[] = $user->login;
-                } else {
-                    $filterValues = array_merge($filterValues, jAcl2DbUserGroup::getGroups());
-                }
+        if ($polygonFilter !== null) {
+            $layerFilters[] = $polygonFilter;
+        }
+        if ($loginFilter !== null) {
+            $layerFilters[] = $loginFilter;
+        }
+        if (count($layerFilters) != 0) {
+            if (count($layerFilters) == 1) {
+                $layerConditions = $layerFilters[0];
+            } else {
+                $layerConditions = '(' . implode(') AND (', $layerFilters) . ')';
             }
-            $searchConditions->addCondition($fblConfig->filterAttribute, 'IN', $filterValues);
         }
 
         foreach ((array) $this->labelProperty as $property) {
