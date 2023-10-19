@@ -41,7 +41,7 @@ class lizmapCadastreRequest extends lizmapOGCRequest
         } catch (Exception $e) {
             // if qgisprojects profile does not exist, or if there is an
             // other error about the cache, let's log it
-            jLog::logEx($e, 'error');
+            \jLog::logEx($e, 'error');
         }
         // return cached data
         if ($cached !== false) {
@@ -57,7 +57,7 @@ class lizmapCadastreRequest extends lizmapOGCRequest
         $response = $this->request();
 
         // Retry if 500 error ( hackish, but QGIS Server segfault sometimes with cache issue )
-        if ($code == 500) {
+        if ($response->code == 500) {
             // Get remote data
             $response = $this->request();
         }
@@ -106,7 +106,7 @@ class lizmapCadastreRequest extends lizmapOGCRequest
         }
 
         $querystring = $this->constructUrl();
-        // jLog::log( $querystring );
+        // \jLog::log( $querystring );
         // Get remote data
         list($data, $mime, $code) = lizmapProxy::getRemoteData($querystring);
 
@@ -150,7 +150,7 @@ class lizmapCadastreRequest extends lizmapOGCRequest
         }
 
         $querystring = $this->constructUrl();
-        // jLog::log($querystring);
+        // \jLog::log($querystring);
         // Get remote data
         list($data, $mime, $code) = lizmapProxy::getRemoteData($querystring);
 
@@ -179,7 +179,7 @@ class lizmapCadastreRequest extends lizmapOGCRequest
         }
 
         $querystring = $this->constructUrl();
-        // jLog::log($querystring);
+        // \jLog::log($querystring);
         // Get remote data
         list($data, $mime, $code) = lizmapProxy::getRemoteData($querystring);
         $data = json_decode($data);

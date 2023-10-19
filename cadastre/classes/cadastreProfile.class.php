@@ -34,7 +34,7 @@ class cadastreProfile
             }
         }
 
-        // jLog::log(json_encode($profile));
+        // \jLog::log(json_encode($profile));
         return $profile;
     }
 
@@ -59,7 +59,7 @@ class cadastreProfile
             $profile = $qgisLayer->getDatasourceProfile(31);
         }
 
-        // jLog::log(json_encode($profile));
+        // \jLog::log(json_encode($profile));
         return $profile;
     }
 
