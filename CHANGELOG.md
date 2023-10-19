@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Fixed
+
+* Amélioration de la recherche des parcelles
+* Utilisation du cache handler de projet 
+
+### Funded
+
+* Conseil Département du Calvados https://www.calvados.fr/
+
 ## 1.9.4 - 2023-04-03
 
 ### Fixed
