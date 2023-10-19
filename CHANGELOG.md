@@ -6,6 +6,7 @@
 
 * Amélioration de la recherche des parcelles
 * Utilisation du cache handler de projet 
+* Améliroation des recherches par autocomplétion
 
 ### Funded
 

@@ -113,7 +113,6 @@ class search
             } elseif ($polygonFilter !== null) {
                 $layerConditions = $polygonFilter;
             }
-            \jLog::log($layerConditions, 'error');
             $geo_commune = 'geo_commune';
             if ($layerConditions) {
                 $geo_commune = '(SELECT * FROM geo_commune WHERE (' . $layerConditions . '))';
@@ -179,7 +178,7 @@ class search
             }
 
             if (!empty($this->voie)) {
-                $sql .= ' AND trim(p.comptecommunal) IN (';
+                $sql .= ' AND p.comptecommunal IN (';
                 $sql .= 'SELECT DISTINCT comptecommunal FROM parcelle_info WHERE voie = $' . $i;
                 if ($pFilterConfig !== null) {
                     $sql .= ' AND ';
@@ -192,19 +191,22 @@ class search
                 ++$i;
             }
             if (!empty($this->commune)) {
-                $sql .= ' AND trim(p.comptecommunal) IN (';
-                $sql .= 'SELECT DISTINCT comptecommunal FROM parcelle_info WHERE geo_parcelle LIKE $' . $i;
-                if ($pFilterConfig !== null) {
-                    $sql .= ' AND ';
-                    $sql .= $this->getFilterSql($pFilterConfig, $profile);
+                $sql .= ' AND p.comptecommunal LIKE $' . $i;
+                if ($pFilterConfig !== null && $layerConditions) {
+                    $sql .= ' AND p.comptecommunal IN (';
+                    $sql .= 'SELECT DISTINCT comptecommunal FROM parcelle_info WHERE geo_parcelle LIKE $' . $i;
+                    if ($pFilterConfig !== null) {
+                        $sql .= ' AND ';
+                        $sql .= $this->getFilterSql($pFilterConfig, $profile);
+                    }
+                    if ($layerConditions) {
+                        $sql .= ' AND (' . $layerConditions . ')';
+                    }
+                    $sql .= ')';
                 }
-                if ($layerConditions) {
-                    $sql .= ' AND (' . $layerConditions . ')';
-                }
-                $sql .= ')';
                 ++$i;
             } elseif ($pFilterConfig !== null) {
-                $sql .= ' AND trim(p.comptecommunal) IN (';
+                $sql .= ' AND p.comptecommunal IN (';
                 $sql .= 'SELECT DISTINCT comptecommunal FROM parcelle_info WHERE 2>1';
                 if ($pFilterConfig !== null) {
                     $sql .= ' AND ';
@@ -248,16 +250,19 @@ class search
                 $layerConditions = $polygonFilter;
             }
 
-            $sql .= ' AND trim(p.comptecommunal) IN (';
-            $sql .= 'SELECT DISTINCT comptecommunal FROM parcelle_info WHERE geo_parcelle LIKE $' . $i;
-            if ($pFilterConfig !== null) {
-                $sql .= ' AND ';
-                $sql .= $this->getFilterSql($pFilterConfig, $profile);
+            $sql .= ' AND p.comptecommunal LIKE $' . $i;
+            if ($pFilterConfig !== null && $layerConditions) {
+                $sql .= ' AND p.comptecommunal IN (';
+                $sql .= 'SELECT DISTINCT comptecommunal FROM parcelle_info WHERE geo_parcelle LIKE $' . $i;
+                if ($pFilterConfig !== null) {
+                    $sql .= ' AND ';
+                    $sql .= $this->getFilterSql($pFilterConfig, $profile);
+                }
+                if ($layerConditions) {
+                    $sql .= ' AND (' . $layerConditions . ')';
+                }
+                $sql .= ')';
             }
-            if ($layerConditions) {
-                $sql .= ' AND (' . $layerConditions . ')';
-            }
-            $sql .= ')';
             ++$i;
             if (!empty($this->comptecommunal)) {
                 $si = array();
