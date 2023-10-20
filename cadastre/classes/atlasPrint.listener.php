@@ -100,7 +100,7 @@ class atlasPrintListener extends jEventListener
                 fwrite($file, $piece, strlen($piece));
             }
             fclose($file);
-            // jLog::log($path);
+            // \jLog::log($path);
             $file = $path;
             $status = 'success';
         }
