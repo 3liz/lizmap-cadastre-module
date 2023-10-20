@@ -297,12 +297,15 @@ lizMap.events.on({
 
             $('#' + formId + '_commune').change(function () {
                 $('#' + formId + '_geo_parcelle_lieu').val('');
+                if ($('#' + formId + '_zoom').hasClass('active')) {
+                    zoomToCadastreFeature();
+                }
             });
             $('#' + formId + '_section').change(function () {
                 $('#' + formId + '_geo_parcelle_lieu').val('');
                 window.setTimeout(function() {
                     $('#' + formId + '_adresse').val('');
-                    $('#' + formId + '_voie').val('');
+                    $('#' + formId + '_voie').val('').change();
                 }, 500);
             });
             $('#' + formId + '_adresse').change(function () {
@@ -313,6 +316,9 @@ lizMap.events.on({
                 $('#' + formId + '_proprietaire').val('');
                 $('#' + formId + '_compte').val('');
                 $('#' + formId + '_geo_parcelle_prop').val('');
+                if ($('#' + formId + '_zoom').hasClass('active')) {
+                    zoomToCadastreFeature();
+                }
 
             });
 
