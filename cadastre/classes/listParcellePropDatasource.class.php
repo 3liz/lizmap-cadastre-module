@@ -34,6 +34,11 @@ class listParcellePropDatasource extends jFormsDynamicDatasource
             return array();
         }
 
+        if (!empty($commune) && !empty($comptecommunal
+            && substr($comptecommunal, 0, 6) !== $commune)) {
+            return array();
+        }
+
         if (!empty($commune) && !empty($compte)) {
             $comptecommunal = $commune . $compte;
         }
