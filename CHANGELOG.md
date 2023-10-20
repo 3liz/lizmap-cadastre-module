@@ -8,6 +8,7 @@
 * Utilisation du cache handler de projet 
 * Amélioration des recherches par autocomplétion
 * Amélioration de la recherche par section
+* Amélioration du zoom lors de la recherche
 
 ### Funded
 
