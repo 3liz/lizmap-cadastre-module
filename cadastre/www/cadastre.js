@@ -153,9 +153,10 @@ lizMap.events.on({
         if (!cadastreConfig.layer)
             return;
 
-        var cadastreCrs = 'EPSG:2154';
-        if ('qgisServerVersion' in lizMap.config.options && lizMap.config.options.qgisServerVersion != '2.14')
-            cadastreCrs = 'EPSG:4326';
+        var cadastreCrs = 'EPSG:4326';
+        if ('qgisServerVersion' in lizMap.config.options && lizMap.config.options.qgisServerVersion == '2.14') {
+            cadastreCrs = 'EPSG:2154';
+        }
 
         function initCadastreForm() {
             var formId = $('#div_form_cadastre_search form').attr('id');
@@ -298,9 +299,11 @@ lizMap.events.on({
                 $('#' + formId + '_geo_parcelle_lieu').val('');
             });
             $('#' + formId + '_section').change(function () {
-                $('#' + formId + '_adresse').val('');
-                $('#' + formId + '_voie').val('');
                 $('#' + formId + '_geo_parcelle_lieu').val('');
+                window.setTimeout(function() {
+                    $('#' + formId + '_adresse').val('');
+                    $('#' + formId + '_voie').val('');
+                }, 500);
             });
             $('#' + formId + '_adresse').change(function () {
                 $('#' + formId + '_section').val('');
