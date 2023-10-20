@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 2.0.4 - 2023-10-20
+
 ### Fixed
 
 * Amélioration de la recherche des parcelles
@@ -13,8 +15,6 @@
 ### Funded
 
 * Conseil Département du Calvados https://www.calvados.fr/
-
-## 2.0.3 - 2023-04-03
 
 ### Fixed
 
