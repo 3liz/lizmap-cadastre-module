@@ -296,7 +296,11 @@ lizMap.events.on({
 
 
             $('#' + formId + '_commune').change(function () {
+                $('#' + formId + '_section').val('');
+                $('#' + formId + '_adresse').val('');
+                $('#' + formId + '_voie').val('');
                 $('#' + formId + '_geo_parcelle_lieu').val('');
+                $('#' + formId + '_geo_parcelle_lieu').html('<option value selected="selected">-- Choisir --</option>');
                 if ($('#' + formId + '_zoom').hasClass('active')) {
                     zoomToCadastreFeature();
                 }
@@ -314,8 +318,10 @@ lizMap.events.on({
 
             $('#' + formId + '_commune_prop').change(function () {
                 $('#' + formId + '_proprietaire').val('');
+                $('#' + formId + '_comptecommunal').val('');
                 $('#' + formId + '_compte').val('');
                 $('#' + formId + '_geo_parcelle_prop').val('');
+                $('#' + formId + '_geo_parcelle_prop').html('<option value selected="selected">-- Choisir --</option>');
                 if ($('#' + formId + '_zoom').hasClass('active')) {
                     zoomToCadastreFeature();
                 }
