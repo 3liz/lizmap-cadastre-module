@@ -3,6 +3,7 @@
 ## Unreleased
 
 * Correction de la liste de communes
+* Correction de la liste de sections
 
 ## 2.0.4 - 2023-10-20
 
