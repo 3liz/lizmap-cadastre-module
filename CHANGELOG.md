@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Correction de la liste de communes
+
 ## 2.0.4 - 2023-10-20
 
 ### Fixed
