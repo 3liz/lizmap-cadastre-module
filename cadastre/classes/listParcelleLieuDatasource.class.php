@@ -131,7 +131,7 @@ class listParcelleLieuDatasource extends jFormsDynamicDatasource
     public function setCriteriaControls($criteriaFrom = null)
     {
         if (count($criteriaFrom) !== 5) {
-            throw new Exception('5 criterias needed: repository, project, parcelleLayerId,section,voie');
+            throw new Exception('5 criterias needed: repository, project, parcelleLayerId, section, voie');
         }
         $this->criteriaFrom = $criteriaFrom;
     }

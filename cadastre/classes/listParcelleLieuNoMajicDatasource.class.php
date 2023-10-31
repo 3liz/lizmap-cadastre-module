@@ -123,7 +123,7 @@ class listParcelleLieuNoMajicDatasource extends jFormsDynamicDatasource
     public function setCriteriaControls($criteriaFrom = null)
     {
         if (count($criteriaFrom) !== 4) {
-            throw new Exception('4 criterias needed: repository, project, parcelleLayerId,section');
+            throw new Exception('4 criterias needed: repository, project, parcelleLayerId, section');
         }
         $this->criteriaFrom = $criteriaFrom;
     }
