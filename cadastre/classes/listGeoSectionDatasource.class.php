@@ -42,7 +42,7 @@ class listGeoSectionDatasource extends jFormsDynamicDatasource
         $layerConditions = null;
         $layerSql = cadastreConfig::getLayerSql($repository, $project, $config->section->id);
         $polygonFilter = cadastreConfig::getPolygonFilter($repository, $project, $config->section->id);
-        $loginFilter = cadastreConfig::getLoginFilter($repository, $project, $config->parcelle->id);
+        $loginFilter = cadastreConfig::getLoginFilter($repository, $project, $config->section->id);
         $layerFilters = array();
         if ($layerSql !== null) {
             $layerFilters[] = $layerSql;
