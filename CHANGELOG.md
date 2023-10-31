@@ -2,8 +2,16 @@
 
 ## Unreleased
 
+## 2.0.5 - 2023-10-31
+
+### Fixed
+
 * Correction de la liste de communes
 * Correction de la liste de sections
+
+### funded
+
+* Communauté de Communes du Pays de Revigny https://www.copary.fr/
 
 ## 2.0.4 - 2023-10-20
 
