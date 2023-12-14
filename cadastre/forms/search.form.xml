@@ -64,12 +64,13 @@
     </menulist>
 
     <!-- Restreindre l'intersection aux objets sélectionnés -->
-    <menulist ref="spatial_layer_use_selected">
+    <!-- TOUJOURS ACTIVE CAR PEUT ETRE SOURCE DE PROBLEMES DE PERFORMANCE -->
+    <!-- <menulist ref="spatial_layer_use_selected">
         <label locale="cadastre~search.input.spatial_layer_use_selected"/>
         <hint locale="cadastre~search.input.spatial_layer_use_selected.help"/>
         <item value="oui" locale="cadastre~search.input.spatial_layer_use_selected.oui.label" selected="true"/>
         <item value="non" locale="cadastre~search.input.spatial_layer_use_selected.non.label"/>
-    </menulist>
+    </menulist> -->
 
     <!-- Identifiants sélectionné dans la couche choisie. C'est le JS qui le remplit -->
     <hidden ref="spatial_layer_selected_ids">
@@ -127,7 +128,7 @@
             <emptyitem locale="cadastre~search.input.emptyitem"/>
             <datasource
                 class="cadastre~listParcelleSpatialDatasource"
-                criteriafrom="repository, project, parcelleLayerId, spatial_layer_id, spatial_layer_use_selected, spatial_layer_selected_ids, spatial_layer_field, spatial_layer_buffer"/>
+                criteriafrom="repository, project, parcelleLayerId, spatial_layer_id, spatial_layer_selected_ids, spatial_layer_field, spatial_layer_buffer"/>
         </menulist>
     </group>
 

@@ -29,10 +29,10 @@ class listParcelleSpatialDatasource extends jFormsDynamicDatasource
         $project = $form->getData($this->criteriaFrom[1]);
         $layerId = $form->getData($this->criteriaFrom[2]);
         $spatialLayerId = $form->getData($this->criteriaFrom[3]);
-        $spatialLayerUseSelected = $form->getData($this->criteriaFrom[4]);
-        $spatialLayerSelectedIds = $form->getData($this->criteriaFrom[5]);
-        $spatialLayerField = $form->getData($this->criteriaFrom[6]);
-        $spatialLayerBuffer = $form->getData($this->criteriaFrom[7]);
+        // $spatialLayerUseSelected = $form->getData($this->criteriaFrom[4]);
+        $spatialLayerSelectedIds = $form->getData($this->criteriaFrom[4]);
+        $spatialLayerField = $form->getData($this->criteriaFrom[5]);
+        $spatialLayerBuffer = $form->getData($this->criteriaFrom[6]);
 
         if (empty($spatialLayerId)) {
             return array();
@@ -109,12 +109,10 @@ class listParcelleSpatialDatasource extends jFormsDynamicDatasource
         // JS 3.6 : lizMap.config.layers["Parcelles"]['selectedFeatures']
         // JS 3.7 : lizMap.mainLizmap.config.layers["Parcelles"]['selectedFeatures']
         $selectedIds = array();
-        if ($spatialLayerUseSelected == 'oui') {
-            if (!empty($spatialLayerSelectedIds)) {
-                $selectedIds = explode(',', $spatialLayerSelectedIds);
-            } else {
-                $selectedIds = array('-9999999');
-            }
+        if (!empty($spatialLayerSelectedIds)) {
+            $selectedIds = explode(',', $spatialLayerSelectedIds);
+        } else {
+            $selectedIds = array('-9999999');
         }
 
         // Run the query by using the DAO method
@@ -184,9 +182,9 @@ class listParcelleSpatialDatasource extends jFormsDynamicDatasource
 
     public function setCriteriaControls($criteriaFrom = null)
     {
-        if (count($criteriaFrom) !== 8) {
+        if (count($criteriaFrom) !== 7) {
             throw new Exception(
-                '8 criterias needed: repository, project, parcelleLayerId, spatial_layer_id, spatial_layer_use_selected, spatial_layer_selected_ids, spatial_layer_field, spatial_layer_buffer'
+                '7 criterias needed: repository, project, parcelleLayerId, spatial_layer_id, spatial_layer_selected_ids, spatial_layer_field, spatial_layer_buffer'
             );
         }
         $this->criteriaFrom = $criteriaFrom;

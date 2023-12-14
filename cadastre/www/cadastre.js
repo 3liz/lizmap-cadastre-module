@@ -170,7 +170,7 @@ lizMap.events.on({
             $('#' + formId + '_' + 'compte').val('');
             $('#' + formId + '_' + 'geo_parcelle_prop').val('');
             $('#' + formId + '_' + 'spatial_layer_id').val('');
-            $('#' + formId + '_' + 'spatial_layer_use_selected').val('oui');
+            // $('#' + formId + '_' + 'spatial_layer_use_selected').val('oui');
             $('#' + formId + '_' + 'spatial_layer_selected_ids').val('');
             $('#' + formId + '_' + 'spatial_layer_field').val('');
             $('#' + formId + '_' + 'spatial_layer_buffer').val(0);
@@ -332,6 +332,21 @@ lizMap.events.on({
                     zoomToCadastreFeature();
                 }
 
+            });
+
+            // Change on spatial layer combobox
+            $('#' + formId + '_spatial_layer_id').change(function () {
+                const layerId = $(this).val();
+                let selectedIds = '-9999999';
+                if (layerId) {
+                    const getLayerConfig = lizMap.getLayerConfigById(layerId);
+                    const layerName = getLayerConfig[0];
+                    const selectedFeatureIds = lizMap.config.layers[layerName]?.selectedFeatures;
+                    if (selectedFeatureIds && selectedFeatureIds.length) {
+                        selectedIds = selectedFeatureIds.join();
+                    }
+                }
+                $('#' + formId + '_' + 'spatial_layer_selected_ids').val(selectedIds).change();
             });
 
             // Manage submit
@@ -689,7 +704,7 @@ lizMap.events.on({
             $('#' + formId + '_proprietaire').val('').change();
 
             $('#' + formId + '_' + 'spatial_layer_id').val('');
-            $('#' + formId + '_' + 'spatial_layer_use_selected').val('oui');
+            // $('#' + formId + '_' + 'spatial_layer_use_selected').val('oui');
             $('#' + formId + '_' + 'spatial_layer_selected_ids').val('');
             $('#' + formId + '_' + 'spatial_layer_field').val('');
             $('#' + formId + '_' + 'spatial_layer_buffer').val(0);
@@ -1074,6 +1089,7 @@ lizMap.events.on({
     'layerSelectionChanged': function (e) {
         if ($('#div_form_cadastre_search form').length == 0)
             return;
+
         // Enable/disable remove from selection button
         var formId = $('#div_form_cadastre_search form').attr('id');
         if (e.featureIds.length > 0) {
@@ -1084,6 +1100,15 @@ lizMap.events.on({
             $('#' + formId + '_unselect')
                 .addClass('disabled')
                 .prop('disabled', true);
+        }
+
+        // Change the value of selected Id in the spatial search hidden input
+        // Only if the layer corresponds
+        const chosenLayerId = $('#' + formId + '_' + 'spatial_layer_id').val();
+        const layerId = lizMap.config.layers[e.featureType].id;
+        if (chosenLayerId == layerId) {
+            const selectedIds =  (e.featureIds.length) ? e.featureIds : [-999999];
+            $('#' + formId + '_' + 'spatial_layer_selected_ids').val(selectedIds.join()).change();
         }
     }
 });

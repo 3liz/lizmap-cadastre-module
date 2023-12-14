@@ -93,7 +93,9 @@ class cadastreDockableListener extends jEventListener
                         continue;
                     }
                     $layers[$layer->id] = $layer->name;
-                };
+                }
+
+                // Add the list of spatial layers in the combobox
                 $datasource = new \jFormsStaticDatasource();
                 $datasource->data = $layers;
                 $searchForm->getControl('spatial_layer_id')->datasource = $datasource;
@@ -117,9 +119,15 @@ class cadastreDockableListener extends jEventListener
         }
     }
 
-    public function onmapMiniDockable($event) {}
+    public function onmapMiniDockable($event)
+    {
+    }
 
-    public function onmapRightDockable($event) {}
+    public function onmapRightDockable($event)
+    {
+    }
 
-    public function onmapBottomDockable($event) {}
+    public function onmapBottomDockable($event)
+    {
+    }
 }
