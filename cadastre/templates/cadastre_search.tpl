@@ -81,8 +81,19 @@
 
   {if $has_majic === '1'}
   <div>
-    <h4 style="border: 1px solid darkgray; border-bottom-color: transparent; margin-bottom: 0; padding: 5px;">Données de
-      la sélection</h4>
+    <h4 style="border: 1px solid darkgray; border-bottom-color: transparent; margin-bottom: 0; padding: 5px; font-size: 13px;">Données des parcelles sélectionnées</h4>
+      <div style="border: 1px solid lightgrey; padding: 5px;">
+        <h5>Parcelles et propriétaires</h5>
+        <p>
+          <a id="cadastre-export-parcelles-proprios-simple" class="btn" href="{jurl 'cadastre~service:parcellesProprios'}">Pour
+            un tiers <i class="icon-download-alt"></i></a>
+          {ifacl2 'cadastre.acces.donnees.proprio'}
+          <a id="cadastre-export-parcelles-proprios" class="btn"
+            href="{jurl 'cadastre~service:parcellesProprios', array('advanced'=>'1')}">Complet <i
+              class="icon-download-alt"></i></a>
+          {/ifacl2}
+        </p>
+      </div>
     <div style="border: 1px solid lightgrey; padding: 5px;">
       <h5>Locaux et propriétaires</h5>
       <p>

@@ -466,6 +466,10 @@ class serviceCtrl extends jController
         return $rep;
     }
 
+    /**
+     * Récupération des locaux et des propriétaires
+     * pour toutes les parcelles sélectionnées.
+     */
     public function locauxProprios()
     {
         $rep = $this->getResponse('json');
@@ -497,6 +501,7 @@ class serviceCtrl extends jController
             $forThirdParty = ($advanced !== '1');
         }
 
+        /** @var \jResponseBinary $rep */
         $rep = $this->getResponse('binary');
         $rep->mimeType = 'text/csv';
 
@@ -512,6 +517,167 @@ class serviceCtrl extends jController
 
         $rep->doDownload = true;
         $rep->outputFileName = 'cadastre_extra_infos.csv';
+
+        return $rep;
+    }
+
+    /**
+     * Get the needed information on the given QGIS layer.
+     *
+     * @param string $layerId    The ID of the QGIS layer
+     * @param mixed  $repository
+     * @param mixed  $project
+     * @param mixed  $field
+     *
+     * @return null|array The layer characteristics
+     */
+    private function getSpatialLayerInfo($repository, $project, $layerId, $field)
+    {
+        // Get spatial layer name, table info, fields, etc.
+        $p = lizmap::getProject($repository . '~' . $project);
+        if ($p === null) {
+            return null;
+        }
+
+        /** @var \qgisVectorLayer $qgisLayer The QGIS vector layer instance */
+        $qgisLayer = $p->getLayer($layerId);
+        if (!$qgisLayer) {
+            return null;
+        }
+
+        // Get the PostgreSQL information
+        $dataSourceParameters = $qgisLayer->getDatasourceParameters();
+        $spatialLayerSchema = $dataSourceParameters->schema;
+        $spatialLayerTable = $dataSourceParameters->tablename;
+
+        // Check that the given field exists
+        $fields = $qgisLayer->getFields();
+        if (!empty($field) && !in_array($field, $fields)) {
+            return null;
+        }
+
+        // Get the table primary key field
+        // Only one field supported
+        $dbFieldsInfo = $qgisLayer->getDbFieldsInfo();
+        $spatialLayerPk = null;
+        foreach ($dbFieldsInfo->primaryKeys as $key) {
+            $spatialLayerPk = $key;
+
+            break;
+        }
+
+        return array(
+            'schema' => $spatialLayerSchema,
+            'table' => $spatialLayerTable,
+            'pk' => $spatialLayerPk,
+            'field' => $field,
+            'geometryColumn' => $dbFieldsInfo->geometryColumn,
+        );
+    }
+
+    /**
+     * Récupération des parcelles et des propriétaires
+     * pour toutes les parcelles sélectionnées.
+     */
+    public function parcellesProprios()
+    {
+        $rep = $this->getResponse('json');
+
+        if (!jAcl2::check('cadastre.acces.donnees.proprio') && !jAcl2::check('cadastre.acces.donnees.proprio.simple')) {
+            $rep->data = array(
+                'status' => 'error',
+                'message' => 'Vous n\'avez pas les droits pour voir les données de propriété.',
+            );
+
+            return $rep;
+        }
+
+        $project = $this->param('project');
+        $repository = $this->param('repository');
+        $p = lizmap::getProject($repository . '~' . $project);
+        if (!$p) {
+            $rep->data = array('status' => 'error', 'message' => 'A problem occurred while loading project with Lizmap');
+
+            return $rep;
+        }
+
+        $parcelleIds = $this->param('parcelles');
+        $parcelleIds = explode(',', $parcelleIds);
+        $withGeom = false;
+        $forThirdParty = true;
+        if (jAcl2::check('cadastre.acces.donnees.proprio')) {
+            $advanced = $this->param('advanced');
+            $forThirdParty = ($advanced !== '1');
+        }
+
+        /** @var \jResponseBinary $rep */
+        $rep = $this->getResponse('binary');
+        $rep->mimeType = 'text/csv';
+
+        // Get profile
+        $parcelleLayer = $this->param('layer', 'Parcelles');
+
+        // If we need to compute the list of codes from the intersected layer for each returned line
+        $intersectionDataJson = $this->param('additionalData', null);
+        $intersectionParams = null;
+        $intersectionData = null;
+        if ($intersectionDataJson) {
+            $intersectionData = json_decode($intersectionDataJson);
+        }
+        if (!empty($intersectionData)
+            && property_exists($intersectionData, 'spatial_layer_id') && !empty($intersectionData->spatial_layer_id)
+            && property_exists($intersectionData, 'spatial_layer_field') && !empty($intersectionData->spatial_layer_field)
+            && property_exists($intersectionData, 'spatial_layer_buffer') && preg_match('/^[0-9]+$/', $intersectionData->spatial_layer_buffer)
+            && property_exists($intersectionData, 'spatial_layer_selected_ids') && !empty($intersectionData->spatial_layer_selected_ids)
+        ) {
+            // Get the QGIS layer information
+            $spatialLayerInfo = $this->getSpatialLayerInfo(
+                $repository,
+                $project,
+                $intersectionData->spatial_layer_id,
+                $intersectionData->spatial_layer_field
+            );
+            if ($spatialLayerInfo !== null) {
+                // Format & validate selected Ids
+                $ids = explode(',', $intersectionData->spatial_layer_selected_ids);
+                $selectedIds = array();
+                foreach ($ids as $id) {
+                    if (preg_match('/[0-9A-Za-z_]+/', trim($id))) {
+                        $selectedIds[] = trim($id);
+                    }
+                }
+                if (count($selectedIds) > 0) {
+                    $selectedIdsString = "'" . implode("', '", $selectedIds) . "'";
+                    $intersectionParams = array(
+                        'field' => $spatialLayerInfo['field'],
+                        'schema' => $spatialLayerInfo['schema'],
+                        'table' => $spatialLayerInfo['table'],
+                        'pk' => $spatialLayerInfo['pk'],
+                        'selectedIds' => $selectedIdsString,
+                        'geometryColumn' => $spatialLayerInfo['geometryColumn'],
+                        'buffer' => (int) $intersectionData->spatial_layer_buffer,
+                    );
+                }
+            }
+        }
+
+        /** @var cadastreExtraInfos $extra_infos */
+        $extra_infos = jClasses::getService('cadastre~cadastreExtraInfos');
+        $path = $extra_infos->getParcellesAndProprioInfos(
+            $repository,
+            $project,
+            $parcelleLayer,
+            $parcelleIds,
+            $withGeom,
+            $forThirdParty,
+            $intersectionParams
+        );
+
+        $rep->fileName = $path;
+        $rep->deleteFileAfterSending = true;
+
+        $rep->doDownload = true;
+        $rep->outputFileName = 'cadastre_parcelles_et_proprietaires.csv';
 
         return $rep;
     }

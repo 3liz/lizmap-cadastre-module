@@ -719,6 +719,13 @@ lizMap.events.on({
         // }
 
         // copy from lizmap
+
+        /**
+         * Téléchargement d'un fichier en JS
+         *
+         * @param {string} url URL of the file
+         * @param {objet}  parameters Parameters
+         */
         function downloadFile(url, parameters) {
             var xhr = new XMLHttpRequest();
             xhr.open('POST', url, true);
@@ -767,7 +774,22 @@ lizMap.events.on({
             xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
             xhr.send($.param(parameters));
         }
-        function getLocauxAndProprioInfos(href) {
+
+
+        /**
+         * Déclenche le téléchargement des données parcelles sélectionnées.
+         *
+         * En fonction du bouton, le fichier CSV récupéré contient
+         * soit les parcelles et leurs propriétaires,
+         * soit les locaux des parcelles et leurs propriétaires.
+         *
+         * Cette information est contenue dans href
+         *
+         * @param {string} href             URL de téléchargement des données
+         * @param {string} additionalData  Données additionnelles, par exemple sur les paramètres du formulaire
+         *
+         */
+        function getSelectedParcellesData(href, additionalData) {
             if (!(typeof cadastreConfig != 'undefined'))
                 return;
 
@@ -786,7 +808,7 @@ lizMap.events.on({
 
             var selectedParcelles = cadastreLayerConfig['selectedFeatures'];
             if (selectedParcelles.length == 0) {
-                lizMap.addMessage('Aucune parcelle sélectionée', 'error', true).attr('id', 'lizmap-cadastre-message');
+                lizMap.addMessage('Aucune parcelle sélectionnée', 'error', true).attr('id', 'lizmap-cadastre-message');
                 window.setTimeout(function () {
                     var $CadastreMessage = $('#lizmap-cadastre-message');
                     if ($CadastreMessage.length != 0) {
@@ -827,15 +849,19 @@ lizMap.events.on({
                         parcelles: parcellePks.join(),
                         layer: cadastreConfig.layer,
                         repository: lizUrls.params.repository,
-                        project: lizUrls.params.project
+                        project: lizUrls.params.project,
+                        additionalData: additionalData
                     }
                 );
             });
         }
+
+        // Événement sur clic des boutons de téléchagement du publipostage sur les locaux
+        // des parcelles sélectionnées
         if ($('#cadastre-export-locaux-proprios').length != 0) {
             $('#cadastre-export-locaux-proprios').click(function () {
                 try {
-                    getLocauxAndProprioInfos($(this).attr('href'));
+                    getSelectedParcellesData($(this).attr('href'));
                 } catch (e) {
                     console.log(e);
                 }
@@ -845,7 +871,62 @@ lizMap.events.on({
         if ($('#cadastre-export-locaux-proprios-simple').length != 0) {
             $('#cadastre-export-locaux-proprios-simple').click(function () {
                 try {
-                    getLocauxAndProprioInfos($(this).attr('href'));
+                    getSelectedParcellesData($(this).attr('href'));
+                } catch (e) {
+                    console.log(e);
+                }
+                return false;
+            });
+        }
+
+        /**
+         * Get a JSON representation of the "Recherche spatial" form tab
+         *
+         * @returns {string} JSON of the spatial form parameters
+         */
+        function getSpatialFormData() {
+            const form = document.getElementById('jforms_cadastre_search');
+            let intersectionDataJson = null;
+            // Check if the spatial search tab is active
+            const spatialTabActive = (document.querySelector('#div_form_cadastre_search ul li.active a').getAttribute('href') == '#tab3');
+            if (form
+                // Visible tab must be "Recherche spatiale"
+                && spatialTabActive
+                && true
+            ) {
+                const data = Object.fromEntries(new FormData(form));
+                const intersectionData = {};
+                const keptKeys = ['spatial_layer_id', 'spatial_layer_field', 'spatial_layer_buffer', 'spatial_layer_selected_ids'];
+                for (const key in data) {
+                    if (keptKeys.includes(key)) {
+                        intersectionData[key] = data[key];
+                    }
+                }
+                intersectionDataJson = JSON.stringify(intersectionData);
+            }
+
+            return intersectionDataJson
+        }
+
+        // Événement sur clic des boutons de téléchagement du publipostage sur les parcelles sélectionnées
+        // Si la case est cochée, on doit aussi envoyer les données du formulaire spatial
+        // pour permettre une jointure avec la couche choisie et ses objets sélectionnés
+        if ($('#cadastre-export-parcelles-proprios').length != 0) {
+            $('#cadastre-export-parcelles-proprios').click(function () {
+                try {
+                    const intersectionDataJson = getSpatialFormData();
+                    getSelectedParcellesData($(this).attr('href'), intersectionDataJson);
+                } catch (e) {
+                    console.log(e);
+                }
+                return false;
+            });
+        }
+        if ($('#cadastre-export-parcelles-proprios-simple').length != 0) {
+            $('#cadastre-export-parcelles-proprios-simple').click(function () {
+                try {
+                    const intersectionDataJson = getSpatialFormData();
+                    getSelectedParcellesData($(this).attr('href'), intersectionDataJson);
                 } catch (e) {
                     console.log(e);
                 }

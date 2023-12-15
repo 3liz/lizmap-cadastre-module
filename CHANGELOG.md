@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+
+## 2.1.0 - 2023-12-18
+
+### Added
+
+* Panneau de recherche : ajout d'un onglet "Recherche spatiale" qui permet de sélectionner
+  les parcelles par croisement avec les objets sélectionnés d'une autre couche.
+  * Choix de la couche PostgreSQL de croisement (elle doit être dans la même base que la couche des Parcelles)
+  * Choix du tampon en mètres à utiliser pour rechercher les parcelles à partir des objets
+  * Choix optionnel du champ à ajouter à l'export CSV
+* Ajout de 2 boutons qui permettent d'exporter la liste des propriétaires des parcelles sélectionnées
+
+### Fixed
+
+* Correction de l'affichage de la barre d'outil cadastre sur la popup des parcelles
+
 ## 2.0.5 - 2023-10-31
 
 ### Fixed
@@ -18,7 +34,7 @@
 ### Fixed
 
 * Amélioration de la recherche des parcelles
-* Utilisation du cache handler de projet 
+* Utilisation du cache handler de projet
 * Amélioration des recherches par autocomplétion
 * Amélioration de la recherche par section
 * Amélioration du zoom lors de la recherche
