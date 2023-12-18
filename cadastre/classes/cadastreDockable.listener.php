@@ -66,6 +66,7 @@ class cadastreDockableListener extends jEventListener
                 if ($p === null) {
                     throw new Exception("Spatial search: Unknown repository/project {$event->repository}.'~'.{$event->project}");
                 }
+
                 // Get the PostgreSQL database info of the Parcelle layer
                 /** @var \qgisVectorLayer $parcelleLayer The QGIS vector layer instance */
                 $parcelleLayer = $p->getLayer($parcelleId);
@@ -119,15 +120,9 @@ class cadastreDockableListener extends jEventListener
         }
     }
 
-    public function onmapMiniDockable($event)
-    {
-    }
+    public function onmapMiniDockable($event) {}
 
-    public function onmapRightDockable($event)
-    {
-    }
+    public function onmapRightDockable($event) {}
 
-    public function onmapBottomDockable($event)
-    {
-    }
+    public function onmapBottomDockable($event) {}
 }

@@ -13,9 +13,7 @@ class listSpatialLayerFieldDatasource extends jFormsDynamicDatasource
     protected $fields;
     protected $aliases;
 
-    public function __construct($formid)
-    {
-    }
+    public function __construct($formid) {}
 
     public function getData($form)
     {

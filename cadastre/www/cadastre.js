@@ -340,10 +340,9 @@ lizMap.events.on({
                 let selectedIds = '-9999999';
                 if (layerId) {
                     const getLayerConfig = lizMap.getLayerConfigById(layerId);
-                    const layerName = getLayerConfig[0];
-                    const selectedFeatureIds = lizMap.config.layers[layerName]?.selectedFeatures;
-                    if (selectedFeatureIds && selectedFeatureIds.length) {
-                        selectedIds = selectedFeatureIds.join();
+                    const layerConfig = getLayerConfig[1];
+                    if ('selectedFeatures' in layerConfig && layerConfig.selectedFeatures && layerConfig.selectedFeatures.length) {
+                        selectedIds = layerConfig.selectedFeatures.join();
                     }
                 }
                 $('#' + formId + '_' + 'spatial_layer_selected_ids').val(selectedIds).change();
