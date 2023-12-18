@@ -10,13 +10,19 @@
 * Panneau de recherche : ajout d'un onglet "Recherche spatiale" qui permet de sélectionner
   les parcelles par croisement avec les objets sélectionnés d'une autre couche.
   * Choix de la couche PostgreSQL de croisement (elle doit être dans la même base que la couche des Parcelles)
-  * Choix du tampon en mètres à utiliser pour rechercher les parcelles à partir des objets
+  * Choix du tampon (en mètres) à utiliser pour rechercher les parcelles à partir des objets
   * Choix optionnel du champ à ajouter à l'export CSV
 * Ajout de 2 boutons qui permettent d'exporter la liste des propriétaires des parcelles sélectionnées
+  avec ce nouvel outil ou avec les autres outils (sélection graphique, via la popup, via le panneau de recherche)
 
 ### Fixed
 
-* Correction de l'affichage de la barre d'outil cadastre sur la popup des parcelles
+* Correction de l'affichage inutile de la barre d'outil cadastre sur la popup des parcelles 
+  lorsque les droits n'étaient pas suffisants
+
+### Funded
+
+* Département du Gard https://www.gard.fr
 
 ## 2.0.5 - 2023-10-31
 
