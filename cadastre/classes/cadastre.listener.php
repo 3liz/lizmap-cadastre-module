@@ -36,7 +36,14 @@ class cadastreListener extends jEventListener
         $jscode = array();
         $css = array();
 
-        if ($hasCadastreConfig) {
+        // Add the cadastre config only if at least one right is granted
+        $hasEnoughRights = (
+            jAcl2::check('cadastre.use.search.tool')
+            || jAcl2::check('cadastre.acces.donnees.proprio')
+            || jAcl2::check('cadastre.acces.donnees.proprio.simple')
+        );
+
+        if ($hasCadastreConfig && $hasEnoughRights) {
             $js = array(
                 jUrl::get('jelix~www:getfile', array('targetmodule' => 'cadastre', 'file' => 'cadastre.js')),
             );

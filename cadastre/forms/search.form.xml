@@ -56,6 +56,44 @@
     <hidden ref="comptecommunal">
     </hidden>
 
+    <!-- Couche spatiale sur laquelle faire une intersection -->
+    <menulist ref="spatial_layer_id">
+        <label locale="cadastre~search.input.spatial_layer_id"/>
+        <int locale="cadastre~search.input.spatial_layer_id.help"/>
+        <emptyitem locale="cadastre~search.input.emptyitem"/>
+    </menulist>
+
+    <!-- Restreindre l'intersection aux objets sélectionnés -->
+    <!-- TOUJOURS ACTIVE CAR PEUT ETRE SOURCE DE PROBLEMES DE PERFORMANCE -->
+    <!-- <menulist ref="spatial_layer_use_selected">
+        <label locale="cadastre~search.input.spatial_layer_use_selected"/>
+        <hint locale="cadastre~search.input.spatial_layer_use_selected.help"/>
+        <item value="oui" locale="cadastre~search.input.spatial_layer_use_selected.oui.label" selected="true"/>
+        <item value="non" locale="cadastre~search.input.spatial_layer_use_selected.non.label"/>
+    </menulist> -->
+
+    <!-- Identifiants sélectionné dans la couche choisie. C'est le JS qui le remplit -->
+    <hidden ref="spatial_layer_selected_ids">
+    </hidden>
+
+    <!-- Champ à récupérer depuis la couche spatiale pour l'export publipostage -->
+    <menulist ref="spatial_layer_field">
+        <label locale="cadastre~search.input.spatial_layer_field"/>
+        <emptyitem locale="cadastre~search.input.emptyitem"/>
+        <datasource
+            class="cadastre~listSpatialLayerFieldDatasource"
+            criteriafrom="repository, project, spatial_layer_id"/>
+    </menulist>
+
+    <!-- Tampon autour de la couche spatiale pour réaliser l'intersection avec les parcelles -->
+    <input ref="spatial_layer_buffer" type="integer" minvalue="0" maxvalue="10000" defaultvalue="0">
+        <label locale="cadastre~search.input.spatial_layer_buffer"/>
+        <hint locale="cadastre~search.input.spatial_layer_buffer.help"/>
+    </input>
+
+
+
+    <!-- Résultat pour la recherche par lieu     -->
     <group ref="grp_result_parcelle_lieu">
         <label locale="cadastre~search.group.search.result"/>
 
@@ -66,9 +104,9 @@
                 class="cadastre~listParcelleLieuDatasource"
                 criteriafrom="repository, project, parcelleLayerId, section,voie"/>
         </menulist>
-
     </group>
 
+    <!-- Résultat pour la recherche par propriétaire -->
     <group ref="grp_result_parcelle_prop">
         <label locale="cadastre~search.group.search.result"/>
 
@@ -78,6 +116,19 @@
             <datasource
                 class="cadastre~listParcellePropDatasource"
                 criteriafrom="repository, project, parcelleLayerId, commune_prop, comptecommunal, compte"/>
+        </menulist>
+    </group>
+
+    <!-- Résultat pour la recherche par couche spatiale -->
+    <group ref="grp_result_parcelle_spatial">
+        <label locale="cadastre~search.group.search.result"/>
+
+        <menulist ref="geo_parcelle_spatial">
+            <label locale="cadastre~search.input.parcelle"/>
+            <emptyitem locale="cadastre~search.input.emptyitem"/>
+            <datasource
+                class="cadastre~listParcelleSpatialDatasource"
+                criteriafrom="repository, project, parcelleLayerId, spatial_layer_id, spatial_layer_selected_ids, spatial_layer_field, spatial_layer_buffer"/>
         </menulist>
     </group>
 

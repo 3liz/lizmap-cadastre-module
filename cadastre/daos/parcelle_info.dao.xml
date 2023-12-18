@@ -18,8 +18,8 @@
         <property name="proprietaire" fieldname="proprietaire" datatype="text"/>
         <property name="lot" fieldname="lot" datatype="text"/>
         <property name="name" fieldname="name" datatype="text" required="true"
-                  selectpattern="codecommune || ' - ' || CASE WHEN substr(idu,4,3) != '000' THEN substr(idu,4,3) || ' - ' ELSE '' END || substr(idu,7,6)"/>
-        <property name="geom" fieldname="geom" datatype="text" required="true" selectpattern="ST_AsText(geom)"/>
+                  selectpattern="parcelle_info.codecommune || ' - ' || CASE WHEN substr(parcelle_info.idu,4,3) != '000' THEN substr(parcelle_info.idu,4,3) || ' - ' ELSE '' END || substr(parcelle_info.idu,7,6)"/>
+        <property name="geom" fieldname="geom" datatype="text" required="true" selectpattern="ST_AsText(parcelle_info.geom)"/>
         <!--<property name="" fieldname="" datatype="string/int/float/date"
         required="yes" maxlength="" minlength="" regexp="" sequence=""
         updatepattern="" insertpattern="" selectpattern=""/>-->
@@ -347,6 +347,62 @@
             }
 
             $sql.= ' ORDER BY geo_parcelle';
+
+            $rs = $this->_conn->query($sql);
+            $rs->setFetchMode(8,$this->_DaoRecordClassName);
+            return $rs;
+            ]]></body>
+        </method>
+
+
+        <method type="php" name="findBySpatialIntersection">
+            <parameter name="layerConditions" />
+            <parameter name="searchConditions" />
+            <parameter name="spatialLayerSchema" />
+            <parameter name="spatialLayerTable" />
+            <parameter name="spatialLayerPk" />
+            <parameter name="spatialLayerSelectedIds" />
+            <parameter name="spatialLayerField" />
+            <parameter name="spatialLayerBuffer" />
+
+            <body><![CDATA[
+            $sql = $this->_selectClause;
+            if (!empty($spatialLayerField)) {
+                $sql .= ' , i."' . trim($spatialLayerField, " '\n\r\t\v\x00") . '"';
+            }
+
+            $sql .= $this->_fromClause;
+            $sql .= ' JOIN "' . $spatialLayerSchema . '"."' . $spatialLayerTable . '" AS i';
+            $sql .= ' ON ST_DWithin(i.geom, "parcelle_info".geom, ' . $this->_prepareValue($spatialLayerBuffer,'string') .')';
+
+            if (count($spatialLayerSelectedIds) > 0) {
+                $sql .= ' AND i."' . trim($spatialLayerPk, " '\n\r\t\v\x00") . '" IN (';
+                $virg = '';
+                foreach($spatialLayerSelectedIds as $v) {
+                    $sql .= $virg . $this->_prepareValue(trim($v), 'string');
+                    $virg = ', ';
+                }
+                $sql .= ' ) ';
+            }
+
+            $sql .= $this->_whereClause;
+
+            if ($layerConditions || $searchConditions->hasConditions()) {
+                $sql.= ($this->_whereClause == ''?' WHERE ':' AND ');
+            }
+
+            if ($layerConditions) {
+                $sql.= '('. $layerConditions .')';
+            }
+
+            if ($searchConditions->hasConditions()) {
+                if ($layerConditions) {
+                    $sql.= ' AND ';
+                }
+                $sql.= '('. $this->_createConditionsClause($searchConditions) .')';
+            }
+
+            $sql.= $this->_createOrderClause($searchConditions);
 
             $rs = $this->_conn->query($sql);
             $rs->setFetchMode(8,$this->_DaoRecordClassName);

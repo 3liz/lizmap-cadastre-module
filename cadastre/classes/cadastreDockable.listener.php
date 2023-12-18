@@ -58,6 +58,50 @@ class cadastreDockableListener extends jEventListener
                 $hasMajic = '1';
             }
             $searchForm->setData('has_majic', $hasMajic);
+
+            // Add the PostgreSQL layers of the same database in the 3rd search tab "Spatial"
+            if ($hasMajic == '1') {
+                // Get the project
+                $p = lizmap::getProject($event->repository . '~' . $event->project);
+                if ($p === null) {
+                    throw new Exception("Spatial search: Unknown repository/project {$event->repository}.'~'.{$event->project}");
+                }
+
+                // Get the PostgreSQL database info of the Parcelle layer
+                /** @var \qgisVectorLayer $parcelleLayer The QGIS vector layer instance */
+                $parcelleLayer = $p->getLayer($parcelleId);
+                $parcelleProfile = $parcelleLayer->getDatasourceProfile(30, false);
+
+                // Get the list of PostgreSQL layers
+                $layers = array();
+                foreach ($p->getLayers() as $layer) {
+                    /** @var \qgisVectorLayer $qgisLayer The QGIS vector layer instance */
+                    $qgisLayer = $p->getLayer($layer->id);
+                    // Only for existing layers
+                    if (!$qgisLayer) {
+                        continue;
+                    }
+                    // Not the parcelle layer itself
+                    if ($qgisLayer->getId() == $parcelleId) {
+                        continue;
+                    }
+                    // Only PostgreSQL layers
+                    if ($qgisLayer->getProvider() != 'postgres') {
+                        continue;
+                    }
+                    // Check if the database is the same as the Parcelle layer
+                    if ($qgisLayer->getDatasourceProfile(30, false) != $parcelleProfile) {
+                        continue;
+                    }
+                    $layers[$layer->id] = $layer->name;
+                }
+
+                // Add the list of spatial layers in the combobox
+                $datasource = new \jFormsStaticDatasource();
+                $datasource->data = $layers;
+                $searchForm->getControl('spatial_layer_id')->datasource = $datasource;
+            }
+
             $assign = array(
                 'form' => $searchForm,
                 'has_majic' => $hasMajic,

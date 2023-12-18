@@ -26,3 +26,9 @@ tests/lizmap/qgis-server-plugins/
 tests/lizmap/cache-python
 tests/lizmap/local-python
 tests/sql/majic/*.sql
+
+# dev tools
+*.code-workspace
+
+# QGIS useless files
+*_attachments.zip

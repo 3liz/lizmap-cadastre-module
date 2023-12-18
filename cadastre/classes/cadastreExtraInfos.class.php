@@ -157,6 +157,160 @@ class cadastreExtraInfos
     }
 
     /**
+     * Get SQL request to get parcelles and proprios data for parcelle ids.
+     *
+     * @param array      $parcelle_ids     The ids of parcelles
+     * @param bool       $withGeom         With geometry data (optional)
+     * @param bool       $forThirdParty    Without infos for third party (optional)
+     * @param null|array $intersectionData If the query must compute list of item codes from the intersected layer
+     *
+     * @return string The SQL
+     */
+    protected function getParcellesAndProprioSql($parcelle_ids, $withGeom = false, $forThirdParty = false, $intersectionData = null)
+    {
+        $hasIntersectionData = ($intersectionData !== null && is_array($intersectionData));
+
+        $sql = "
+        --SET SEARCH_PATH TO cadastre_caen, public;
+
+        SELECT
+            -- commune
+            c.libcom AS commune,
+            -- proprio
+            pr.dnuper AS code_proprietaire,
+            trim(pr.dqualp) AS qualite,
+            trim(pr.dnomus) AS nom,
+            trim(pr.dprnus) AS prenom,
+            -- on ne garde que le nom d'usage
+            --trim(pr.dnomlp) AS nom,
+            --trim(pr.dprnlp) AS prenom,
+            trim(pr.ddenom) AS denomination,
+
+            -- adresse du propriétaire
+            ltrim(trim(coalesce(pr.dlign4, '')), '0') AS adresse,
+            trim(coalesce(pr.dlign5, '')) AS complement_adresse,
+            trim(coalesce(pr.ccopos, '')) AS code_postal,
+            replace(
+                trim(coalesce(pr.dlign6, '')),
+                trim(coalesce(pr.ccopos, '')),
+                ''
+            ) AS ville,
+            replace(
+                ltrim(trim(coalesce(pr.dlign4, ' ')), '0') || ' ' || trim(coalesce(pr.dlign5, ' ')) || ' ' || trim(coalesce(pr.dlign6, ' ')),
+                '  ',
+                ' '
+            ) AS adresse_complete,
+        ";
+
+        // Ajout des informations de naissance
+        if (!$forThirdParty) {
+            $sql .= "
+                coalesce( trim(cast(pr.jdatnss AS text) ), '-') AS date_naissance,
+                coalesce(trim(pr.dldnss), '-') AS lieu_naissance,
+                ";
+        }
+        $sql .= "
+            -- parcelles
+            string_agg(DISTINCT p.parcelle, ', ' ORDER BY p.parcelle) AS parcelles
+        ";
+
+        // Ajout de la géométrie
+        if ($withGeom) {
+            $sql .= ',
+                -- geometrie
+                ST_Centroid(geom)::geometry(point,2154) AS geom
+            ';
+        }
+
+        // Ajout des objets intersectés
+        // Ceux qui ont été sélectionnés dans l'onglet "Recherche spatiale"
+        // du panneau de recherche
+        if ($hasIntersectionData) {
+            $sql .= '
+            -- Code objet
+            ,
+            string_agg(DISTINCT z."' . $intersectionData['field'] . '"::text, \', \' ORDER BY z."' . $intersectionData['field'] . '"::text)
+            FILTER (WHERE z."' . $intersectionData['field'] . '" IS NOT NULL) AS code_objet
+            ';
+        }
+
+        $sql .= '
+        FROM parcelle p
+        INNER JOIN parcelle_info gp ON gp.geo_parcelle = p.parcelle
+        LEFT JOIN proprietaire AS pr ON pr.comptecommunal = p.comptecommunal
+        LEFT JOIN commune AS c ON c.commune = concat(pr.ccodep, pr.ccodir, pr.ccocom)
+        ';
+
+        // Ajout des objets intersectés
+        // Ceux qui ont été sélectionnés dans l'onglet "Recherche spatiale"
+        // du panneau de recherche
+        if ($hasIntersectionData) {
+            $sql .= '
+            -- Code objet
+            LEFT JOIN "' . $intersectionData['schema'] . '"."' . $intersectionData['table'] . '" AS z
+            ON z."' . $intersectionData['pk'] . '" IN (' . $intersectionData['selectedIds'] . ')
+            AND ST_DWithin(z."' . $intersectionData['geometryColumn'] . '", gp.geom, ' . $intersectionData['buffer'] . ')
+            ';
+        }
+
+        $pids = array();
+        foreach ($parcelle_ids as $pid) {
+            $pids[] = "'" . $pid . "'";
+        }
+
+        $sql .= '
+        WHERE
+            p.parcelle IN ( ' . implode(', ', $pids) . ' )
+        ';
+
+        // Questions
+        // Seulement le principal ou les usufruitiers ?
+        // Seulement les peronnes physiques ou tout le monde ?
+
+        $filterConfig = cadastreConfig::getFilterByLogin($this->repository, $this->project, $this->config->parcelle->id);
+        $layerSql = cadastreConfig::getLayerSql($this->repository, $this->project, $this->config->parcelle->id);
+        $polygonFilter = cadastreConfig::getPolygonFilter($this->repository, $this->project, $this->config->parcelle->id);
+
+        if ($filterConfig !== null) {
+            $sql .= ' AND ';
+            $sql .= $this->getFilterSql($filterConfig);
+        }
+        if ($layerSql) {
+            $sql .= ' AND (' . $layerSql . ')';
+        }
+        if ($polygonFilter) {
+            $sql .= ' AND (' . $polygonFilter . ')';
+        }
+
+        // Regroupement par propriétaire
+        $sql .= '
+        GROUP BY
+            c.libcom,
+            pr.dnuper, pr.dqualp,
+            pr.dnomus, pr.dprnus,
+            -- pr.dnomlp, pr.dprnlp,
+            pr.ddenom,
+            pr.dlign4, pr.dlign5, pr.dlign6, pr.ccopos
+            ';
+        if (!$forThirdParty) {
+            $sql .= '
+            , pr.jdatnss, pr.dldnss
+            ';
+        }
+        if ($withGeom) {
+            $sql .= ',
+            , geom
+            ';
+        }
+
+        $sql .= '
+        ORDER BY c.libcom, pr.ddenom
+        ';
+
+        return $sql;
+    }
+
+    /**
      * Get data from database and return an array.
      *
      * @param string     $sql          Query to run
@@ -231,6 +385,34 @@ class cadastreExtraInfos
 
         $profile = cadastreProfile::get($repository, $project, $parcelleLayer);
         $rows = $this->query($sql, array(), $profile);
+
+        return $this->buildCsv($rows);
+    }
+
+    /**
+     * Build the parcelles and proprios CSV file and return its path.
+     *
+     * @param string     $repository
+     * @param string     $project
+     * @param mixed      $parcelleLayer
+     * @param array      $parcelle_ids     The ids of parcelles
+     * @param bool       $withGeom         With geometry data (optional)
+     * @param bool       $forThirdParty    Without infos for third party (optional)
+     * @param null|array $intersectionData Array containing needed parameters used to get intersected layer data
+     *
+     * @return string The CSV file path
+     */
+    public function getParcellesAndProprioInfos($repository, $project, $parcelleLayer, $parcelle_ids, $withGeom = false, $forThirdParty = false, $intersectionData = null)
+    {
+        $this->repository = $repository;
+        $this->project = $project;
+        $this->config = cadastreConfig::get($repository, $project);
+        $sql = $this->getParcellesAndProprioSql($parcelle_ids, $withGeom, $forThirdParty, $intersectionData);
+
+        $profile = cadastreProfile::get($repository, $project, $parcelleLayer);
+
+        $parameters = array();
+        $rows = $this->query($sql, $parameters, $profile);
 
         return $this->buildCsv($rows);
     }
