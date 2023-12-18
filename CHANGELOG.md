@@ -31,7 +31,7 @@
 * Correction de la liste de communes
 * Correction de la liste de sections
 
-### funded
+### Funded
 
 * Communauté de Communes du Pays de Revigny https://www.copary.fr/
 
