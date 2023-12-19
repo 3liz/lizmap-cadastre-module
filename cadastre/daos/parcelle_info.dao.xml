@@ -364,6 +364,8 @@
             <parameter name="spatialLayerSelectedIds" />
             <parameter name="spatialLayerField" />
             <parameter name="spatialLayerBuffer" />
+            <parameter name="spatialLayerGeometry" />
+            <parameter name="spatialLayerGeometryType" />
 
             <body><![CDATA[
             $sql = $this->_selectClause;
@@ -372,17 +374,42 @@
             }
 
             $sql .= $this->_fromClause;
-            $sql .= ' JOIN "' . $spatialLayerSchema . '"."' . $spatialLayerTable . '" AS i';
-            $sql .= ' ON ST_DWithin(i.geom, "parcelle_info".geom, ' . $this->_prepareValue($spatialLayerBuffer,'string') .')';
 
+            // Filtre des identifiants sélectionnés dans la couche de croisement
             if (count($spatialLayerSelectedIds) > 0) {
-                $sql .= ' AND i."' . trim($spatialLayerPk, " '\n\r\t\v\x00") . '" IN (';
+                $sqlIds .= '"' . trim($spatialLayerPk, " '\n\r\t\v\x00") . '" IN (';
                 $virg = '';
                 foreach($spatialLayerSelectedIds as $v) {
-                    $sql .= $virg . $this->_prepareValue(trim($v), 'string');
+                    $sqlIds .= $virg . $this->_prepareValue(trim($v), 'string');
                     $virg = ', ';
                 }
-                $sql .= ' ) ';
+                $sqlIds .= ' ) ';
+            } else {
+                $sqlIds = '"' . trim($spatialLayerPk, " '\n\r\t\v\x00") . '" IN (\'-999999\')' ;
+            }
+
+            // En fonction du type de géométrie, on utilise soit une jointure directe, soit une sous-requête avec ST_Subdivide
+            if (!in_array(strtoupper($spatialLayerGeometryType), array('LINESTRING', 'MULTILINESTRING', 'POLYGON', 'MULTIPOLYGON'))) {
+                // Simple jointure en incluant le filtre spatial et le filtre par identifiants sélectionnés
+                $sql .= ' JOIN "' . $spatialLayerSchema . '"."' . $spatialLayerTable . '" AS i';
+                $sql .= ' ON ST_DWithin(i."' . $spatialLayerGeometry . '", "parcelle_info".geom, ' . $this->_prepareValue($spatialLayerBuffer,'string') .')';
+                if (count($spatialLayerSelectedIds) > 0) {
+                    $sql .= ' AND i.' . $sqlIds;
+                }
+            } else {
+                // Utilisation d'une sous-requête dans la jointure pour subdiviser les géométries
+                $sql .= ' JOIN ( ';
+                $sql .= ' SELECT a."' . trim($spatialLayerPk, " '\n\r\t\v\x00") . '", ST_Subdivide(a."' . $spatialLayerGeometry . '") AS geom';
+                if (!empty($spatialLayerField)) {
+                    $sql .= ' , "' . trim($spatialLayerField, " '\n\r\t\v\x00") . '"';
+                }
+                $sql .= ' FROM "' . $spatialLayerSchema . '"."' . $spatialLayerTable . '" AS a';
+                $sql .= ' WHERE True';
+                if (count($spatialLayerSelectedIds) > 0) {
+                    $sql .= ' AND a.' . $sqlIds;
+                }
+                $sql .= ' ) AS i';
+                $sql .= ' ON ST_DWithin(i.geom, "parcelle_info".geom, ' . $this->_prepareValue($spatialLayerBuffer,'string') .')';
             }
 
             $sql .= $this->_whereClause;

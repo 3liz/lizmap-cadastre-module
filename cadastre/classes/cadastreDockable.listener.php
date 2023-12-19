@@ -89,6 +89,10 @@ class cadastreDockableListener extends jEventListener
                     if ($qgisLayer->getProvider() != 'postgres') {
                         continue;
                     }
+                    // Only Layers in attribute table to be able to select features
+                    if (!$p->hasAttributeLayersForLayer($qgisLayer->getName())) {
+                        continue;
+                    }
                     // Check if the database is the same as the Parcelle layer
                     if ($qgisLayer->getDatasourceProfile(30, false) != $parcelleProfile) {
                         continue;

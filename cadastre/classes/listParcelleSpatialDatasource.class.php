@@ -122,7 +122,9 @@ class listParcelleSpatialDatasource extends jFormsDynamicDatasource
             $spatialLayerPk,
             $selectedIds,
             $spatialLayerField,
-            $spatialLayerBuffer
+            $spatialLayerBuffer,
+            $dbFieldsInfo->geometryColumn,
+            $dbFieldsInfo->geometryType
         );
 
         $result = array();
