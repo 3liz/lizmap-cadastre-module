@@ -3,6 +3,19 @@
 ## Unreleased
 
 
+## 2.1.1 - 2023-12-19
+
+### Changed
+
+* Recherche spatiale - Amélioration des performances pour des couches de croisement
+  de type lignes ou polygones avec des géométries complexes
+
+### Fixed
+
+* Recherche spatiale - On affiche maintenant seulement les couches qui sont sélectionnables
+  dans la liste déroulante de choix de la couche de croisement
+
+
 ## 2.1.0 - 2023-12-18
 
 ### Added
