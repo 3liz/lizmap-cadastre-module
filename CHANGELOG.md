@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Fixed
+
+* Affichage des données complémentaires des parcelles avec le droit de consultation anvancée
+
+### Funded
+
+* Conseil Département du Calvados https://www.calvados.fr/
+
 ## 1.9.6 - 2023-10-31
 
 ### Fixed
