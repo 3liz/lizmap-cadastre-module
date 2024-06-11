@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.9.7 - 2024-06-11
+
 ### Fixed
 
 * Affichage des données complémentaires des parcelles avec le droit de consultation anvancée
