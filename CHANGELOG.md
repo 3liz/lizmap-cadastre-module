@@ -6,7 +6,7 @@
 
 ### Fixed
 
-* Affichage des données complémentaires des parcelles avec le droit de consultation anvancée
+* Affichage des données complémentaires des parcelles avec le droit de consultation avancée
 
 ### Funded
 
