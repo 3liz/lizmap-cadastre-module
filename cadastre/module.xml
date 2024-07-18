@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module xmlns="http://jelix.org/ns/module/1.0">
     <info id="cadastre" name="cadastre" createdate="2016-07-07">
-        <version date="2024-06-11">2.1.2</version>
+        <version date="2024-07-18">2.1.3</version>
         <label lang="en_US">cadastre</label>
         <description lang="en_US" />
         <license URL="">Mozilla Public Licence (MPL)</license>
@@ -10,7 +10,7 @@
         <homepageURL>http://3liz.com</homepageURL>
     </info>
     <dependencies>
-        <module name="lizmap" minversion="3.6.0" maxversion="3.*"/>
+        <module name="lizmap" minversion="3.6.0" maxversion="3.8.*"/>
     </dependencies>
     <autoload>
         <class name="lizmapCadastreRequest" file="classes/lizmapCadastreRequest.class.php" />
