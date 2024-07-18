@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## Changed
+
+* Tests - Update to default Lizmap Web Client 3.7
+
 ## 2.1.2 - 2024-06-11
 
 ### Fixed
@@ -40,7 +44,7 @@
 
 ### Fixed
 
-* Correction de l'affichage inutile de la barre d'outil cadastre sur la popup des parcelles 
+* Correction de l'affichage inutile de la barre d'outil cadastre sur la popup des parcelles
   lorsque les droits n'étaient pas suffisants
 
 ### Funded
