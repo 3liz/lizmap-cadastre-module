@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changed
+
+* correction de la recherche sur adresse avec des codes voies n'ayant pas l'identifiant majic (ccovoi)
+
 ## 1.9.7 - 2024-06-11
 
 ### Fixed
@@ -28,7 +32,7 @@
 ### Fixed
 
 * Amélioration de la recherche des parcelles
-* Utilisation du cache handler de projet 
+* Utilisation du cache handler de projet
 * Amélioration des recherches par autocomplétion
 * Amélioration de la recherche par section
 * Amélioration du zoom lors de la recherche
