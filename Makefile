@@ -7,6 +7,9 @@ eslint-fix:
 php-cs-fixer-test:
 	php-cs-fixer fix --config=.php-cs-fixer.dist.php --dry-run --diff
 
+php-cs-fixer-test-docker:
+	docker run --rm -it -w=/app -v ${PWD}:/app oskarstark/php-cs-fixer-ga:latest --config=.php-cs-fixer.dist.php --dry-run --diff
+
 php-cs-fixer-apply:
 	php-cs-fixer fix --config=.php-cs-fixer.dist.php
 
