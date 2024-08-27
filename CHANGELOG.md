@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changed
+
+* correction de la recherche sur adresse avec des codes voies n'ayant pas l'identifiant majic (ccovoi)
+
 ## 2.1.3 - 2024-07-18
 
 ### Changed
