@@ -4,7 +4,7 @@
 
 ## 2.1.3 - 2024-07-18
 
-## Changed
+### Changed
 
 * Tests - Update to default Lizmap Web Client 3.7
 * Remove including jFormsDatasource.class.php
