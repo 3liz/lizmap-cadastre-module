@@ -22,25 +22,67 @@ class cadastreConfig
     public static function get($repository, $project)
     {
         $p = lizmap::getProject($repository . '~' . $project);
-        if ($p) {
-            $request = new lizmapCadastreRequest(
-                $p,
-                array(
-                    'service' => 'CADASTRE',
-                    'version' => '1.0.0',
-                    'request' => 'GetCapabilities',
-                )
-            );
-            $result = $request->process();
-            if ($result->code === 200 && $result->mime !== 'text/xml') {
-                $data = json_decode($result->data);
-                if ($data->status == 'success') {
-                    return $data->data;
+        if (!$p) {
+            return null;
+        }
+        $customVariables = $p->getCustomProjectVariables();
+        if (!$customVariables) {
+            return null;
+        }
+        if (!array_key_exists('cadastre_parcelle_layer_id', $customVariables)
+            || !array_key_exists('cadastre_parcelle_unique_field', $customVariables)) {
+            return null;
+        }
+
+        $parcelleLayerId = $customVariables['cadastre_parcelle_layer_id'];
+        $parcelleLayerUniqueField = $customVariables['cadastre_parcelle_unique_field'];
+
+        $parcelleLayer = $p->getLayer($parcelleLayerId);
+        if (!$parcelleLayer) {
+            return null;
+        }
+
+        $capabilities = array(
+            'parcelle' => array(
+                'id' => $parcelleLayerId,
+                'name' => $parcelleLayer->getName(),
+                'title' => $parcelleLayer->getTitle(),
+                'shortName' => $parcelleLayer->getShortName(),
+                'unique_field' => $customVariables['cadastre_parcelle_unique_field'],
+            ),
+        );
+
+        if (array_key_exists('cadastre_section_layer_id', $customVariables)) {
+            $layer = $p->getLayer($customVariables['cadastre_section_layer_id']);
+            if ($layer) {
+                $capabilities['section'] = array(
+                    'id' => $layer->getId(),
+                    'name' => $layer->getName(),
+                    'title' => $layer->getTitle(),
+                    'shortName' => $layer->getShortName(),
+                );
+                if (array_key_exists('cadastre_section_unique_field', $customVariables)) {
+                    $capabilities['section']['unique_field'] = $customVariables['cadastre_section_unique_field'];
                 }
             }
         }
 
-        return null;
+        if (array_key_exists('cadastre_commune_layer_id', $customVariables)) {
+            $layer = $p->getLayer($customVariables['cadastre_commune_layer_id']);
+            if ($layer) {
+                $capabilities['commune'] = array(
+                    'id' => $layer->getId(),
+                    'name' => $layer->getName(),
+                    'title' => $layer->getTitle(),
+                    'shortName' => $layer->getShortName(),
+                );
+                if (array_key_exists('cadastre_commune_unique_field', $customVariables)) {
+                    $capabilities['commune']['unique_field'] = $customVariables['cadastre_commune_unique_field'];
+                }
+            }
+        }
+
+        return (object) $capabilities;
     }
 
     public static function getLayerSql($repository, $project, $layerId)
