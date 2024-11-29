@@ -18,6 +18,43 @@ class atlasPrintListener extends jEventListener
      */
     public function onBeforePdfCreation($event)
     {
+        $cadastreConfig = array();
+        $profile = 'cadastre';
+        $services = lizmap::getServices();
+        if (version_compare($services->qgisServerVersion, '3.0', '<')) {
+            if (!preg_match('#^cadastre#i', $event->project)) {
+                return null;
+            }
+            $cadastreConfig = array(
+                'layer' => 'Parcelles',
+                'pk' => 'geo_parcelle',
+            );
+        } else {
+            $config = cadastreConfig::get($event->repository, $event->project);
+            if ($config == null) {
+                return null;
+            }
+            $cadastreConfig = array(
+                'layer' => $config->parcelle->name,
+                'pk' => $config->parcelle->unique_field,
+            );
+            if ($config->parcelle->shortName && strlen($config->parcelle->shortName)) {
+                $cadastreConfig['layer'] = $config->parcelle->shortName;
+            }
+            $profile = cadastreProfile::getWithLayerId(
+                $event->repository,
+                $event->project,
+                $config->parcelle->id
+            );
+        }
+
+        try {
+            // try to get the specific search profile to do not rebuild it
+            jProfiles::get('jdb', $profile, true);
+        } catch (Exception $e) {
+            return null;
+        }
+
         $status = 'error';
         $file = null;
 
@@ -35,7 +72,7 @@ class atlasPrintListener extends jEventListener
 
         $layer = $params['layer'];
         $exp_filter = $params['exp_filter'];
-        if (!$layer or $layer != 'Parcelles' or !$exp_filter) {
+        if (!$layer or $layer != $cadastreConfig['layer'] or !$exp_filter) {
             $event->add(
                 array('status' => $status, 'file' => $file)
             );
@@ -49,9 +86,18 @@ class atlasPrintListener extends jEventListener
         $get_fid = preg_match('(\d+)', $exp_filter, $match);
         $fid = intval($match[0]);
 
-        if ($fid > 0) {
+        if ($fid < 1) {
+            $event->add(
+                array('status' => $status, 'file' => $file)
+            );
+
+            return null;
+        }
+
+        // Try to get data from geo_commune
+        try {
             $sql = 'SELECT geo_parcelle FROM parcelle_info WHERE ogc_fid = ' . $fid;
-            $cnx = jDb::getConnection('cadastre');
+            $cnx = jDb::getConnection($profile);
             $result = $cnx->query($sql);
             $geo_parcelle = -1;
             foreach ($result as $line) {
@@ -103,6 +149,8 @@ class atlasPrintListener extends jEventListener
             // \jLog::log($path);
             $file = $path;
             $status = 'success';
+        } catch (Exception $e) {
+            jLog::log("Cadastre :: " . $e->getMessage());
         }
 
         $event->add(
