@@ -8,22 +8,29 @@ Steps:
 # Clean previous versions (optional)
 make clean
 
-# Run the different services (with lizmap 3.7)
+# Run the different services (with lizmap 3.8)
 make run
 
 # or with a specific version of Lizmap
-make run LIZMAP_VERSION_TAG=3.8.0-rc.1
-```
+make run LIZMAP_VERSION_TAG=3.7
 
-If you are using Lizmap 3.6 and upper, execute:
-```
+# then execute to have a complete tests environment
 make install-module
 make import-data
 make import-lizmap-acl
 ```
 
 - Open your browser at http://localhost:9085
-- You can authentify as `admin` or `cadastre` (the password is the same as the login)
+- You can authenticate as `admin` or `cadastre` (the password is the same as the login)
+
+You can update docker images with
+
+```bash
+make pull
+
+# or with a specific version of Lizmap
+make pull LIZMAP_VERSION_TAG=3.8
+```
 
 ## Access to the dockerized PostgreSQL instance
 
