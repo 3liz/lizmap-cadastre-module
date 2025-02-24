@@ -7,16 +7,11 @@ class cadastreDockableListener extends jEventListener
         $isCadastreProject = false;
         $services = lizmap::getServices();
         $parcelleId = null;
-        if (version_compare($services->qgisServerVersion, '3.0', '<')) {
-            if (preg_match('#^cadastre#i', $event->project)) {
-                $isCadastreProject = true;
-            }
-        } else {
-            $config = cadastreConfig::get($event->repository, $event->project);
-            if ($config !== null) {
-                $isCadastreProject = true;
-                $parcelleId = $config->parcelle->id;
-            }
+
+        $config = cadastreConfig::get($event->repository, $event->project);
+        if ($config !== null) {
+            $isCadastreProject = true;
+            $parcelleId = $config->parcelle->id;
         }
 
         // Check profile

@@ -154,9 +154,6 @@ lizMap.events.on({
             return;
 
         var cadastreCrs = 'EPSG:4326';
-        if ('qgisServerVersion' in lizMap.config.options && lizMap.config.options.qgisServerVersion == '2.14') {
-            cadastreCrs = 'EPSG:2154';
-        }
 
         function initCadastreForm() {
             var formId = $('#div_form_cadastre_search form').attr('id');
