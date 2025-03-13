@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Manage Cadastre request.
  *
@@ -41,7 +42,7 @@ class lizmapCadastreRequest extends lizmapOGCRequest
         } catch (Exception $e) {
             // if qgisprojects profile does not exist, or if there is an
             // other error about the cache, let's log it
-            \jLog::logEx($e, 'error');
+            jLog::logEx($e, 'error');
         }
         // return cached data
         if ($cached !== false) {
