@@ -31,14 +31,6 @@ class serviceCtrl extends jController
             return $rep;
         }
 
-        $services = lizmap::getServices();
-        if (version_compare($services->qgisServerVersion, '3.0', '<')
-            && !preg_match('#^cadastre#i', $project)) {
-            $rep->data = array('status' => 'error', 'message' => 'This is not a cadastre project. Project key must begins with cadastre');
-
-            return $rep;
-        }
-
         $p = lizmap::getProject($repository . '~' . $project);
         if (!$p) {
             $rep->data = array('status' => 'error', 'message' => 'A problem occurred while loading project with Lizmap');
@@ -46,27 +38,29 @@ class serviceCtrl extends jController
             return $rep;
         }
 
-        jClasses::inc('cadastre~lizmapCadastreRequest');
-        if (version_compare($services->qgisServerVersion, '3.0', '>=')) {
-            $request = new lizmapCadastreRequest(
-                $p,
-                array(
-                    'service' => 'CADASTRE',
-                    'version' => '1.0.0',
-                    'request' => 'GetCapabilities',
-                )
-            );
-            $result = $request->process();
-            if ($result->code !== 200) {
-                $rep->data = array('status' => 'error', 'message' => 'Cadastre module is not well installed.');
-
-                return $rep;
-            }
-        }
-
         $config = cadastreConfig::get($repository, $project);
         if ($config === null) {
             $rep->data = array('status' => 'error', 'message' => 'This is not a cadastre project or has not been configured.');
+
+            return $rep;
+        }
+
+        jClasses::inc('cadastre~lizmapCadastreRequest');
+        $request = new lizmapCadastreRequest(
+            $p,
+            array(
+                'service' => 'CADASTRE',
+                'version' => '1.0.0',
+                'request' => 'GetCapabilities',
+            )
+        );
+        $result = $request->process();
+        if ($result->code !== 200) {
+            $rep->data = array(
+                'code' => $result->code,
+                'status' => 'error',
+                'message' => 'Cadastre module is not well installed.'
+            );
 
             return $rep;
         }
@@ -245,10 +239,7 @@ class serviceCtrl extends jController
         // The Python script, if available, if run asynchronously
         // and a new Export page is shown to show the user the progress
         // If not, use a synchronous call to QGIS Server, which could reach timeouts for big export (commune)
-        $standalone_python_script = '/srv/qgis/plugins/cadastre/standalone_export.py';
-        if (version_compare($services->qgisServerVersion, '3.0', '>=')) {
-            $standalone_python_script = '/srv/qgis/plugins/cadastre/standalone/export.py';
-        }
+        $standalone_python_script = '/srv/qgis/plugins/cadastre/standalone/export.py';
         // Do not use the Python script if we only need to get the HTML content
         // Which is retrieved in AJAX calls. Hence the or $type == fiche call
         if (!is_file($standalone_python_script) or $type != 'proprietaire') {
@@ -278,10 +269,7 @@ class serviceCtrl extends jController
         $log = jApp::tempPath($token . '.log');
 
         // Run python code
-        $cmd = 'python ' . $standalone_python_script;
-        if (version_compare($services->qgisServerVersion, '3.0', '>=')) {
-            $cmd = 'python3 ' . $standalone_python_script;
-        }
+        $cmd = 'python3 ' . $standalone_python_script;
         $cmd .= ' -P ' . $p->getQgisPath();
         $cmd .= ' -L "' . $parcelleLayer . '"';
         $cmd .= ' -I ' . $parcelleId;
