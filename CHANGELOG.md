@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Changed
+
+* The cadastre atlas print listener is enough specific
+* Cadastre config uses the Lizmap project object to get custom variables instead of request to QGIS Server
+
 ## 2.1.5 - 2025-03-07
 
 ### Added
