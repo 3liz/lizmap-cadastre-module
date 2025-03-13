@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author    3liz
  * @copyright 2016 3liz
@@ -59,7 +60,7 @@ class serviceCtrl extends jController
             $rep->data = array(
                 'code' => $result->code,
                 'status' => 'error',
-                'message' => 'Cadastre module is not well installed.'
+                'message' => 'Cadastre module is not well installed.',
             );
 
             return $rep;
@@ -489,7 +490,7 @@ class serviceCtrl extends jController
             $forThirdParty = ($advanced !== '1');
         }
 
-        /** @var \jResponseBinary $rep */
+        /** @var jResponseBinary $rep */
         $rep = $this->getResponse('binary');
         $rep->mimeType = 'text/csv';
 
@@ -527,7 +528,7 @@ class serviceCtrl extends jController
             return null;
         }
 
-        /** @var \qgisVectorLayer $qgisLayer The QGIS vector layer instance */
+        /** @var qgisVectorLayer $qgisLayer The QGIS vector layer instance */
         $qgisLayer = $p->getLayer($layerId);
         if (!$qgisLayer) {
             return null;
@@ -598,7 +599,7 @@ class serviceCtrl extends jController
             $forThirdParty = ($advanced !== '1');
         }
 
-        /** @var \jResponseBinary $rep */
+        /** @var jResponseBinary $rep */
         $rep = $this->getResponse('binary');
         $rep->mimeType = 'text/csv';
 

@@ -13,9 +13,9 @@ class cadastreListener extends jEventListener
         // Add the cadastre config only if at least one right is granted
         // Check if the user has enough rights
         if (!(
-            jAcl2::check('cadastre.use.search.tool') ||
-            jAcl2::check('cadastre.acces.donnees.proprio') ||
-            jAcl2::check('cadastre.acces.donnees.proprio.simple')
+            jAcl2::check('cadastre.use.search.tool')
+            || jAcl2::check('cadastre.acces.donnees.proprio')
+            || jAcl2::check('cadastre.acces.donnees.proprio.simple')
         )) {
             return;
         }

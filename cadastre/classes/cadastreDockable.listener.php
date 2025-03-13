@@ -48,8 +48,8 @@ class cadastreDockableListener extends jEventListener
         $searchForm->setData('project', $event->project);
         $searchForm->setData('parcelleLayerId', $parcelleId);
         $hasMajic = '0';
-        if ($hasProprietaire &&
-            (jAcl2::check('cadastre.acces.donnees.proprio') || jAcl2::check('cadastre.acces.donnees.proprio.simple'))) {
+        if ($hasProprietaire
+            && (jAcl2::check('cadastre.acces.donnees.proprio') || jAcl2::check('cadastre.acces.donnees.proprio.simple'))) {
             $hasMajic = '1';
         }
         $searchForm->setData('has_majic', $hasMajic);
@@ -63,14 +63,14 @@ class cadastreDockableListener extends jEventListener
             }
 
             // Get the PostgreSQL database info of the Parcelle layer
-            /** @var \qgisVectorLayer $parcelleLayer The QGIS vector layer instance */
+            /** @var qgisVectorLayer $parcelleLayer The QGIS vector layer instance */
             $parcelleLayer = $p->getLayer($parcelleId);
             $parcelleProfile = $parcelleLayer->getDatasourceProfile(30, false);
 
             // Get the list of PostgreSQL layers
             $layers = array();
             foreach ($p->getLayers() as $layer) {
-                /** @var \qgisVectorLayer $qgisLayer The QGIS vector layer instance */
+                /** @var qgisVectorLayer $qgisLayer The QGIS vector layer instance */
                 $qgisLayer = $p->getLayer($layer->id);
                 // Only for existing layers
                 if (!$qgisLayer) {
@@ -96,7 +96,7 @@ class cadastreDockableListener extends jEventListener
             }
 
             // Add the list of spatial layers in the combobox
-            $datasource = new \jFormsStaticDatasource();
+            $datasource = new jFormsStaticDatasource();
             $datasource->data = $layers;
             $searchForm->getControl('spatial_layer_id')->datasource = $datasource;
         }
