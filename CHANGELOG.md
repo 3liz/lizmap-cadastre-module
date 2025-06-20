@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 2.1.6 - 2025-06-20
+
 ### Changed
 
 * The cadastre atlas print listener is enough specific
