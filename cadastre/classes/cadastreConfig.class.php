@@ -51,6 +51,7 @@ class cadastreConfig
                 'unique_field' => $customVariables['cadastre_parcelle_unique_field'],
             ),
         );
+        $capabilities['parcelle'] = (object) $capabilities['parcelle'];
 
         if (array_key_exists('cadastre_section_layer_id', $customVariables)) {
             $layer = $p->getLayer($customVariables['cadastre_section_layer_id']);
@@ -64,6 +65,7 @@ class cadastreConfig
                 if (array_key_exists('cadastre_section_unique_field', $customVariables)) {
                     $capabilities['section']['unique_field'] = $customVariables['cadastre_section_unique_field'];
                 }
+                $capabilities['section'] = (object) $capabilities['section'];
             }
         }
 
@@ -79,6 +81,7 @@ class cadastreConfig
                 if (array_key_exists('cadastre_commune_unique_field', $customVariables)) {
                     $capabilities['commune']['unique_field'] = $customVariables['cadastre_commune_unique_field'];
                 }
+                $capabilities['commune'] = (object) $capabilities['commune'];
             }
         }
 
