@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Log lizmap actions.
  *
@@ -150,7 +151,7 @@ class atlasPrintListener extends jEventListener
             $file = $path;
             $status = 'success';
         } catch (Exception $e) {
-            jLog::log("Cadastre :: " . $e->getMessage());
+            jLog::log('Cadastre :: ' . $e->getMessage());
         }
 
         $event->add(
