@@ -23,7 +23,7 @@ class cadastreProfile
     {
         $p = lizmap::getProject($repository . '~' . $project);
         if ($p === null) {
-            throw new Exception("Cadastre profile: Unknown repository/project ${repository}.'~'.${project}");
+            throw new Exception("Cadastre profile: Unknown repository/project {$repository}.'~'.{$project}");
         }
         $layer = $p->findLayerByName($layerName);
         if ($layer) {
@@ -52,7 +52,7 @@ class cadastreProfile
     {
         $p = lizmap::getProject($repository . '~' . $project);
         if ($p === null) {
-            throw new Exception("Cadastre profile: Unknown repository/project ${repository}.'~'.${project}");
+            throw new Exception("Cadastre profile: Unknown repository/project {$repository}.'~'.{$project}");
         }
         $qgisLayer = $p->getLayer($layerId);
         if ($qgisLayer) {

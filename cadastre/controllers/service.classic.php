@@ -448,7 +448,7 @@ class serviceCtrl extends jController
             }
             $files = explode('.pdf', $logcontent);
             $rep = $this->getResponse('zip');
-            $rep->zipFilename = "Export_cadastre_${token}.zip";
+            $rep->zipFilename = "Export_cadastre_{$token}.zip";
             foreach ($files as $file) {
                 $fp = $file . '.pdf';
                 if (is_file($fp)) {
