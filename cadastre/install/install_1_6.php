@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author    Michaël Douchin
  * @copyright 2014 3liz

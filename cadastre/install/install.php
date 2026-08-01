@@ -1,4 +1,8 @@
 <?php
+
+use Jelix\Installer\Module\API\InstallHelpers;
+use Jelix\Installer\Module\Installer;
+
 /**
  * @author    Michaël Douchin
  *
@@ -10,9 +14,9 @@
  *
  * @license Mozilla Public License : http://www.mozilla.org/MPL/
  */
-class cadastreModuleInstaller extends \Jelix\Installer\Module\Installer
+class cadastreModuleInstaller extends Installer
 {
-    public function install(Jelix\Installer\Module\API\InstallHelpers $helpers)
+    public function install(InstallHelpers $helpers)
     {
         $helpers->database()->useDbProfile('auth');
 

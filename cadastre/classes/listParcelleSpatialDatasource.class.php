@@ -74,7 +74,7 @@ class listParcelleSpatialDatasource extends jFormsDynamicDatasource
             throw new Exception("Spatial search: Unknown repository/project {$repository}.'~'.{$project}");
         }
 
-        /** @var \qgisVectorLayer $qgisLayer The QGIS vector layer instance */
+        /** @var qgisVectorLayer $qgisLayer The QGIS vector layer instance */
         $qgisLayer = $p->getLayer($spatialLayerId);
         if (!$qgisLayer) {
             throw new Exception("Spatial search: Unknown layer {$layerId} used in spatial search");
