@@ -7,28 +7,17 @@ class cadastreListener extends jEventListener
         // Check cadastre configuration
         $hasCadastreConfig = false;
         $cadastreConfig = array();
-        $services = lizmap::getServices();
-        if (version_compare($services->qgisServerVersion, '3.0', '<')) {
-            if (preg_match('#^cadastre#i', $event->project)) {
-                $hasCadastreConfig = true;
-                $cadastreConfig = array(
-                    'layer' => 'Parcelles',
-                    'pk' => 'geo_parcelle',
-                );
-            }
-        } else {
-            $config = cadastreConfig::get($event->repository, $event->project);
-            if ($config !== null) {
-                $hasCadastreConfig = true;
-                $cadastreConfig = array(
-                    'layer' => $config->parcelle->name,
-                    'pk' => $config->parcelle->unique_field,
-                );
-                $cadastreConfig = array_merge(
-                    $cadastreConfig,
-                    (array) $config
-                );
-            }
+        $config = cadastreConfig::get($event->repository, $event->project);
+        if ($config !== null) {
+            $hasCadastreConfig = true;
+            $cadastreConfig = array(
+                'layer' => $config->parcelle->name,
+                'pk' => $config->parcelle->unique_field,
+            );
+            $cadastreConfig = array_merge(
+                $cadastreConfig,
+                (array) $config
+            );
         }
 
         // Add JS and CSS for cadastre module

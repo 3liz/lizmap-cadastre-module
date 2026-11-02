@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Removed
+
+* Fin de la compatibilité avec Lizmap Web Client 3.6 et 3.7 : le module nécessite Lizmap Web Client 3.8
+  à 3.10
+* Suppression du code pour QGIS Server 2
+
 ### Security
 
 * Exports CSV des locaux et des parcelles avec leurs propriétaires : les identifiants de parcelles et
@@ -15,7 +21,8 @@
   défaut, ou un clone local), importe ses données fictives et lance des tests automatisés des exports
   (`make import-test-data`, `make test`)
 * Les plugins QGIS Server sont installés depuis le dépôt officiel plugins.qgis.org
-* CI GitHub : tests automatisés avec Lizmap Web Client 3.8, 3.9 et 3.10 (`make ci`)
+* CI GitHub : tests automatisés avec Lizmap Web Client 3.8, 3.9 et 3.10 (`make ci`), des exports, de la fiche
+  parcellaire et des relevés de propriété
 
 ## 2.1.6 - 2025-06-20
 

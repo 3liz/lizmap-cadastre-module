@@ -13,8 +13,9 @@ jobs:
     name: PHP-CS-Fixer
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6
     - name: PHP-CS-Fixer
-      uses: docker://oskarstark/php-cs-fixer-ga
+      # Same version as Lizmap Web Client, it must match the one from the Makefile
+      uses: docker://ghcr.io/php-cs-fixer/php-cs-fixer:3.69-php8.1
       with:
-        args: --config=.php-cs-fixer.dist.php --diff --dry-run
+        args: check --allow-risky=yes --diff

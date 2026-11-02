@@ -74,7 +74,7 @@ class listParcelleSpatialDatasource extends jFormsDynamicDatasource
             throw new Exception("Spatial search: Unknown repository/project {$repository}.'~'.{$project}");
         }
 
-        /** @var \qgisVectorLayer $qgisLayer The QGIS vector layer instance */
+        /** @var qgisVectorLayer $qgisLayer The QGIS vector layer instance */
         $qgisLayer = $p->getLayer($spatialLayerId);
         if (!$qgisLayer) {
             throw new Exception("Spatial search: Unknown layer {$layerId} used in spatial search");
@@ -101,9 +101,7 @@ class listParcelleSpatialDatasource extends jFormsDynamicDatasource
             break;
         }
 
-        // Get the optional selection
-        // JS 3.6 : lizMap.config.layers["Parcelles"]['selectedFeatures']
-        // JS 3.7 : lizMap.mainLizmap.config.layers["Parcelles"]['selectedFeatures']
+        // Get the optional selection: lizMap.mainLizmap.config.layers["Parcelles"]['selectedFeatures']
         $selectedIds = array();
         if (!empty($spatialLayerSelectedIds)) {
             $selectedIds = explode(',', $spatialLayerSelectedIds);

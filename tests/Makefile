@@ -156,40 +156,6 @@ ci: run install-module import-test-data import-lizmap-acl test
 test:
 	LIZMAP_URL=http://$(LIZMAP_PORT) uv run --no-project --with pytest --with requests pytest -v api
 
-import-lizmap-acl-35:
-	@echo "Set repositories and users rights if needed"
-	@echo "Set view project"
-	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
-		php lizmap/cmd.php acl2right add __anonymous "lizmap.repositories.view" tests ; \
-		php lizmap/cmd.php acl2right add users "lizmap.repositories.view" tests ; \
-		php lizmap/cmd.php acl2right add admins "lizmap.repositories.view" tests'
-	@echo "Display WMS links"
-	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
-		php lizmap/cmd.php acl2right add __anonymous "lizmap.tools.displayGetCapabilitiesLinks" tests ; \
-		php lizmap/cmd.php acl2right add users "lizmap.tools.displayGetCapabilitiesLinks" tests ; \
-		php lizmap/cmd.php acl2right add admins "lizmap.tools.displayGetCapabilitiesLinks" tests'
-	@echo "Edition"
-	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
-		php lizmap/cmd.php acl2right add __anonymous "lizmap.tools.edition.use" tests ; \
-		php lizmap/cmd.php acl2right add users "lizmap.tools.edition.use" tests ; \
-		php lizmap/cmd.php acl2right add admins "lizmap.tools.edition.use" tests'
-	@echo "Export layers"
-	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
-		php lizmap/cmd.php acl2right add __anonymous "lizmap.tools.layer.export" tests ; \
-		php lizmap/cmd.php acl2right add users "lizmap.tools.layer.export" tests ; \
-		php lizmap/cmd.php acl2right add admins "lizmap.tools.layer.export" tests'
-	@echo "Cadastre"
-	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
-		php lizmap/cmd.php acl2right add __anonymous "cadastre.use.search.tool"; \
-		php lizmap/cmd.php acl2right add users "cadastre.use.search.tool"; \
-		php lizmap/cmd.php acl2right add admins "cadastre.use.search.tool"; \
-		php lizmap/cmd.php acl2right add users "cadastre.acces.donnees.proprio.simple"; \
-		php lizmap/cmd.php acl2right add admins "cadastre.acces.donnees.proprio.simple"; \
-		php lizmap/cmd.php acl2right add admins "cadastre.acces.donnees.proprio"'
-	@echo "Add 'cadastre' user"
-	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
-		php lizmap/scripts/script.php jcommunity~user:create -v --no-error-if-exists cadastre cadastre@lizmap.local cadastre'
-
 import-lizmap-acl:
 	@echo "Set repositories and users rights if needed"
 	@echo "Set view project"

@@ -5,18 +5,11 @@ class cadastreDockableListener extends jEventListener
     public function onmapDockable($event)
     {
         $isCadastreProject = false;
-        $services = lizmap::getServices();
         $parcelleId = null;
-        if (version_compare($services->qgisServerVersion, '3.0', '<')) {
-            if (preg_match('#^cadastre#i', $event->project)) {
-                $isCadastreProject = true;
-            }
-        } else {
-            $config = cadastreConfig::get($event->repository, $event->project);
-            if ($config !== null) {
-                $isCadastreProject = true;
-                $parcelleId = $config->parcelle->id;
-            }
+        $config = cadastreConfig::get($event->repository, $event->project);
+        if ($config !== null) {
+            $isCadastreProject = true;
+            $parcelleId = $config->parcelle->id;
         }
 
         // Check profile
@@ -68,14 +61,14 @@ class cadastreDockableListener extends jEventListener
                 }
 
                 // Get the PostgreSQL database info of the Parcelle layer
-                /** @var \qgisVectorLayer $parcelleLayer The QGIS vector layer instance */
+                /** @var qgisVectorLayer $parcelleLayer The QGIS vector layer instance */
                 $parcelleLayer = $p->getLayer($parcelleId);
                 $parcelleProfile = $parcelleLayer->getDatasourceProfile(30, false);
 
                 // Get the list of PostgreSQL layers
                 $layers = array();
                 foreach ($p->getLayers() as $layer) {
-                    /** @var \qgisVectorLayer $qgisLayer The QGIS vector layer instance */
+                    /** @var qgisVectorLayer $qgisLayer The QGIS vector layer instance */
                     $qgisLayer = $p->getLayer($layer->id);
                     // Only for existing layers
                     if (!$qgisLayer) {
@@ -101,7 +94,7 @@ class cadastreDockableListener extends jEventListener
                 }
 
                 // Add the list of spatial layers in the combobox
-                $datasource = new \jFormsStaticDatasource();
+                $datasource = new jFormsStaticDatasource();
                 $datasource->data = $layers;
                 $searchForm->getControl('spatial_layer_id')->datasource = $datasource;
             }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author    Rene-Luc Dhont
  * @copyright 2019 3liz
