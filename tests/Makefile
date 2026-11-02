@@ -20,6 +20,23 @@ LZMPGPORT:=127.0.0.1:9087
 
 MODULE_SRC:=$(shell realpath ..)
 
+# QGIS Desktop image used to import the test data, same QGIS version as QGIS Server
+QGIS_PLATFORM_TAG:=3.44
+
+# QGIS plugin cadastre, used by QGIS Server and for the test data (they are not in the published plugin).
+# * CADASTRE_PLUGIN_SRC set: path of a local clone of the plugin, to test changes of the plugin before pushing them.
+#   Set it in the environment, or in tests/.localconfig.mk: CADASTRE_PLUGIN_SRC=/path/to/QgisCadastrePlugin
+# * Otherwise: the branch or tag CADASTRE_PLUGIN_REF of the plugin repository is cloned in lizmap/cadastre-plugin.
+-include .localconfig.mk
+CADASTRE_PLUGIN_REPOSITORY?=https://github.com/3liz/QgisCadastrePlugin.git
+CADASTRE_PLUGIN_REF?=master
+ifeq ($(CADASTRE_PLUGIN_SRC),)
+CADASTRE_PLUGIN_CLONE:=$(LIZMAP_DIR)/cadastre-plugin
+CADASTRE_PLUGIN_SRC:=$(CADASTRE_PLUGIN_CLONE)
+endif
+
+COMPOSE_FILE:=docker-compose.yml:docker-compose.plugin.yml
+
 main:
 	@cat <<- EOF
 		Commandes:
@@ -29,6 +46,9 @@ main:
 			shell: open a shell in Lizmap web container
 			install-plugins: install QGIS Server plugins
 			import-data: import test data inside the PostgreSQL database
+			plugin-src: clone or update the plugin cadastre, if CADASTRE_PLUGIN_SRC is not set
+			import-test-data: import the fictitious test data of the plugin cadastre
+			test:  run the tests of the module, on a running stack with the test data
 
 			Note: Un fichier d'environment pour docker compose
 			est crée à chaque invocation de 'run'.
@@ -40,6 +60,7 @@ dirs:
 	@mkdir -p $(LIZMAP_DIR)/var/log/nginx \
 		      $(LIZMAP_DIR)/var/nginx-cache \
 		      $(LIZMAP_DIR)/qgis-server-plugins \
+		      $(LIZMAP_DIR)/qgis-server-plugins/cadastre \
 		      $(LIZMAP_DIR)/local-python \
 		      $(LIZMAP_DIR)/cache-python \
 		      $*
@@ -58,10 +79,27 @@ env: dirs
 		LIZMAP_VERSION_TAG=$(LIZMAP_VERSION_TAG)
 		QGIS_VERSION_TAG=$(QGIS_VERSION_TAG)
 		POSTGIS_VERSION_TAG=$(POSTGIS_VERSION_TAG)
+		QGIS_PLATFORM_TAG=$(QGIS_PLATFORM_TAG)
+		CADASTRE_PLUGIN_SRC=$(CADASTRE_PLUGIN_SRC)
+		COMPOSE_FILE=$(COMPOSE_FILE)
 		EOF
 
-run: stop env install-plugins
+run: stop env install-plugins plugin-src
 	docker compose up -d
+
+plugin-src:
+ifdef CADASTRE_PLUGIN_CLONE
+	@echo "Plugin cadastre: $(CADASTRE_PLUGIN_REF) of $(CADASTRE_PLUGIN_REPOSITORY)"
+	@if [ -d "$(CADASTRE_PLUGIN_CLONE)/.git" ]; then \
+		git -C "$(CADASTRE_PLUGIN_CLONE)" fetch -q --depth 1 origin "$(CADASTRE_PLUGIN_REF)" && \
+		git -C "$(CADASTRE_PLUGIN_CLONE)" checkout -q --detach FETCH_HEAD; \
+	else \
+		git clone -q --depth 1 --branch "$(CADASTRE_PLUGIN_REF)" "$(CADASTRE_PLUGIN_REPOSITORY)" "$(CADASTRE_PLUGIN_CLONE)"; \
+	fi
+	@git -C "$(CADASTRE_PLUGIN_CLONE)" log -1 --format="Plugin cadastre: commit %h %s"
+else
+	@echo "Plugin cadastre: local clone $(CADASTRE_PLUGIN_SRC)"
+endif
 
 stop:
 	docker compose down || true
@@ -93,16 +131,22 @@ install-plugins: dirs
 		--entrypoint /bin/bash \
 		3liz/qgis-map-server:$(QGIS_VERSION_TAG) \
 		-c "
-		    echo "https://packages.3liz.org/pub/server-plugins-repository/unstable/plugins.[VERSION].xml" > /tmp/sources-plugin-manager.list
+		    echo 'https://plugins.qgis.org/plugins/plugins.xml?qgis=[VERSION]' > /tmp/sources-plugin-manager.list
 		    qgis-plugin-manager update
 		    qgis-plugin-manager install 'Lizmap server'
 		    qgis-plugin-manager install atlasprint
 		    qgis-plugin-manager install wfsOutputExtension
-		    qgis-plugin-manager install cadastre
 		"
 
 import-data:
 	sql/import.sh
+
+import-test-data: env
+	@if [ ! -d "$(CADASTRE_PLUGIN_SRC)/tests/fixtures" ]; then echo "No plugin in $(CADASTRE_PLUGIN_SRC): make plugin-src"; exit 1; fi
+	docker compose --profile tools run --rm qgis-tools
+
+test:
+	uv run --no-project --with pytest --with requests pytest -v api
 
 import-lizmap-acl-35:
 	@echo "Set repositories and users rights if needed"
@@ -160,15 +204,19 @@ import-lizmap-acl:
 		php lizmap/console.php acl2:add __anonymous "lizmap.tools.layer.export" tests ; \
 		php lizmap/console.php acl2:add users "lizmap.tools.layer.export" tests ; \
 		php lizmap/console.php acl2:add admins "lizmap.tools.layer.export" tests'
-	@echo "Cadastre"
-	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
-		php lizmap/console.php acl2:add __anonymous "cadastre.acces.donnees.proprio" tests ; \
-		php lizmap/console.php acl2:add users "cadastre.acces.donnees.proprio" tests ; \
-		php lizmap/console.php acl2:add admins "cadastre.acces.donnees.proprio" tests'
+	@echo "Cadastre: search for everybody, owners without birth data for users, full data for admins"
+	@echo "The rights on the owners are global: the module does not check them on a repository"
 	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
 		php lizmap/console.php acl2:add __anonymous "cadastre.use.search.tool" tests ; \
 		php lizmap/console.php acl2:add users "cadastre.use.search.tool" tests ; \
-		php lizmap/console.php acl2:add admins "cadastre.use.search.tool" tests'
+		php lizmap/console.php acl2:add admins "cadastre.use.search.tool" tests ; \
+		php lizmap/console.php acl2:add users "cadastre.acces.donnees.proprio.simple" ; \
+		php lizmap/console.php acl2:add admins "cadastre.acces.donnees.proprio"'
+	@echo "Add the user 'cadastre', in the group 'users'"
+	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
+		php lizmap/console.php jcommunity:user:create --no-error-if-exist cadastre cadastre@lizmap.local cadastre ; \
+		php lizmap/console.php acl2user:list | grep -q " cadastre " || php lizmap/console.php acl2user:register cadastre ; \
+		php lizmap/console.php acl2user:list | grep " cadastre " | grep -q " users " || php lizmap/console.php acl2user:addgroup cadastre users'
 
 install-module:
 	docker compose exec -u ${LIZMAP_USER_ID} lizmap php /www/lizmap/install/configurator.php cadastre

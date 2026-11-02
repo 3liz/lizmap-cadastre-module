@@ -9,6 +9,13 @@
   requête avec un identifiant invalide est refusée. Ils permettaient une injection SQL à tout
   utilisateur ayant un droit d'accès aux données de propriété.
 
+### Tests
+
+* La stack docker de tests utilise le plugin QGIS cadastre depuis son dépôt git (branche `master` par
+  défaut, ou un clone local), importe ses données fictives et lance des tests automatisés des exports
+  (`make import-test-data`, `make test`)
+* Les plugins QGIS Server sont installés depuis le dépôt officiel plugins.qgis.org
+
 ## 2.1.6 - 2025-06-20
 
 ### Changed
