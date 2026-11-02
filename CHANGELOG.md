@@ -2,17 +2,9 @@
 
 ## Unreleased
 
-### Removed
+## 2.2.0 - 2026-11-02
 
-* Fin de la compatibilité avec Lizmap Web Client 3.6 et 3.7 : le module nécessite Lizmap Web Client 3.8
-  à 3.10
-* Suppression du code pour QGIS Server 2
-
-### Fixed
-
-* Compatibilité avec Lizmap Web Client 3.10 : la fiche parcellaire et les relevés de propriété
-  utilisent les classes `Lizmap\Request\OGCRequest` et `Lizmap\Request\Proxy`, les anciennes classes
-  `lizmapOGCRequest` et `lizmapProxy` n'existant plus
+Version corrective de sécurité, compatible avec Lizmap Web Client 3.8 à 3.10 uniquement.
 
 ### Security
 
@@ -20,6 +12,18 @@
   des objets de la recherche spatiale sont validés avant d'être utilisés dans la requête SQL, une
   requête avec un identifiant invalide est refusée. Ils permettaient une injection SQL à tout
   utilisateur ayant un droit d'accès aux données de propriété.
+
+### Fixed
+
+* Compatibilité avec Lizmap Web Client 3.10 : la fiche parcellaire et les relevés de propriété
+  utilisent les classes `Lizmap\Request\OGCRequest` et `Lizmap\Request\Proxy`, les anciennes classes
+  `lizmapOGCRequest` et `lizmapProxy` n'existant plus
+
+### Removed
+
+* Fin de la compatibilité avec Lizmap Web Client 3.6 et 3.7 : le module nécessite Lizmap Web Client 3.8
+  à 3.10
+* Suppression du code pour QGIS Server 2
 
 ### Tests
 
