@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author    3liz
  * @copyright 2016 3liz
@@ -31,14 +32,6 @@ class serviceCtrl extends jController
             return $rep;
         }
 
-        $services = lizmap::getServices();
-        if (version_compare($services->qgisServerVersion, '3.0', '<')
-            && !preg_match('#^cadastre#i', $project)) {
-            $rep->data = array('status' => 'error', 'message' => 'This is not a cadastre project. Project key must begins with cadastre');
-
-            return $rep;
-        }
-
         $p = lizmap::getProject($repository . '~' . $project);
         if (!$p) {
             $rep->data = array('status' => 'error', 'message' => 'A problem occurred while loading project with Lizmap');
@@ -46,27 +39,29 @@ class serviceCtrl extends jController
             return $rep;
         }
 
-        jClasses::inc('cadastre~lizmapCadastreRequest');
-        if (version_compare($services->qgisServerVersion, '3.0', '>=')) {
-            $request = new lizmapCadastreRequest(
-                $p,
-                array(
-                    'service' => 'CADASTRE',
-                    'version' => '1.0.0',
-                    'request' => 'GetCapabilities',
-                )
-            );
-            $result = $request->process();
-            if ($result->code !== 200) {
-                $rep->data = array('status' => 'error', 'message' => 'Cadastre module is not well installed.');
-
-                return $rep;
-            }
-        }
-
         $config = cadastreConfig::get($repository, $project);
         if ($config === null) {
             $rep->data = array('status' => 'error', 'message' => 'This is not a cadastre project or has not been configured.');
+
+            return $rep;
+        }
+
+        jClasses::inc('cadastre~lizmapCadastreRequest');
+        $request = new lizmapCadastreRequest(
+            $p,
+            array(
+                'service' => 'CADASTRE',
+                'version' => '1.0.0',
+                'request' => 'GetCapabilities',
+            )
+        );
+        $result = $request->process();
+        if ($result->code !== 200) {
+            $rep->data = array(
+                'code' => $result->code,
+                'status' => 'error',
+                'message' => 'Cadastre module is not well installed.',
+            );
 
             return $rep;
         }
@@ -232,7 +227,6 @@ class serviceCtrl extends jController
     public function initExport()
     {
         $rep = $this->getResponse('json');
-        $services = lizmap::getServices();
 
         // params
         $project = $this->param('project');
@@ -245,10 +239,7 @@ class serviceCtrl extends jController
         // The Python script, if available, if run asynchronously
         // and a new Export page is shown to show the user the progress
         // If not, use a synchronous call to QGIS Server, which could reach timeouts for big export (commune)
-        $standalone_python_script = '/srv/qgis/plugins/cadastre/standalone_export.py';
-        if (version_compare($services->qgisServerVersion, '3.0', '>=')) {
-            $standalone_python_script = '/srv/qgis/plugins/cadastre/standalone/export.py';
-        }
+        $standalone_python_script = '/srv/qgis/plugins/cadastre/standalone/export.py';
         // Do not use the Python script if we only need to get the HTML content
         // Which is retrieved in AJAX calls. Hence the or $type == fiche call
         if (!is_file($standalone_python_script) or $type != 'proprietaire') {
@@ -278,10 +269,7 @@ class serviceCtrl extends jController
         $log = jApp::tempPath($token . '.log');
 
         // Run python code
-        $cmd = 'python ' . $standalone_python_script;
-        if (version_compare($services->qgisServerVersion, '3.0', '>=')) {
-            $cmd = 'python3 ' . $standalone_python_script;
-        }
+        $cmd = 'python3 ' . $standalone_python_script;
         $cmd .= ' -P ' . $p->getQgisPath();
         $cmd .= ' -L "' . $parcelleLayer . '"';
         $cmd .= ' -I ' . $parcelleId;
@@ -492,8 +480,14 @@ class serviceCtrl extends jController
             return $rep;
         }
 
-        $parcelleIds = $this->param('parcelles');
-        $parcelleIds = explode(',', $parcelleIds);
+        // Only valid parcelle ids are accepted, they are used in the SQL query
+        jClasses::inc('cadastre~cadastreExtraInfos');
+        $parcelleIds = cadastreExtraInfos::parseParcelleIds($this->param('parcelles'));
+        if ($parcelleIds === null) {
+            $rep->data = array('status' => 'error', 'message' => 'Identifiants de parcelles absents ou invalides.');
+
+            return $rep;
+        }
         $withGeom = false;
         $forThirdParty = true;
         if (jAcl2::check('cadastre.acces.donnees.proprio')) {
@@ -501,7 +495,7 @@ class serviceCtrl extends jController
             $forThirdParty = ($advanced !== '1');
         }
 
-        /** @var \jResponseBinary $rep */
+        /** @var jResponseBinary $rep */
         $rep = $this->getResponse('binary');
         $rep->mimeType = 'text/csv';
 
@@ -539,7 +533,7 @@ class serviceCtrl extends jController
             return null;
         }
 
-        /** @var \qgisVectorLayer $qgisLayer The QGIS vector layer instance */
+        /** @var qgisVectorLayer $qgisLayer The QGIS vector layer instance */
         $qgisLayer = $p->getLayer($layerId);
         if (!$qgisLayer) {
             return null;
@@ -601,8 +595,14 @@ class serviceCtrl extends jController
             return $rep;
         }
 
-        $parcelleIds = $this->param('parcelles');
-        $parcelleIds = explode(',', $parcelleIds);
+        // Only valid parcelle ids are accepted, they are used in the SQL query
+        jClasses::inc('cadastre~cadastreExtraInfos');
+        $parcelleIds = cadastreExtraInfos::parseParcelleIds($this->param('parcelles'));
+        if ($parcelleIds === null) {
+            $rep->data = array('status' => 'error', 'message' => 'Identifiants de parcelles absents ou invalides.');
+
+            return $rep;
+        }
         $withGeom = false;
         $forThirdParty = true;
         if (jAcl2::check('cadastre.acces.donnees.proprio')) {
@@ -610,7 +610,7 @@ class serviceCtrl extends jController
             $forThirdParty = ($advanced !== '1');
         }
 
-        /** @var \jResponseBinary $rep */
+        /** @var jResponseBinary $rep */
         $rep = $this->getResponse('binary');
         $rep->mimeType = 'text/csv';
 
@@ -638,22 +638,21 @@ class serviceCtrl extends jController
                 $intersectionData->spatial_layer_field
             );
             if ($spatialLayerInfo !== null) {
-                // Format & validate selected Ids
-                $ids = explode(',', $intersectionData->spatial_layer_selected_ids);
-                $selectedIds = array();
-                foreach ($ids as $id) {
-                    if (preg_match('/[0-9A-Za-z_]+/', trim($id))) {
-                        $selectedIds[] = trim($id);
-                    }
+                // Only valid ids are accepted, they are used in the SQL query
+                $selectedIds = cadastreExtraInfos::parseObjectIds((string) $intersectionData->spatial_layer_selected_ids);
+                if ($selectedIds === null) {
+                    $rep = $this->getResponse('json');
+                    $rep->data = array('status' => 'error', 'message' => 'Identifiants des objets sélectionnés invalides.');
+
+                    return $rep;
                 }
                 if (count($selectedIds) > 0) {
-                    $selectedIdsString = "'" . implode("', '", $selectedIds) . "'";
                     $intersectionParams = array(
                         'field' => $spatialLayerInfo['field'],
                         'schema' => $spatialLayerInfo['schema'],
                         'table' => $spatialLayerInfo['table'],
                         'pk' => $spatialLayerInfo['pk'],
-                        'selectedIds' => $selectedIdsString,
+                        'selectedIds' => $selectedIds,
                         'geometryColumn' => $spatialLayerInfo['geometryColumn'],
                         'buffer' => (int) $intersectionData->spatial_layer_buffer,
                     );

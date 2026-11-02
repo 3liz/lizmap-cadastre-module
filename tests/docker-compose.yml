@@ -1,4 +1,3 @@
-version: '3'
 services:
   pgsql:
     image: 3liz/postgis:${POSTGIS_VERSION_TAG}
@@ -9,6 +8,13 @@ services:
       - ${LIZMAP_DIR}/initdb.d:/docker-entrypoint-initdb.d
     ports:
       - ${LZMPGPORT}:5432
+    healthcheck:
+      # Through TCP: during the initialization (database lizmap), PostgreSQL only listens on its socket
+      test: ["CMD-SHELL", "pg_isready -q -h 127.0.0.1 -U lizmap -d lizmap"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      start_interval: 2s
   lizmap:
     image: 3liz/lizmap-web-client:${LIZMAP_VERSION_TAG}
     environment:
@@ -33,8 +39,16 @@ services:
       - ${MODULE_SRC}/cadastre:/www/lizmap/lizmap-modules/cadastre
     command:
       - php-fpm
+    healthcheck:
+      # Same test as the image, with a short interval at startup for all versions of Lizmap
+      test: ["CMD-SHELL", "php-fpm-healthcheck || exit 1"]
+      interval: 30s
+      timeout: 30s
+      start_period: 60s
+      start_interval: 2s
     depends_on:
-      - pgsql
+      pgsql:
+        condition: service_healthy
   map:
     image: 3liz/qgis-map-server:${QGIS_VERSION_TAG}
     environment:
@@ -54,6 +68,12 @@ services:
       - ${LIZMAP_DIR}/qgis-server-plugins:/srv/plugins
     ports:
       - ${OWS_PORT}:8080
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/ows/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      start_interval: 2s
     restart: unless-stopped
   redis:
     image: redis:5-alpine
@@ -68,6 +88,9 @@ services:
     ports:
       - ${LIZMAP_PORT}:8080
     depends_on:
-      - lizmap
+      lizmap:
+        condition: service_healthy
+      map:
+        condition: service_healthy
 volumes:
   postgis-volume:

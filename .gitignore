@@ -23,6 +23,7 @@ tests/.env
 tests/lizmap/www/
 tests/lizmap/var/
 tests/lizmap/qgis-server-plugins/
+tests/lizmap/cadastre-plugin/
 tests/lizmap/cache-python
 tests/lizmap/local-python
 tests/sql/majic/*.sql
@@ -32,3 +33,6 @@ tests/sql/majic/*.sql
 
 # QGIS useless files
 *_attachments.zip
+tests/.localconfig.mk
+# Created by make import-test-data
+tests/lizmap/instances/tests/cadastre_tests.qgs*

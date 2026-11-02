@@ -1,0 +1,28 @@
+# The QGIS plugin cadastre comes from CADASTRE_PLUGIN_SRC, a clone of https://github.com/3liz/QgisCadastrePlugin
+# (see the Makefile), instead of the plugin repository: its tests data are only in the git repository
+services:
+  map:
+    volumes:
+      - ${CADASTRE_PLUGIN_SRC}/cadastre:/srv/plugins/cadastre:ro
+
+  # Import of the fictitious test data of the plugin, with QGIS Desktop libraries: make import-test-data
+  qgis-tools:
+    image: 3liz/qgis-platform:${QGIS_PLATFORM_TAG}
+    user: ${LIZMAP_USER_ID}:${LIZMAP_USER_GID}
+    working_dir: /srv/scripts
+    environment:
+      HOME: /tmp
+      QT_QPA_PLATFORM: offscreen
+      PGSERVICEFILE: /srv/etc/pg_service.conf
+      PYTHONPATH: /srv/plugin:/usr/share/qgis/python/plugins
+    volumes:
+      - ${CADASTRE_PLUGIN_SRC}:/srv/plugin:ro
+      - ./scripts:/srv/scripts:ro
+      - ${LIZMAP_DIR}/instances:/srv/projects
+      - ${LIZMAP_DIR}/etc:/srv/etc:ro
+    command: python3 /srv/scripts/import_test_data.py
+    depends_on:
+      pgsql:
+        condition: service_healthy
+    profiles:
+      - tools

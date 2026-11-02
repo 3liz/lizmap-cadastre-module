@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Log lizmap actions.
  *
@@ -20,33 +21,22 @@ class atlasPrintListener extends jEventListener
     {
         $cadastreConfig = array();
         $profile = 'cadastre';
-        $services = lizmap::getServices();
-        if (version_compare($services->qgisServerVersion, '3.0', '<')) {
-            if (!preg_match('#^cadastre#i', $event->project)) {
-                return null;
-            }
-            $cadastreConfig = array(
-                'layer' => 'Parcelles',
-                'pk' => 'geo_parcelle',
-            );
-        } else {
-            $config = cadastreConfig::get($event->repository, $event->project);
-            if ($config == null) {
-                return null;
-            }
-            $cadastreConfig = array(
-                'layer' => $config->parcelle->name,
-                'pk' => $config->parcelle->unique_field,
-            );
-            if ($config->parcelle->shortName && strlen($config->parcelle->shortName)) {
-                $cadastreConfig['layer'] = $config->parcelle->shortName;
-            }
-            $profile = cadastreProfile::getWithLayerId(
-                $event->repository,
-                $event->project,
-                $config->parcelle->id
-            );
+        $config = cadastreConfig::get($event->repository, $event->project);
+        if ($config == null) {
+            return null;
         }
+        $cadastreConfig = array(
+            'layer' => $config->parcelle->name,
+            'pk' => $config->parcelle->unique_field,
+        );
+        if ($config->parcelle->shortName && strlen($config->parcelle->shortName)) {
+            $cadastreConfig['layer'] = $config->parcelle->shortName;
+        }
+        $profile = cadastreProfile::getWithLayerId(
+            $event->repository,
+            $event->project,
+            $config->parcelle->id
+        );
 
         try {
             // try to get the specific search profile to do not rebuild it
@@ -150,7 +140,7 @@ class atlasPrintListener extends jEventListener
             $file = $path;
             $status = 'success';
         } catch (Exception $e) {
-            jLog::log("Cadastre :: " . $e->getMessage());
+            jLog::log('Cadastre :: ' . $e->getMessage());
         }
 
         $event->add(

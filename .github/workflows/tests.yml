@@ -1,0 +1,55 @@
+name: Tests 🎳
+
+# Docker stack of tests/ : Lizmap Web Client, QGIS Server with the plugin cadastre from its git repository,
+# PostgreSQL with the fictitious test data of the plugin, then the tests of tests/api
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'cadastre/**'
+      - 'tests/**'
+      - '.github/workflows/tests.yml'
+  pull_request:
+    paths:
+      - 'cadastre/**'
+      - 'tests/**'
+      - '.github/workflows/tests.yml'
+  workflow_dispatch:
+    inputs:
+      plugin_ref:
+        description: 'Branch or tag of the QGIS plugin cadastre'
+        required: false
+        default: 'master'
+
+jobs:
+  tests:
+    name: Lizmap ${{ matrix.lizmap }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Versions of Lizmap Web Client supported by the module, see cadastre/module.xml
+        lizmap: ['3.8', '3.9', '3.10.0-rc.3']
+    defaults:
+      run:
+        working-directory: tests
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Run the stack and the tests
+        run: make ci LIZMAP_VERSION_TAG=${{ matrix.lizmap }} CADASTRE_PLUGIN_REF=${{ inputs.plugin_ref || 'master' }}
+
+      - name: Logs of the stack
+        if: failure()
+        run: |
+          docker compose logs --no-color
+          cat lizmap/var/lizmap-log/*.log || true
+
+      - name: Stop the stack
+        if: always()
+        run: make clean

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author    Rene-Luc Dhont
  * @copyright 2019 3liz
@@ -41,6 +42,112 @@ class cadastreExtraInfos
         }
 
         return $sql;
+    }
+
+    /**
+     * Regular expression of a valid parcelle id, the field geo_parcelle, like 1320290000A0107.
+     */
+    public const PARCELLE_ID_PATTERN = '/^[0-9A-Z]{1,20}$/';
+
+    /**
+     * Regular expression of a valid id of an object selected in the spatial search.
+     */
+    public const OBJECT_ID_PATTERN = '/^[0-9A-Za-z_-]{1,100}$/';
+
+    /**
+     * Parse and validate a comma separated list of parcelle ids, given by the user.
+     *
+     * @param null|string $parcelles The ids of the parcelles, separated by commas
+     *
+     * @return null|array The ids, or null if the list is empty or if one id is not valid
+     */
+    public static function parseParcelleIds($parcelles)
+    {
+        if (!is_string($parcelles) || trim($parcelles) === '') {
+            return null;
+        }
+        $ids = array_map('trim', explode(',', $parcelles));
+        foreach ($ids as $id) {
+            if (!preg_match(self::PARCELLE_ID_PATTERN, $id)) {
+                return null;
+            }
+        }
+
+        return $ids;
+    }
+
+    /**
+     * Parse and validate a comma separated list of ids of objects selected in the spatial search.
+     *
+     * @param null|string $ids The ids of the objects, separated by commas
+     *
+     * @return null|array The ids, or null if the list is empty or if one id is not valid
+     */
+    public static function parseObjectIds($ids)
+    {
+        if (!is_string($ids) || trim($ids) === '') {
+            return null;
+        }
+        $result = array_map('trim', explode(',', $ids));
+        foreach ($result as $id) {
+            if (!preg_match(self::OBJECT_ID_PATTERN, $id)) {
+                return null;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get the SQL list of the parcelle ids, to be used in an IN clause.
+     *
+     * The ids are checked again here, so that no SQL query can be built with an invalid id.
+     *
+     * @param array $parcelle_ids The ids of the parcelles
+     *
+     * @return string The quoted ids, separated by commas
+     *
+     * @throws Exception if an id is not valid
+     */
+    protected function getParcelleIdsSql($parcelle_ids)
+    {
+        foreach ($parcelle_ids as $id) {
+            if (!is_string($id) || !preg_match(self::PARCELLE_ID_PATTERN, $id)) {
+                throw new Exception('Invalid parcelle id');
+            }
+        }
+
+        return $this->getQuotedValuesSql($parcelle_ids);
+    }
+
+    /**
+     * Get the SQL list of quoted values, to be used in an IN clause.
+     *
+     * @param array $values The values
+     *
+     * @return string The quoted values, separated by commas
+     */
+    protected function getQuotedValuesSql($values)
+    {
+        $cnx = jDb::getConnection($this->profile);
+        $quoted = array();
+        foreach ($values as $value) {
+            $quoted[] = $cnx->quote((string) $value);
+        }
+
+        return implode(', ', $quoted);
+    }
+
+    /**
+     * Quote a schema, table or field name, read from the QGIS project.
+     *
+     * @param string $name The name
+     *
+     * @return string The name between double quotes
+     */
+    protected function quoteIdentifier($name)
+    {
+        return '"' . str_replace('"', '""', (string) $name) . '"';
     }
 
     /**
@@ -129,14 +236,9 @@ class cadastreExtraInfos
             LEFT JOIN ccodem c3 ON pr.ccodem = c3.ccodem
         ';
 
-        $pids = array();
-        foreach ($parcelle_ids as $pid) {
-            $pids[] = "'" . $pid . "'";
-        }
-
         $sql .= '
         WHERE
-            p.parcelle IN ( ' . implode(', ', $pids) . ' )
+            p.parcelle IN ( ' . $this->getParcelleIdsSql($parcelle_ids) . ' )
         ';
 
         $filterConfig = cadastreConfig::getFilterByLogin($this->repository, $this->project, $this->config->parcelle->id);
@@ -227,11 +329,12 @@ class cadastreExtraInfos
         // Ceux qui ont été sélectionnés dans l'onglet "Recherche spatiale"
         // du panneau de recherche
         if ($hasIntersectionData) {
+            $field = $this->quoteIdentifier($intersectionData['field']);
             $sql .= '
             -- Code objet
             ,
-            string_agg(DISTINCT z."' . $intersectionData['field'] . '"::text, \', \' ORDER BY z."' . $intersectionData['field'] . '"::text)
-            FILTER (WHERE z."' . $intersectionData['field'] . '" IS NOT NULL) AS code_objet
+            string_agg(DISTINCT z.' . $field . '::text, \', \' ORDER BY z.' . $field . '::text)
+            FILTER (WHERE z.' . $field . ' IS NOT NULL) AS code_objet
             ';
         }
 
@@ -248,20 +351,15 @@ class cadastreExtraInfos
         if ($hasIntersectionData) {
             $sql .= '
             -- Code objet
-            LEFT JOIN "' . $intersectionData['schema'] . '"."' . $intersectionData['table'] . '" AS z
-            ON z."' . $intersectionData['pk'] . '" IN (' . $intersectionData['selectedIds'] . ')
-            AND ST_DWithin(z."' . $intersectionData['geometryColumn'] . '", gp.geom, ' . $intersectionData['buffer'] . ')
+            LEFT JOIN ' . $this->quoteIdentifier($intersectionData['schema']) . '.' . $this->quoteIdentifier($intersectionData['table']) . ' AS z
+            ON z.' . $this->quoteIdentifier($intersectionData['pk']) . ' IN (' . $this->getQuotedValuesSql($intersectionData['selectedIds']) . ')
+            AND ST_DWithin(z.' . $this->quoteIdentifier($intersectionData['geometryColumn']) . ', gp.geom, ' . (int) $intersectionData['buffer'] . ')
             ';
-        }
-
-        $pids = array();
-        foreach ($parcelle_ids as $pid) {
-            $pids[] = "'" . $pid . "'";
         }
 
         $sql .= '
         WHERE
-            p.parcelle IN ( ' . implode(', ', $pids) . ' )
+            p.parcelle IN ( ' . $this->getParcelleIdsSql($parcelle_ids) . ' )
         ';
 
         // Questions
@@ -364,6 +462,9 @@ class cadastreExtraInfos
     /** @var object */
     protected $config;
 
+    /** @var string Name of the database profile of the parcelle layer */
+    protected $profile = 'cadastre';
+
     /**
      * Build the locaux and proprios CSV file and return its path.
      *
@@ -382,9 +483,9 @@ class cadastreExtraInfos
         $this->project = $project;
         $this->config = cadastreConfig::get($repository, $project);
 
-        $sql = $this->getLocauxAndProprioSql($parcelle_ids, $withGeom, $forThirdParty);
-
         $profile = cadastreProfile::get($repository, $project, $parcelleLayer);
+        $this->profile = $profile;
+        $sql = $this->getLocauxAndProprioSql($parcelle_ids, $withGeom, $forThirdParty);
         $rows = $this->query($sql, array(), $profile);
 
         return $this->buildCsv($rows);
@@ -408,9 +509,9 @@ class cadastreExtraInfos
         $this->repository = $repository;
         $this->project = $project;
         $this->config = cadastreConfig::get($repository, $project);
-        $sql = $this->getParcellesAndProprioSql($parcelle_ids, $withGeom, $forThirdParty, $intersectionData);
-
         $profile = cadastreProfile::get($repository, $project, $parcelleLayer);
+        $this->profile = $profile;
+        $sql = $this->getParcellesAndProprioSql($parcelle_ids, $withGeom, $forThirdParty, $intersectionData);
 
         $parameters = array();
         $rows = $this->query($sql, $parameters, $profile);
