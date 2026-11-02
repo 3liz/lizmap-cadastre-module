@@ -9,6 +9,22 @@ import requests
 
 from conftest import BASE_URL, BATI, COPROPRIETE, PARCELLE, PROJECT
 
+# Columns of the exports, the same with the QGIS plugin (request GetExport) or with the SQL of the module
+LOCAUX_COLUMNS = [
+    "parcelle", "l_batiment", "l_numero_entree", "l_niveau_etage", "l_numero_local", "l_invariant",
+    "l_identifiant", "l_numero_voirie", "l_adresse", "l10_compte_proprietaire", "l10_type_local",
+    "l10_type_local_lib", "l10_nature_local", "l10_nature_local_lib", "l10_nature_construction_particuliere",
+    "l10_nature_construction_particuliere_lib", "l10_annee_construction", "l10_nombre_niveaux",
+    "l10_nature_occupation", "l10_nature_occupation_lib", "p_ordre", "p_numero", "p_nom", "p_adresse",
+    "p_date_naissance", "p_lieu_naissance", "p_code_droit", "p_code_droit_lib", "p_code_demembrement",
+    "p_code_demembrement_lib",
+]
+PARCELLES_COLUMNS = [
+    "commune", "code_proprietaire", "qualite", "nom", "prenom", "denomination", "adresse",
+    "complement_adresse", "code_postal", "ville", "adresse_complete", "date_naissance", "lieu_naissance",
+    "parcelles",
+]
+
 # Payloads trying to get the rows of all the parcelles, in the list of the parcelles
 INJECTIONS = [
     f"{COPROPRIETE}') OR ('1'='1",
@@ -39,27 +55,39 @@ def test_anonymous(anonymous: requests.Session, name: str):
     assert response.json()["status"] == "error"
 
 
+def masked(result: list[dict[str, str]], prefix: str = "") -> bool:
+    """True if the birth data of all the rows are masked, like in the fiche parcellaire"""
+    return all(
+        (row[f"{prefix}date_naissance"], row[f"{prefix}lieu_naissance"]) == ("XX/XX/XXXX", "XXX") for row in result
+    )
+
+
 def test_locaux(user: requests.Session, admin: requests.Session):
-    """One row per local and per owner, the birth data are only given with the full rights"""
+    """One row per local and per owner, the birth data are masked without the full rights"""
     result = rows(export(user, "locauxProprios", [COPROPRIETE, PARCELLE]))
+    assert list(result[0]) == LOCAUX_COLUMNS
     assert {row["parcelle"] for row in result} == {COPROPRIETE, PARCELLE}
     assert len({row["l_invariant"] for row in result}) == 7
-    assert "p_date_naissance" not in result[0]
+    assert masked(result, "p_")
 
     # The parameter advanced is ignored without the full rights
-    assert "p_date_naissance" not in rows(export(user, "locauxProprios", [COPROPRIETE], advanced="1"))[0]
-    assert "p_date_naissance" in rows(export(admin, "locauxProprios", [COPROPRIETE], advanced="1"))[0]
-    assert "p_date_naissance" not in rows(export(admin, "locauxProprios", [COPROPRIETE]))[0]
+    assert masked(rows(export(user, "locauxProprios", [COPROPRIETE], advanced="1")), "p_")
+    result = rows(export(admin, "locauxProprios", [COPROPRIETE], advanced="1"))
+    assert list(result[0]) == LOCAUX_COLUMNS
+    assert not any(row["p_date_naissance"] == "XX/XX/XXXX" for row in result)
+    assert masked(rows(export(admin, "locauxProprios", [COPROPRIETE])), "p_")
 
 
 def test_parcelles(user: requests.Session, admin: requests.Session):
     """One row per owner, with the list of its parcelles"""
     result = rows(export(user, "parcellesProprios", [COPROPRIETE, PARCELLE]))
     assert result
+    assert list(result[0]) == PARCELLES_COLUMNS
     parcelles = {p for row in result for p in row["parcelles"].split(", ")}
     assert parcelles == {COPROPRIETE, PARCELLE}
-    assert "date_naissance" not in result[0]
-    assert "date_naissance" in rows(export(admin, "parcellesProprios", [COPROPRIETE], advanced="1"))[0]
+    assert masked(result)
+    result = rows(export(admin, "parcellesProprios", [COPROPRIETE], advanced="1"))
+    assert not any(row["date_naissance"] == "XX/XX/XXXX" for row in result)
 
 
 @pytest.mark.parametrize("name", ["locauxProprios", "parcellesProprios"])
