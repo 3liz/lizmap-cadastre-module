@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Security
+
+* Exports CSV des locaux et des parcelles avec leurs propriétaires : les identifiants de parcelles et
+  des objets de la recherche spatiale sont validés avant d'être utilisés dans la requête SQL, une
+  requête avec un identifiant invalide est refusée. Ils permettaient une injection SQL à tout
+  utilisateur ayant un droit d'accès aux données de propriété.
+
 ## 2.1.6 - 2025-06-20
 
 ### Changed

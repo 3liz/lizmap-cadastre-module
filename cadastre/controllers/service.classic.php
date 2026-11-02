@@ -492,8 +492,14 @@ class serviceCtrl extends jController
             return $rep;
         }
 
-        $parcelleIds = $this->param('parcelles');
-        $parcelleIds = explode(',', $parcelleIds);
+        // Only valid parcelle ids are accepted, they are used in the SQL query
+        jClasses::inc('cadastre~cadastreExtraInfos');
+        $parcelleIds = cadastreExtraInfos::parseParcelleIds($this->param('parcelles'));
+        if ($parcelleIds === null) {
+            $rep->data = array('status' => 'error', 'message' => 'Identifiants de parcelles absents ou invalides.');
+
+            return $rep;
+        }
         $withGeom = false;
         $forThirdParty = true;
         if (jAcl2::check('cadastre.acces.donnees.proprio')) {
@@ -601,8 +607,14 @@ class serviceCtrl extends jController
             return $rep;
         }
 
-        $parcelleIds = $this->param('parcelles');
-        $parcelleIds = explode(',', $parcelleIds);
+        // Only valid parcelle ids are accepted, they are used in the SQL query
+        jClasses::inc('cadastre~cadastreExtraInfos');
+        $parcelleIds = cadastreExtraInfos::parseParcelleIds($this->param('parcelles'));
+        if ($parcelleIds === null) {
+            $rep->data = array('status' => 'error', 'message' => 'Identifiants de parcelles absents ou invalides.');
+
+            return $rep;
+        }
         $withGeom = false;
         $forThirdParty = true;
         if (jAcl2::check('cadastre.acces.donnees.proprio')) {
@@ -638,22 +650,21 @@ class serviceCtrl extends jController
                 $intersectionData->spatial_layer_field
             );
             if ($spatialLayerInfo !== null) {
-                // Format & validate selected Ids
-                $ids = explode(',', $intersectionData->spatial_layer_selected_ids);
-                $selectedIds = array();
-                foreach ($ids as $id) {
-                    if (preg_match('/[0-9A-Za-z_]+/', trim($id))) {
-                        $selectedIds[] = trim($id);
-                    }
+                // Only valid ids are accepted, they are used in the SQL query
+                $selectedIds = cadastreExtraInfos::parseObjectIds((string) $intersectionData->spatial_layer_selected_ids);
+                if ($selectedIds === null) {
+                    $rep = $this->getResponse('json');
+                    $rep->data = array('status' => 'error', 'message' => 'Identifiants des objets sélectionnés invalides.');
+
+                    return $rep;
                 }
                 if (count($selectedIds) > 0) {
-                    $selectedIdsString = "'" . implode("', '", $selectedIds) . "'";
                     $intersectionParams = array(
                         'field' => $spatialLayerInfo['field'],
                         'schema' => $spatialLayerInfo['schema'],
                         'table' => $spatialLayerInfo['table'],
                         'pk' => $spatialLayerInfo['pk'],
-                        'selectedIds' => $selectedIdsString,
+                        'selectedIds' => $selectedIds,
                         'geometryColumn' => $spatialLayerInfo['geometryColumn'],
                         'buffer' => (int) $intersectionData->spatial_layer_buffer,
                     );
