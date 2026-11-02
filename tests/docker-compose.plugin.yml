@@ -22,6 +22,7 @@ services:
       - ${LIZMAP_DIR}/etc:/srv/etc:ro
     command: python3 /srv/scripts/import_test_data.py
     depends_on:
-      - pgsql
+      pgsql:
+        condition: service_healthy
     profiles:
       - tools

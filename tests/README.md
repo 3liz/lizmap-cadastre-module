@@ -36,6 +36,9 @@ make test
   `cadastre_tests.qgs` from `cadastre_caen.qgs`. It can be run again, it replaces the schema.
 * `make import-lizmap-acl` creates the user `cadastre` (password `cadastre`) in the group `users`,
   with the owners data without birth data. The user `admin` has all the owners data.
+* `make ci` runs all these steps, it is used by the GitHub workflow `.github/workflows/tests.yml`.
+* ⚠️ `make clean` deletes the PostgreSQL volume, with all the data imported in the stack. The volume is
+  shared by all the clones of the module with the same `COMPOSE_PROJECT_NAME` (default `cadastre`).
 * `make test` runs the tests of `tests/api` with [uv](https://docs.astral.sh/uv/): they call the
   module like the browser, as anonymous, `cadastre` and `admin`.
 

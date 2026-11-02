@@ -37,6 +37,10 @@ endif
 
 COMPOSE_FILE:=docker-compose.yml:docker-compose.plugin.yml
 
+# Name of the docker compose project: the containers and the PostgreSQL volume are shared by all the clones
+# of the module using the same name, and 'make clean' deletes this volume
+COMPOSE_PROJECT_NAME?=cadastre
+
 main:
 	@cat <<- EOF
 		Commandes:
@@ -49,6 +53,7 @@ main:
 			plugin-src: clone or update the plugin cadastre, if CADASTRE_PLUGIN_SRC is not set
 			import-test-data: import the fictitious test data of the plugin cadastre
 			test:  run the tests of the module, on a running stack with the test data
+			ci:    run the stack, install the module, the test data and the rights, then run the tests
 
 			Note: Un fichier d'environment pour docker compose
 			est crée à chaque invocation de 'run'.
@@ -67,7 +72,7 @@ dirs:
 
 env: dirs
 	@cat <<- EOF > .env
-		COMPOSE_PROJECT_NAME=cadastre
+		COMPOSE_PROJECT_NAME=$(COMPOSE_PROJECT_NAME)
 		LIZMAP_DIR=$(LIZMAP_DIR)
 		LIZMAP_USER_ID=$(LIZMAP_USER_ID)
 		LIZMAP_USER_GID=$(LIZMAP_USER_GID)
@@ -85,7 +90,8 @@ env: dirs
 		EOF
 
 run: stop env install-plugins plugin-src
-	docker compose up -d
+	# Wait for the healthchecks of the services: the stack is ready for install-module
+	docker compose up -d --wait
 
 plugin-src:
 ifdef CADASTRE_PLUGIN_CLONE
@@ -145,8 +151,10 @@ import-test-data: env
 	@if [ ! -d "$(CADASTRE_PLUGIN_SRC)/tests/fixtures" ]; then echo "No plugin in $(CADASTRE_PLUGIN_SRC): make plugin-src"; exit 1; fi
 	docker compose --profile tools run --rm qgis-tools
 
+ci: run install-module import-test-data import-lizmap-acl test
+
 test:
-	uv run --no-project --with pytest --with requests pytest -v api
+	LIZMAP_URL=http://$(LIZMAP_PORT) uv run --no-project --with pytest --with requests pytest -v api
 
 import-lizmap-acl-35:
 	@echo "Set repositories and users rights if needed"

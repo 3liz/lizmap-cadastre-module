@@ -15,6 +15,7 @@
   défaut, ou un clone local), importe ses données fictives et lance des tests automatisés des exports
   (`make import-test-data`, `make test`)
 * Les plugins QGIS Server sont installés depuis le dépôt officiel plugins.qgis.org
+* CI GitHub : tests automatisés avec Lizmap Web Client 3.8, 3.9 et 3.10 (`make ci`)
 
 ## 2.1.6 - 2025-06-20
 
