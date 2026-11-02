@@ -142,6 +142,7 @@ install-plugins: dirs
 		    qgis-plugin-manager install 'Lizmap server'
 		    qgis-plugin-manager install atlasprint
 		    qgis-plugin-manager install wfsOutputExtension
+		    qgis-plugin-manager upgrade
 		"
 
 import-data:
@@ -179,11 +180,11 @@ import-lizmap-acl:
 		php lizmap/console.php acl2:add users "lizmap.tools.layer.export" tests ; \
 		php lizmap/console.php acl2:add admins "lizmap.tools.layer.export" tests'
 	@echo "Cadastre: search for everybody, owners without birth data for users, full data for admins"
-	@echo "The rights on the owners are global: the module does not check them on a repository"
+	@echo "The rights of the module are global: it does not check them on a repository"
 	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
-		php lizmap/console.php acl2:add __anonymous "cadastre.use.search.tool" tests ; \
-		php lizmap/console.php acl2:add users "cadastre.use.search.tool" tests ; \
-		php lizmap/console.php acl2:add admins "cadastre.use.search.tool" tests ; \
+		php lizmap/console.php acl2:add __anonymous "cadastre.use.search.tool" ; \
+		php lizmap/console.php acl2:add users "cadastre.use.search.tool" ; \
+		php lizmap/console.php acl2:add admins "cadastre.use.search.tool" ; \
 		php lizmap/console.php acl2:add users "cadastre.acces.donnees.proprio.simple" ; \
 		php lizmap/console.php acl2:add admins "cadastre.acces.donnees.proprio"'
 	@echo "Add the user 'cadastre', in the group 'users'"

@@ -8,6 +8,12 @@
   à 3.10
 * Suppression du code pour QGIS Server 2
 
+### Fixed
+
+* Compatibilité avec Lizmap Web Client 3.10 : la fiche parcellaire et les relevés de propriété
+  utilisent les classes `Lizmap\Request\OGCRequest` et `Lizmap\Request\Proxy`, les anciennes classes
+  `lizmapOGCRequest` et `lizmapProxy` n'existant plus
+
 ### Security
 
 * Exports CSV des locaux et des parcelles avec leurs propriétaires : les identifiants de parcelles et
@@ -22,7 +28,7 @@
   (`make import-test-data`, `make test`)
 * Les plugins QGIS Server sont installés depuis le dépôt officiel plugins.qgis.org
 * CI GitHub : tests automatisés avec Lizmap Web Client 3.8, 3.9 et 3.10 (`make ci`), des exports, de la fiche
-  parcellaire et des relevés de propriété
+  parcellaire, des relevés de propriété et de la page de la carte
 
 ## 2.1.6 - 2025-06-20
 

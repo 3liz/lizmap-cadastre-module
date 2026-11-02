@@ -39,6 +39,13 @@ class serviceCtrl extends jController
             return $rep;
         }
 
+        $config = cadastreConfig::get($repository, $project);
+        if ($config === null) {
+            $rep->data = array('status' => 'error', 'message' => 'This is not a cadastre project or has not been configured.');
+
+            return $rep;
+        }
+
         jClasses::inc('cadastre~lizmapCadastreRequest');
         $request = new lizmapCadastreRequest(
             $p,
@@ -50,14 +57,11 @@ class serviceCtrl extends jController
         );
         $result = $request->process();
         if ($result->code !== 200) {
-            $rep->data = array('status' => 'error', 'message' => 'Cadastre module is not well installed.');
-
-            return $rep;
-        }
-
-        $config = cadastreConfig::get($repository, $project);
-        if ($config === null) {
-            $rep->data = array('status' => 'error', 'message' => 'This is not a cadastre project or has not been configured.');
+            $rep->data = array(
+                'code' => $result->code,
+                'status' => 'error',
+                'message' => 'Cadastre module is not well installed.',
+            );
 
             return $rep;
         }

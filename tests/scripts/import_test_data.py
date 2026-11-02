@@ -34,6 +34,12 @@ INSEE = "13029"
 PROJECTS = Path("/srv/projects/tests")
 MODEL = "cadastre_caen"
 PROJECT = "cadastre_tests"
+# Metadata of the Lizmap configuration accepted by all the versions of Lizmap Web Client supported by the module
+LIZMAP_METADATA = {
+    "lizmap_plugin_version_str": "4.5.0",
+    "lizmap_plugin_version": 40500,
+    "lizmap_web_client_target_version": 30800,
+}
 
 
 def import_data():
@@ -95,6 +101,9 @@ def create_project():
 
     # Lizmap configuration: the extents of the project and of the layers
     config = json.loads((PROJECTS / f"{MODEL}.qgs.cfg").read_text())
+    # Versions of the Lizmap plugin and target version of Lizmap Web Client: those of the model are refused
+    # by Lizmap Web Client 3.8 and above, which then does not display the map
+    config["metadata"].update(LIZMAP_METADATA)
     config["options"]["bbox"] = [str(round(v)) for v in bbox]
     config["options"]["initialExtent"] = bbox
     for layer in config["layers"].values():

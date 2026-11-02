@@ -1,5 +1,8 @@
 <?php
 
+use Lizmap\Request\OGCRequest;
+use Lizmap\Request\Proxy;
+
 /**
  * Manage Cadastre request.
  *
@@ -10,9 +13,23 @@
  *
  * @license Mozilla Public License : http://www.mozilla.org/MPL/
  */
-class lizmapCadastreRequest extends lizmapOGCRequest
+class lizmapCadastreRequest extends OGCRequest
 {
     protected $tplExceptions = 'cadastre~cadastre_exception';
+
+    /**
+     * Constructor, with the Lizmap services of the instance.
+     *
+     * The deprecated class lizmapOGCRequest, which did the same, does not exist anymore in Lizmap 3.10.
+     *
+     * @param lizmapProject $project    The project
+     * @param array         $params     The parameters of the request
+     * @param null|string   $requestXml The XML request
+     */
+    public function __construct($project, $params, $requestXml = null)
+    {
+        parent::__construct($project, $params, lizmap::getServices(), $requestXml);
+    }
 
     public function process_getcapabilities()
     {
@@ -109,7 +126,7 @@ class lizmapCadastreRequest extends lizmapOGCRequest
         $querystring = $this->constructUrl();
         // \jLog::log( $querystring );
         // Get remote data
-        list($data, $mime, $code) = lizmapProxy::getRemoteData($querystring);
+        list($data, $mime, $code) = Proxy::getRemoteData($querystring);
 
         jMessage::clearAll();
 
@@ -153,7 +170,7 @@ class lizmapCadastreRequest extends lizmapOGCRequest
         $querystring = $this->constructUrl();
         // \jLog::log($querystring);
         // Get remote data
-        list($data, $mime, $code) = lizmapProxy::getRemoteData($querystring);
+        list($data, $mime, $code) = Proxy::getRemoteData($querystring);
 
         jMessage::clearAll();
 
@@ -182,7 +199,7 @@ class lizmapCadastreRequest extends lizmapOGCRequest
         $querystring = $this->constructUrl();
         // \jLog::log($querystring);
         // Get remote data
-        list($data, $mime, $code) = lizmapProxy::getRemoteData($querystring);
+        list($data, $mime, $code) = Proxy::getRemoteData($querystring);
         $data = json_decode($data);
         $data = $data->data;
 
