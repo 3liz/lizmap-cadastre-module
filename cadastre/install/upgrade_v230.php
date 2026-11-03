@@ -25,7 +25,7 @@ use Jelix\Installer\Module\Installer;
  */
 class cadastreModuleUpgrader_v230 extends Installer
 {
-    protected $targetVersions = array('2.3.0-pre');
+    protected $targetVersions = array('2.3.0');
     protected $date = '2026-11-03';
 
     /** The right replaced by the new ones */
