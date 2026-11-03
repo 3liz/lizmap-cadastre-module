@@ -151,6 +151,166 @@ class cadastreExtraInfos
     }
 
     /**
+     * Get the SQL conditions of the parcelle layer: filter by login, SQL filter of the layer and filter by polygon.
+     *
+     * @return string The conditions, each one beginning with AND, or an empty string
+     */
+    protected function getLayerFiltersSql()
+    {
+        $sql = '';
+        $filterConfig = cadastreConfig::getFilterByLogin($this->repository, $this->project, $this->config->parcelle->id);
+        $layerSql = cadastreConfig::getLayerSql($this->repository, $this->project, $this->config->parcelle->id);
+        $polygonFilter = cadastreConfig::getPolygonFilter($this->repository, $this->project, $this->config->parcelle->id);
+
+        if ($filterConfig !== null) {
+            $sql .= ' AND ';
+            $sql .= $this->getFilterSql($filterConfig);
+        }
+        if ($layerSql) {
+            $sql .= ' AND (' . $layerSql . ')';
+        }
+        if ($polygonFilter) {
+            $sql .= ' AND (' . $polygonFilter . ')';
+        }
+
+        return $sql;
+    }
+
+    /**
+     * Get the parcelles the user can see among the given ones, with the filters of the parcelle layer.
+     *
+     * @param array $parcelle_ids The ids of the parcelles, already validated
+     *
+     * @return array The ids of the parcelles the user can see
+     */
+    protected function getFilteredParcelleIds($parcelle_ids)
+    {
+        $sql = 'SELECT geo_parcelle FROM parcelle_info WHERE geo_parcelle IN ( ' . $this->getParcelleIdsSql($parcelle_ids) . ' )';
+        $sql .= $this->getLayerFiltersSql();
+        $ids = array();
+        foreach ($this->query($sql, array(), $this->profile) as $row) {
+            $ids[] = $row->geo_parcelle;
+        }
+
+        return $ids;
+    }
+
+    /**
+     * Check if the QGIS plugin cadastre of QGIS Server has the request GetExport.
+     *
+     * @param object $p The Lizmap project
+     *
+     * @return bool True if the exports can be done by the plugin
+     */
+    protected function hasPluginExport($p)
+    {
+        $request = new lizmapCadastreRequest(
+            $p,
+            array(
+                'service' => 'CADASTRE',
+                'version' => '1.0.0',
+                'request' => 'GetCapabilities',
+            )
+        );
+        $result = $request->process();
+        if ($result->code != 200) {
+            return false;
+        }
+        $capabilities = json_decode($result->data);
+
+        return $capabilities
+            && isset($capabilities->data->requests)
+            && in_array('GetExport', $capabilities->data->requests);
+    }
+
+    /**
+     * Get the rows of an export from the QGIS plugin cadastre, request GetExport.
+     *
+     * @param object     $p                The Lizmap project
+     * @param string     $type             The type of export: locaux or proprietaires
+     * @param array      $parcelle_ids     The ids of the parcelles the user can see
+     * @param bool       $forThirdParty    Without the birth data, which are masked
+     * @param null|array $intersectionData The objects selected by the spatial search (optional)
+     *
+     * @return array The rows, as objects with the names of the columns as properties
+     *
+     * @throws Exception if the plugin did not return the export
+     */
+    protected function getPluginExportRows($p, $type, $parcelle_ids, $forThirdParty, $intersectionData = null)
+    {
+        if (count($parcelle_ids) == 0) {
+            return array();
+        }
+        $params = array(
+            'service' => 'CADASTRE',
+            'version' => '1.0.0',
+            'request' => 'GetExport',
+            'layer' => $this->config->parcelle->name,
+            'type' => $type,
+            'parcelles' => implode(',', $parcelle_ids),
+            'birth' => $forThirdParty ? '0' : '1',
+        );
+        if ($intersectionData !== null && is_array($intersectionData)) {
+            $params['spatial_layer'] = $intersectionData['layerId'];
+            $params['spatial_field'] = $intersectionData['field'];
+            $params['spatial_objects'] = implode(',', $intersectionData['selectedIds']);
+            $params['spatial_distance'] = $intersectionData['buffer'];
+        }
+
+        jClasses::inc('cadastre~lizmapCadastreRequest');
+        $request = new lizmapCadastreRequest($p, $params);
+        $result = $request->process();
+        $data = $result->data;
+        if ($result->code != 200 || !is_object($data) || $data->status !== 'success') {
+            throw new Exception('Cadastre - GetExport error: ' . (is_object($data) ? $data->message : $result->code));
+        }
+
+        $rows = array();
+        foreach ($data->data->rows as $row) {
+            $rows[] = (object) array_combine($data->data->columns, $row);
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Get the rows of an export: from the QGIS plugin if it can, otherwise with the SQL queries of the module.
+     *
+     * The plugin is used for the parcelles the user can see, and gives the same columns and values.
+     *
+     * @param string     $type             The type of export: locaux or proprietaires
+     * @param array      $parcelle_ids     The ids of parcelles
+     * @param bool       $withGeom         With geometry data, only with the SQL queries of the module
+     * @param bool       $forThirdParty    Without infos for third party
+     * @param null|array $intersectionData The objects selected by the spatial search (optional)
+     *
+     * @return array The rows
+     */
+    protected function getExportRows($type, $parcelle_ids, $withGeom, $forThirdParty, $intersectionData = null)
+    {
+        $p = lizmap::getProject($this->repository . '~' . $this->project);
+        jClasses::inc('cadastre~lizmapCadastreRequest');
+        if (!$withGeom && $p && $this->hasPluginExport($p)) {
+            try {
+                $ids = $this->getFilteredParcelleIds($parcelle_ids);
+
+                return $this->getPluginExportRows($p, $type, $ids, $forThirdParty, $intersectionData);
+            } catch (Exception $e) {
+                // Use the SQL queries of the module
+                jLog::logEx($e, 'error');
+            }
+        }
+
+        if ($type == 'locaux') {
+            $sql = $this->getLocauxAndProprioSql($parcelle_ids, $withGeom, $forThirdParty);
+        } else {
+            $sql = $this->getParcellesAndProprioSql($parcelle_ids, $withGeom, $forThirdParty, $intersectionData);
+        }
+
+        return $this->query($sql, array(), $this->profile);
+    }
+
+    /**
      * Get SQL request to get locaux and proprios data for parcelle ids.
      *
      * @param array $parcelle_ids  The ids of parcelles
@@ -175,8 +335,9 @@ class cadastreExtraInfos
             (l.dnubat || '-' || l.descr || '-' || l.dniv || '-' || l.dpor) AS l_identifiant,
 
             -- adresse
-            ltrim(l.dnvoiri, '0') || l.dindic AS l_numero_voirie,
-            CASE WHEN v.libvoi IS NOT NULL THEN coalesce(v.natvoi || ' ') || v.libvoi ELSE p.cconvo || ' ' || p.dvoilib END AS l_adresse,
+            -- the index of repetition and the nature of the street are optional
+            ltrim(l.dnvoiri, '0') || coalesce(l.dindic, '') AS l_numero_voirie,
+            CASE WHEN v.libvoi IS NOT NULL THEN coalesce(v.natvoi || ' ', '') || v.libvoi ELSE p.cconvo || ' ' || p.dvoilib END AS l_adresse,
 
             -- local
             (l10.ccodep || l10.ccocom || '-' ||l10.dnupro) AS l10_compte_proprietaire,
@@ -198,12 +359,22 @@ class cadastreExtraInfos
                 CASE WHEN trim(pr.dnomus) != trim(pr.dnomlp) THEN Coalesce( trim(pr.dnomus) || '/' || trim(pr.dprnus) || ', née ', '' ) ELSE '' END ||
                 trim(coalesce(pr.ddenom, ''))
                     AS p_nom,
-            ltrim(trim(coalesce(pr.dlign4, '')), '0') || trim(coalesce(pr.dlign5, '')) || ' ' || trim(coalesce(pr.dlign6, '')) AS p_adresse,
+            -- the lines 4 to 6 of the address separated by spaces, without the empty ones
+            concat_ws(
+                ' ',
+                nullif(ltrim(trim(pr.dlign4), '0'), ''), nullif(trim(pr.dlign5), ''), nullif(trim(pr.dlign6), '')
+            ) AS p_adresse,
         ";
+        // Birth data, masked like in the fiche parcellaire without the right to see them
         if (!$forThirdParty) {
             $sql .= "
             coalesce( trim(cast(pr.jdatnss AS text) ), '-') AS p_date_naissance,
             coalesce(trim(pr.dldnss), '-') AS p_lieu_naissance,
+            ";
+        } else {
+            $sql .= "
+            'XX/XX/XXXX' AS p_date_naissance,
+            'XXX' AS p_lieu_naissance,
             ";
         }
         $sql .= "
@@ -241,20 +412,7 @@ class cadastreExtraInfos
             p.parcelle IN ( ' . $this->getParcelleIdsSql($parcelle_ids) . ' )
         ';
 
-        $filterConfig = cadastreConfig::getFilterByLogin($this->repository, $this->project, $this->config->parcelle->id);
-        $layerSql = cadastreConfig::getLayerSql($this->repository, $this->project, $this->config->parcelle->id);
-        $polygonFilter = cadastreConfig::getPolygonFilter($this->repository, $this->project, $this->config->parcelle->id);
-
-        if ($filterConfig !== null) {
-            $sql .= ' AND ';
-            $sql .= $this->getFilterSql($filterConfig);
-        }
-        if ($layerSql) {
-            $sql .= ' AND (' . $layerSql . ')';
-        }
-        if ($polygonFilter) {
-            $sql .= ' AND (' . $polygonFilter . ')';
-        }
+        $sql .= $this->getLayerFiltersSql();
 
         return $sql;
     }
@@ -305,11 +463,16 @@ class cadastreExtraInfos
             ) AS adresse_complete,
         ";
 
-        // Ajout des informations de naissance
+        // Ajout des informations de naissance, masquées sans le droit comme dans la fiche parcellaire
         if (!$forThirdParty) {
             $sql .= "
                 coalesce( trim(cast(pr.jdatnss AS text) ), '-') AS date_naissance,
                 coalesce(trim(pr.dldnss), '-') AS lieu_naissance,
+                ";
+        } else {
+            $sql .= "
+                'XX/XX/XXXX' AS date_naissance,
+                'XXX' AS lieu_naissance,
                 ";
         }
         $sql .= "
@@ -366,20 +529,7 @@ class cadastreExtraInfos
         // Seulement le principal ou les usufruitiers ?
         // Seulement les peronnes physiques ou tout le monde ?
 
-        $filterConfig = cadastreConfig::getFilterByLogin($this->repository, $this->project, $this->config->parcelle->id);
-        $layerSql = cadastreConfig::getLayerSql($this->repository, $this->project, $this->config->parcelle->id);
-        $polygonFilter = cadastreConfig::getPolygonFilter($this->repository, $this->project, $this->config->parcelle->id);
-
-        if ($filterConfig !== null) {
-            $sql .= ' AND ';
-            $sql .= $this->getFilterSql($filterConfig);
-        }
-        if ($layerSql) {
-            $sql .= ' AND (' . $layerSql . ')';
-        }
-        if ($polygonFilter) {
-            $sql .= ' AND (' . $polygonFilter . ')';
-        }
+        $sql .= $this->getLayerFiltersSql();
 
         // Regroupement par propriétaire
         $sql .= '
@@ -485,8 +635,7 @@ class cadastreExtraInfos
 
         $profile = cadastreProfile::get($repository, $project, $parcelleLayer);
         $this->profile = $profile;
-        $sql = $this->getLocauxAndProprioSql($parcelle_ids, $withGeom, $forThirdParty);
-        $rows = $this->query($sql, array(), $profile);
+        $rows = $this->getExportRows('locaux', $parcelle_ids, $withGeom, $forThirdParty);
 
         return $this->buildCsv($rows);
     }
@@ -511,10 +660,7 @@ class cadastreExtraInfos
         $this->config = cadastreConfig::get($repository, $project);
         $profile = cadastreProfile::get($repository, $project, $parcelleLayer);
         $this->profile = $profile;
-        $sql = $this->getParcellesAndProprioSql($parcelle_ids, $withGeom, $forThirdParty, $intersectionData);
-
-        $parameters = array();
-        $rows = $this->query($sql, $parameters, $profile);
+        $rows = $this->getExportRows('proprietaires', $parcelle_ids, $withGeom, $forThirdParty, $intersectionData);
 
         return $this->buildCsv($rows);
     }

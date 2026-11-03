@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Changed
+
+* Exports CSV des locaux et des parcelles avec leurs propriétaires : ils sont produits par le plugin QGIS
+  cadastre de QGIS Server (requête `GetExport`) lorsqu'il la propose, pour les parcelles que l'utilisateur
+  peut voir. Sinon, les requêtes SQL du module sont utilisées, avec le même résultat
+* Les dates et lieux de naissance sont masqués (`XX/XX/XXXX`, `XXX`) sans le droit de les voir, au lieu de
+  retirer les colonnes, comme dans la fiche parcellaire
+
+### Fixed
+
+* Export CSV des locaux : l'adresse du local n'est plus vide pour une voie sans nature (RUE, CHE...),
+  le numéro de voirie n'est plus vide sans indice de répétition, et les lignes de l'adresse
+  du propriétaire sont séparées par des espaces
+
 ## 2.2.0 - 2026-11-02
 
 Version corrective de sécurité, compatible avec Lizmap Web Client 3.8 à 3.10 uniquement.

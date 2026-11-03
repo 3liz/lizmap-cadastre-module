@@ -212,4 +212,35 @@ class lizmapCadastreRequest extends OGCRequest
             'cached' => false,
         );
     }
+
+    public function process_getExport()
+    {
+        return $this->getExport();
+    }
+
+    /**
+     * Get the data of a CSV export from the QGIS plugin: the names of the columns and the rows.
+     *
+     * The request is sent with POST, the list of the parcelles can be long.
+     *
+     * @return object The response, with the decoded JSON as data
+     */
+    public function getExport()
+    {
+        // Access control
+        if (!jAcl2::check('cadastre.acces.donnees.proprio') && !jAcl2::check('cadastre.acces.donnees.proprio.simple')) {
+            jMessage::add('Cadastre - Droits insuffisants pour accéder aux données de propriété', 'Error');
+
+            return $this->serviceException();
+        }
+
+        $response = $this->request(true);
+
+        return (object) array(
+            'code' => $response->code,
+            'mime' => $response->mime,
+            'data' => json_decode($response->data),
+            'cached' => false,
+        );
+    }
 }

@@ -648,6 +648,7 @@ class serviceCtrl extends jController
                 }
                 if (count($selectedIds) > 0) {
                     $intersectionParams = array(
+                        'layerId' => $intersectionData->spatial_layer_id,
                         'field' => $spatialLayerInfo['field'],
                         'schema' => $spatialLayerInfo['schema'],
                         'table' => $spatialLayerInfo['table'],
