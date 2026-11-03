@@ -1105,41 +1105,33 @@ lizMap.events.on({
         ].join('\n');
 
         /**
-         * Print a HTML content in a new window, with the style of the fiche parcellaire.
+         * Print the detailed information of a parcelle in a new window, with the style of the fiche parcellaire.
          *
-         * @param {string} html The HTML content: the fiche parcellaire given by the QGIS plugin
+         * The window is opened during the click, otherwise the browser would block it. The fiche is written
+         * in it when it is received, then printed.
          *
-         * @returns {boolean} True
+         * @param {string} url URL of the fiche of the parcelle
          */
-        function printHtmlContent(html)
-        {
-            var print_window = window.open('', 'PRINT', 'height=400,width=600');
-
-            print_window.document.write('<html><head><title>' + document.title  + '</title>');
-            print_window.document.write('<style>' + CADASTRE_PRINT_CSS + '</style>');
-            print_window.document.write('</head><body >');
-            print_window.document.write('<h1>' + document.title  + '</h1>');
-            print_window.document.write(html);
-            print_window.document.write('</body></html>');
-
-            print_window.document.close(); // necessary for IE >= 10
-            print_window.focus(); // necessary for IE >= 10*/
-
-            print_window.print();
-            print_window.close();
-
-            return true;
-        }
-
         function printParcelleHtml(url) {
-            $.ajax({
-                type: 'POST',
-                url: url,
-                data: {type:'fiche'},
-                success: function (data) {
-                    printHtmlContent(data);
-                },
-                async:false // To avoid browser to block popup
+            var print_window = window.open('', 'PRINT', 'height=400,width=600');
+            if (!print_window) {
+                return;
+            }
+            print_window.document.write('<html><head><title>' + document.title + '</title>');
+            print_window.document.write('<style>' + CADASTRE_PRINT_CSS + '</style>');
+            print_window.document.write('</head><body><h1>' + document.title + '</h1>');
+            print_window.document.write('<p id="cadastre-print-wait">Chargement…</p></body></html>');
+            print_window.document.close();
+
+            $.post(url, {type: 'fiche'}, function (data) {
+                var body = print_window.document.body;
+                body.removeChild(print_window.document.getElementById('cadastre-print-wait'));
+                body.insertAdjacentHTML('beforeend', data);
+                print_window.focus();
+                print_window.print();
+                print_window.close();
+            }).fail(function () {
+                print_window.close();
             });
         }
 
@@ -1259,7 +1251,8 @@ lizMap.events.on({
                             }
 
 
-                            $('button.cadastre-export-parcelle.print').click(function() {
+                            // Print button of this popup only: the popup can display several parcelles
+                            popupButtonBar.find('button.cadastre-export-parcelle.print').click(function() {
                                 printParcelleHtml(link);
                             });
 

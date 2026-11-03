@@ -47,6 +47,12 @@
 
 ### Fixed
 
+* Recherche par adresse : les parcelles de la voie choisie sont de nouveau trouvées, ainsi que l'emprise de la voie
+  et les propriétaires de la voie. Le code de la voie de la table `voie`, issue du fichier TOPO, ne contient pas
+  le code `ccovoi` (`00000`), contrairement à celui des parcelles : seuls la commune et le code Rivoli sont
+  comparés, comme dans le plugin QGIS
+* Impression du détail de la parcelle : un clic sur le bouton n'imprime plus le détail de toutes les parcelles
+  de la popup, et la requête n'est plus synchrone (la fenêtre est ouverte au clic, puis remplie)
 * Export CSV des locaux : l'adresse du local n'est plus vide pour une voie sans nature (RUE, CHE...),
   le numéro de voirie n'est plus vide sans indice de répétition, et les lignes de l'adresse
   du propriétaire sont séparées par des espaces
