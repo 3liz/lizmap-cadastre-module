@@ -117,7 +117,7 @@ class lizmapCadastreRequest extends OGCRequest
     public function createPdf()
     {
         // Access control
-        if (!jAcl2::check('cadastre.acces.donnees.proprio') && !jAcl2::check('cadastre.acces.donnees.proprio.simple')) {
+        if (!cadastreRights::hasOwnersAccess()) {
             jMessage::add('Cadastre - Droits insuffisants pour accéder aux données de propriété', 'Error');
 
             return $this->serviceException();
@@ -161,7 +161,7 @@ class lizmapCadastreRequest extends OGCRequest
     public function getPdf()
     {
         // Access control
-        if (!jAcl2::check('cadastre.acces.donnees.proprio') && !jAcl2::check('cadastre.acces.donnees.proprio.simple')) {
+        if (!cadastreRights::hasOwnersAccess()) {
             jMessage::add('Cadastre - Droits insuffisants pour accéder aux données de propriété', 'Error');
 
             return $this->serviceException();
@@ -190,7 +190,7 @@ class lizmapCadastreRequest extends OGCRequest
     public function getHtml()
     {
         // Access control
-        if (!jAcl2::check('cadastre.acces.donnees.proprio') && !jAcl2::check('cadastre.acces.donnees.proprio.simple')) {
+        if (!cadastreRights::hasOwnersAccess()) {
             jMessage::add('Cadastre - Droits insuffisants pour accéder aux données de propriété', 'Error');
 
             return $this->serviceException();
@@ -228,7 +228,7 @@ class lizmapCadastreRequest extends OGCRequest
     public function getExport()
     {
         // Access control
-        if (!jAcl2::check('cadastre.acces.donnees.proprio') && !jAcl2::check('cadastre.acces.donnees.proprio.simple')) {
+        if (!cadastreRights::hasOwnersAccess()) {
             jMessage::add('Cadastre - Droits insuffisants pour accéder aux données de propriété', 'Error');
 
             return $this->serviceException();

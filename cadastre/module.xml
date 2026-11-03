@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module xmlns="http://jelix.org/ns/module/1.0">
     <info id="cadastre" name="cadastre" createdate="2016-07-07">
-        <version date="2026-11-02">2.2.0</version>
+        <version date="2026-11-03">2.3.0-pre</version>
         <label lang="en_US">cadastre</label>
         <description lang="en_US" />
         <license URL="">Mozilla Public Licence (MPL)</license>
@@ -16,5 +16,6 @@
         <class name="lizmapCadastreRequest" file="classes/lizmapCadastreRequest.class.php" />
         <class name="cadastreConfig" file="classes/cadastreConfig.class.php" />
         <class name="cadastreProfile" file="classes/cadastreProfile.class.php" />
+        <class name="cadastreRights" file="classes/cadastreRights.class.php" />
     </autoload>
 </module>

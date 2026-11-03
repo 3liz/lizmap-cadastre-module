@@ -839,16 +839,18 @@ lizMap.events.on({
                 var parcellePks = $.map(data.features, function (feat) {
                     return feat.properties[cadastreConfig.pk];
                 });
-                downloadFile(
-                    href,
-                    {
-                        parcelles: parcellePks.join(),
-                        layer: cadastreConfig.layer,
-                        repository: lizUrls.params.repository,
-                        project: lizUrls.params.project,
-                        additionalData: additionalData
-                    }
-                );
+                var parameters = {
+                    parcelles: parcellePks.join(),
+                    layer: cadastreConfig.layer,
+                    repository: lizUrls.params.repository,
+                    project: lizUrls.params.project,
+                    additionalData: additionalData
+                };
+                // Export for a third party, without sensitive data, unless the box is unchecked.
+                // The server checks the rights again
+                var forThirdParty = $('#cadastre-export-tiers');
+                parameters['tiers'] = (forThirdParty.length && !forThirdParty.is(':checked')) ? '0' : '1';
+                downloadFile(href, parameters);
             });
         }
 
@@ -856,16 +858,6 @@ lizMap.events.on({
         // des parcelles sélectionnées
         if ($('#cadastre-export-locaux-proprios').length != 0) {
             $('#cadastre-export-locaux-proprios').click(function () {
-                try {
-                    getSelectedParcellesData($(this).attr('href'));
-                } catch (e) {
-                    console.log(e);
-                }
-                return false;
-            });
-        }
-        if ($('#cadastre-export-locaux-proprios-simple').length != 0) {
-            $('#cadastre-export-locaux-proprios-simple').click(function () {
                 try {
                     getSelectedParcellesData($(this).attr('href'));
                 } catch (e) {
@@ -918,17 +910,6 @@ lizMap.events.on({
                 return false;
             });
         }
-        if ($('#cadastre-export-parcelles-proprios-simple').length != 0) {
-            $('#cadastre-export-parcelles-proprios-simple').click(function () {
-                try {
-                    const intersectionDataJson = getSpatialFormData();
-                    getSelectedParcellesData($(this).attr('href'), intersectionDataJson);
-                } catch (e) {
-                    console.log(e);
-                }
-                return false;
-            });
-        }
 
         initCadastreForm();
     },
@@ -944,7 +925,9 @@ lizMap.events.on({
         if (!cadastreConfig.layer)
             return;
 
-        if (!cadastreConfig.advanced)
+        // The buttons and the tabs need the access to the owners, then each one has its right
+        var rights = cadastreConfig.rights || {};
+        if (!rights.owners)
             return;
 
         if ($('#jforms_cadastre_search_has_majic').length) {
@@ -1044,6 +1027,48 @@ lizMap.events.on({
             });
         }
 
+        /**
+         * Build the HTML of the button of a relevé in the toolbar of the popup.
+         *
+         * With at least one right on the sensitive data, the button opens a dropdown menu to choose the relevé
+         * with the sensitive data allowed by the rights, or for a third party without them. It uses the dropdown
+         * of Bootstrap 5 (Lizmap 3.10 and above) or of Bootstrap 2 (before). Without right on the sensitive data,
+         * the button opens the relevé for a third party. The server checks the rights again.
+         *
+         * @param {string} link   URL of the relevés of the parcelle
+         * @param {string} type   Type of relevé: parcelle or proprietaire
+         * @param {string} title  Title of the button
+         * @param {string} icon   Class of the icon of the button
+         * @param {object} rights Rights of the user, see cadastreRights::forJavaScript()
+         *
+         * @returns {string} The HTML of the button
+         */
+        function releveButtonHtml(link, type, title, icon, rights) {
+            var href = link + '&type=' + type;
+            var buttonClass = 'btn btn-mini btn-sm cadastre-export-parcelle ' + type;
+            if (!rights.exportSensitive) {
+                return '<a href="' + href + '&tiers=1" class="' + buttonClass + '" target="_blank" title="' + title + '">'
+                    + '<i class="' + icon + '"></i>&nbsp;</a>';
+            }
+
+            var bootstrap5 = (typeof window.bootstrap !== 'undefined' && typeof window.bootstrap.Dropdown !== 'undefined');
+            // Static display: the dropdown of Bootstrap 5 does not need Popper
+            var toggle = bootstrap5 ? 'data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false"' : 'data-toggle="dropdown"';
+            // Bootstrap 5 adds the caret itself
+            var caret = bootstrap5 ? '' : ' <span class="caret"></span>';
+            var itemClass = bootstrap5 ? ' class="dropdown-item"' : '';
+
+            var html = '<div class="btn-group cadastre-releve">';
+            html += '<a href="#" class="' + buttonClass + ' dropdown-toggle" ' + toggle + ' title="' + title + '">';
+            html += '<i class="' + icon + '"></i>' + caret + '</a>';
+            html += '<ul class="dropdown-menu">';
+            html += '<li><a' + itemClass + ' href="' + href + '&tiers=0" target="_blank">Avec les données que je peux voir</a></li>';
+            html += '<li><a' + itemClass + ' href="' + href + '&tiers=1" target="_blank">Pour un tiers (sans données sensibles)</a></li>';
+            html += '</ul></div>';
+
+            return html;
+        }
+
         function addCadastreToolsInfos(self) {
             var val = self.val();
             var eHtml = '';
@@ -1077,28 +1102,21 @@ lizMap.events.on({
                             var feat = format.read(data.features[0])[0];
                             link += '&parcelle=' + feat.attributes[cadastreConfig.pk];
 
-                            // Add buttons
+                            // Add buttons, according to the rights of the user
                             eHtml = ''
-                            // Export parcelle to PDF
-                            eHtml += '<a href="';
-                            eHtml += link + '&type=parcelle-tiers';
-                            eHtml += '" class="btn btn-mini cadastre-export-parcelle parcelle-tiers" target="_blank" title="Relevé parcellaire pour un tiers"><i class="icon-file"></i>&nbsp;</a>';
-
-                            if (cadastreConfig['advanced']) {
+                            if (rights.releveParcellaire) {
                                 // Export parcelle to PDF
-                                eHtml += '<a href="';
-                                eHtml += link + '&type=parcelle';
-                                eHtml += '" class="btn btn-mini cadastre-export-parcelle parcelle" target="_blank" title="Relevé parcellaire"><i class="icon-file"></i>&nbsp;</a>';
-
-                                // Export propriétaire to PDF
-                                eHtml += '<a href="';
-                                eHtml += link + '&type=proprietaire';
-                                eHtml += '" class="btn btn-mini cadastre-export-parcelle proprietaire" target="_blank" title="Relevé de propriété"><i class="icon-book"></i>&nbsp;</a>';
+                                eHtml += releveButtonHtml(link, 'parcelle', 'Relevé parcellaire', 'icon-file', rights);
                             }
-
-                            // Print Parcelle info HTML detail
-                            eHtml += '<button class="btn btn-mini cadastre-export-parcelle print" title="Imprimer le détail">';
-                            eHtml += '<i class="icon-print"></i>&nbsp;</button>';
+                            if (rights.relevePropriete) {
+                                // Export propriétaire to PDF
+                                eHtml += releveButtonHtml(link, 'proprietaire', 'Relevé de propriété', 'icon-book', rights);
+                            }
+                            if (rights.popupTabs) {
+                                // Print Parcelle info HTML detail
+                                eHtml += '<button class="btn btn-mini cadastre-export-parcelle print" title="Imprimer le détail">';
+                                eHtml += '<i class="icon-print"></i>&nbsp;</button>';
+                            }
 
                             if ('attributeLayers' in config && cadastreLayer in config.attributeLayers) {
                                 eHtml += '<button class="btn btn-mini cadastre-select-parcelle-proprietaire" target="_blank" value="';
@@ -1121,33 +1139,37 @@ lizMap.events.on({
                             } else {
                                 eHtml = '<span class="popupButtonBar">' + eHtml + '</span></br>';
                                 self.after(eHtml);
+                                popupButtonBar = self.next('span.popupButtonBar');
                             }
+
 
                             $('button.cadastre-export-parcelle.print').click(function() {
                                 printParcelleHtml(link);
                             });
 
-                            // Get Extra content
-                            $.post(link, {type:'fiche'}, function (data) {
-                                var data_object = $(data);
-                                if (data_object[0].localName == 'h2') {
-                                    // Create empty container for the main div, the tab li and content
-                                    var html_parsing_result = parseParcelleHtmlFromPlugin(
-                                        data_object,
-                                        feat.attributes[cadastreConfig.pk]
-                                    );
-                                    var contentContainer = html_parsing_result[0];
-                                    var firstTab = html_parsing_result[1];
-                                    self.parent().append(contentContainer);
+                            // Get Extra content: the tabs of the detailed information, with their right
+                            if (rights.popupTabs) {
+                                $.post(link, {type:'fiche'}, function (data) {
+                                    var data_object = $(data);
+                                    if (data_object[0].localName == 'h2') {
+                                        // Create empty container for the main div, the tab li and content
+                                        var html_parsing_result = parseParcelleHtmlFromPlugin(
+                                            data_object,
+                                            feat.attributes[cadastreConfig.pk]
+                                        );
+                                        var contentContainer = html_parsing_result[0];
+                                        var firstTab = html_parsing_result[1];
+                                        self.parent().append(contentContainer);
 
-                                    // Activate first tab
-                                    self.parent().find('.nav-tabs a[href="#' + firstTab + '"]').tab('show');
-                                } else {
-                                    self.parent().append(data_object);
-                                }
-                            }).fail(function () {
-                                console.log('fail cadastre fiche');
-                            });
+                                        // Activate first tab
+                                        self.parent().find('.nav-tabs a[href="#' + firstTab + '"]').tab('show');
+                                    } else {
+                                        self.parent().append(data_object);
+                                    }
+                                }).fail(function () {
+                                    console.log('fail cadastre fiche');
+                                });
+                            }
                         }
                         $('body').css('cursor', 'auto');
                         return false;

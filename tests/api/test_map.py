@@ -28,13 +28,32 @@ def cadastre_config(html: str) -> dict:
     return json.loads(match.group(1))
 
 
-@pytest.mark.parametrize("session, advanced", [("anonymous", False), ("user", False), ("admin", True)])
-def test_map(request: pytest.FixtureRequest, session: str, advanced: bool):
-    """The search tool is given to everybody, the full owners data only to admin"""
+# Rights given to the JavaScript, see cadastreRights::forJavaScript()
+RIGHTS = [
+    "owners", "birth", "revenue", "exoneration", "releveParcellaire", "relevePropriete", "popupTabs", "exportSensitive",
+]
+
+
+@pytest.mark.parametrize(
+    "session, rights",
+    [
+        ("anonymous", []),
+        ("user", ["owners"]),
+        ("agent", ["owners", "birth", "releveParcellaire", "popupTabs", "exportSensitive"]),
+        ("admin", RIGHTS),
+    ],
+)
+def test_map(request: pytest.FixtureRequest, session: str, rights: list[str]):
+    """The search tool is given to everybody, the owners to users, all the rights to admin"""
     html = map_page(request.getfixturevalue(session))
     config = cadastre_config(html)
     assert config["layer"] == PROJECT["layer"]
     assert config["pk"] == "geo_parcelle"
-    assert config["advanced"] is advanced
+    assert config["rights"] == {name: name in rights for name in RIGHTS}
     # Search dock, see cadastreDockable.listener.php
     assert "jforms_cadastre_search" in html
+    # The box "Exporter pour un tiers", unchecked and enabled, only with a right on the sensitive data
+    box = re.search(r'<input type="checkbox" id="cadastre-export-tiers"([^>]*)>', html)
+    assert (box is not None) is ("exportSensitive" in rights)
+    if box:
+        assert "checked" not in box.group(1) and "disabled" not in box.group(1)

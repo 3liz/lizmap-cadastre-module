@@ -49,7 +49,7 @@ class cadastreDockableListener extends jEventListener
         $searchForm->setData('parcelleLayerId', $parcelleId);
         $hasMajic = '0';
         if ($hasProprietaire
-            && (jAcl2::check('cadastre.acces.donnees.proprio') || jAcl2::check('cadastre.acces.donnees.proprio.simple'))) {
+            && cadastreRights::hasOwnersAccess()) {
             $hasMajic = '1';
         }
         $searchForm->setData('has_majic', $hasMajic);
@@ -104,6 +104,8 @@ class cadastreDockableListener extends jEventListener
         $assign = array(
             'form' => $searchForm,
             'has_majic' => $hasMajic,
+            // Rights of the user, for the check boxes of the sensitive data of the exports
+            'rights' => cadastreRights::forJavaScript(),
         );
         $content = array('cadastre~cadastre_search', $assign);
 

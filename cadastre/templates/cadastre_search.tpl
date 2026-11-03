@@ -82,28 +82,19 @@
   {if $has_majic === '1'}
   <div>
     <h4 style="border: 1px solid darkgray; border-bottom-color: transparent; margin-bottom: 0; padding: 5px; font-size: 13px;">Données des parcelles sélectionnées</h4>
-      <div style="border: 1px solid lightgrey; padding: 5px;">
-        <h5>Parcelles et propriétaires</h5>
-        <p>
-          <a id="cadastre-export-parcelles-proprios-simple" class="btn" href="{jurl 'cadastre~service:parcellesProprios'}">Pour
-            un tiers <i class="icon-download-alt"></i></a>
-          {ifacl2 'cadastre.acces.donnees.proprio'}
-          <a id="cadastre-export-parcelles-proprios" class="btn"
-            href="{jurl 'cadastre~service:parcellesProprios', array('advanced'=>'1')}">Complet <i
-              class="icon-download-alt"></i></a>
-          {/ifacl2}
-        </p>
-      </div>
     <div style="border: 1px solid lightgrey; padding: 5px;">
-      <h5>Locaux et propriétaires</h5>
+      {if $rights['exportSensitive']}
+      <label class="checkbox"><input type="checkbox" id="cadastre-export-tiers"> Exporter pour un tiers</label>
+      <p class="cadastre-export-warning"><strong>Attention :</strong> les dates et lieux de naissance, les revenus
+        et les exonérations sont des données personnelles et fiscales protégées. Le fichier contient celles que vos
+        droits vous permettent de voir. Cochez « Exporter pour un tiers » pour les masquer, en particulier si
+        le fichier doit être transmis à une personne qui n'est pas autorisée à les connaître.</p>
+      {/if}
       <p>
-        <a id="cadastre-export-locaux-proprios-simple" class="btn" href="{jurl 'cadastre~service:locauxProprios'}">Pour
-          un tiers <i class="icon-download-alt"></i></a>
-        {ifacl2 'cadastre.acces.donnees.proprio'}
-        <a id="cadastre-export-locaux-proprios" class="btn"
-          href="{jurl 'cadastre~service:locauxProprios', array('advanced'=>'1')}">Complet <i
-            class="icon-download-alt"></i></a>
-        {/ifacl2}
+        <a id="cadastre-export-parcelles-proprios" class="btn" href="{jurl 'cadastre~service:parcellesProprios'}">Parcelles
+          et propriétaires <i class="icon-download-alt"></i></a>
+        <a id="cadastre-export-locaux-proprios" class="btn" href="{jurl 'cadastre~service:locauxProprios'}">Locaux
+          et propriétaires <i class="icon-download-alt"></i></a>
       </p>
     </div>
   </div>

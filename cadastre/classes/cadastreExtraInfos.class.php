@@ -229,26 +229,28 @@ class cadastreExtraInfos
      * @param object     $p                The Lizmap project
      * @param string     $type             The type of export: locaux or proprietaires
      * @param array      $parcelle_ids     The ids of the parcelles the user can see
-     * @param bool       $forThirdParty    Without the birth data, which are masked
+     * @param array      $sensitive        The sensitive data given in the export, see cadastreRights::sensitiveData()
      * @param null|array $intersectionData The objects selected by the spatial search (optional)
      *
      * @return array The rows, as objects with the names of the columns as properties
      *
      * @throws Exception if the plugin did not return the export
      */
-    protected function getPluginExportRows($p, $type, $parcelle_ids, $forThirdParty, $intersectionData = null)
+    protected function getPluginExportRows($p, $type, $parcelle_ids, $sensitive, $intersectionData = null)
     {
         if (count($parcelle_ids) == 0) {
             return array();
         }
-        $params = array(
-            'service' => 'CADASTRE',
-            'version' => '1.0.0',
-            'request' => 'GetExport',
-            'layer' => $this->config->parcelle->name,
-            'type' => $type,
-            'parcelles' => implode(',', $parcelle_ids),
-            'birth' => $forThirdParty ? '0' : '1',
+        $params = array_merge(
+            array(
+                'service' => 'CADASTRE',
+                'version' => '1.0.0',
+                'request' => 'GetExport',
+                'layer' => $this->config->parcelle->name,
+                'type' => $type,
+                'parcelles' => implode(',', $parcelle_ids),
+            ),
+            cadastreRights::pluginParameters($sensitive)
         );
         if ($intersectionData !== null && is_array($intersectionData)) {
             $params['spatial_layer'] = $intersectionData['layerId'];
@@ -281,12 +283,12 @@ class cadastreExtraInfos
      * @param string     $type             The type of export: locaux or proprietaires
      * @param array      $parcelle_ids     The ids of parcelles
      * @param bool       $withGeom         With geometry data, only with the SQL queries of the module
-     * @param bool       $forThirdParty    Without infos for third party
+     * @param array      $sensitive        The sensitive data given in the export, see cadastreRights::sensitiveData()
      * @param null|array $intersectionData The objects selected by the spatial search (optional)
      *
      * @return array The rows
      */
-    protected function getExportRows($type, $parcelle_ids, $withGeom, $forThirdParty, $intersectionData = null)
+    protected function getExportRows($type, $parcelle_ids, $withGeom, $sensitive, $intersectionData = null)
     {
         $p = lizmap::getProject($this->repository . '~' . $this->project);
         jClasses::inc('cadastre~lizmapCadastreRequest');
@@ -294,13 +296,15 @@ class cadastreExtraInfos
             try {
                 $ids = $this->getFilteredParcelleIds($parcelle_ids);
 
-                return $this->getPluginExportRows($p, $type, $ids, $forThirdParty, $intersectionData);
+                return $this->getPluginExportRows($p, $type, $ids, $sensitive, $intersectionData);
             } catch (Exception $e) {
                 // Use the SQL queries of the module
                 jLog::logEx($e, 'error');
             }
         }
 
+        // The SQL queries of the module only have the birth data among the sensitive data
+        $forThirdParty = empty($sensitive['birth']);
         if ($type == 'locaux') {
             $sql = $this->getLocauxAndProprioSql($parcelle_ids, $withGeom, $forThirdParty);
         } else {
@@ -623,11 +627,11 @@ class cadastreExtraInfos
      * @param mixed  $parcelleLayer
      * @param array  $parcelle_ids  The ids of parcelles
      * @param bool   $withGeom      With geometry data (optional)
-     * @param bool   $forThirdParty Without infos for third party (optional)
+     * @param array  $sensitive     The sensitive data given in the export, see cadastreRights::sensitiveData()
      *
      * @return string The CSV file path
      */
-    public function getLocauxAndProprioInfos($repository, $project, $parcelleLayer, $parcelle_ids, $withGeom = false, $forThirdParty = false)
+    public function getLocauxAndProprioInfos($repository, $project, $parcelleLayer, $parcelle_ids, $withGeom = false, $sensitive = array())
     {
         $this->repository = $repository;
         $this->project = $project;
@@ -635,7 +639,7 @@ class cadastreExtraInfos
 
         $profile = cadastreProfile::get($repository, $project, $parcelleLayer);
         $this->profile = $profile;
-        $rows = $this->getExportRows('locaux', $parcelle_ids, $withGeom, $forThirdParty);
+        $rows = $this->getExportRows('locaux', $parcelle_ids, $withGeom, $sensitive);
 
         return $this->buildCsv($rows);
     }
@@ -648,19 +652,19 @@ class cadastreExtraInfos
      * @param mixed      $parcelleLayer
      * @param array      $parcelle_ids     The ids of parcelles
      * @param bool       $withGeom         With geometry data (optional)
-     * @param bool       $forThirdParty    Without infos for third party (optional)
+     * @param array      $sensitive        The sensitive data given in the export, see cadastreRights::sensitiveData()
      * @param null|array $intersectionData Array containing needed parameters used to get intersected layer data
      *
      * @return string The CSV file path
      */
-    public function getParcellesAndProprioInfos($repository, $project, $parcelleLayer, $parcelle_ids, $withGeom = false, $forThirdParty = false, $intersectionData = null)
+    public function getParcellesAndProprioInfos($repository, $project, $parcelleLayer, $parcelle_ids, $withGeom = false, $sensitive = array(), $intersectionData = null)
     {
         $this->repository = $repository;
         $this->project = $project;
         $this->config = cadastreConfig::get($repository, $project);
         $profile = cadastreProfile::get($repository, $project, $parcelleLayer);
         $this->profile = $profile;
-        $rows = $this->getExportRows('proprietaires', $parcelle_ids, $withGeom, $forThirdParty, $intersectionData);
+        $rows = $this->getExportRows('proprietaires', $parcelle_ids, $withGeom, $sensitive, $intersectionData);
 
         return $this->buildCsv($rows);
     }

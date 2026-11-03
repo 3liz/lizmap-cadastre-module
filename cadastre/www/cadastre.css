@@ -69,3 +69,8 @@ div.cadastre-popup-tab-container div.tab-pane h4
     margin: 2px !important;
     font-weight: bold !important;
 }
+
+/* Dropdown of the choice of a relevé, in the toolbar of the popup: aligned with the other buttons */
+.popupButtonBar .btn-group.cadastre-releve {
+    vertical-align: middle;
+}

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Security
+
+* Export PDF asynchrone d'un propriétaire (script `standalone/export.py` du plugin) : les paramètres de la commande
+  sont échappés et l'identifiant de parcelle est validé, ils permettaient une injection de commande
+
 ### Changed
 
 * Exports CSV des locaux et des parcelles avec leurs propriétaires : ils sont produits par le plugin QGIS
@@ -9,6 +14,22 @@
   peut voir. Sinon, les requêtes SQL du module sont utilisées, avec le même résultat
 * Les dates et lieux de naissance sont masqués (`XX/XX/XXXX`, `XXX`) sans le droit de les voir, au lieu de
   retirer les colonnes, comme dans la fiche parcellaire
+
+* Nouveaux droits, à la place de « Accéder aux données de propriétaires avancées » :
+  * données sensibles, comme dans le plugin QGIS : dates et lieux de naissance, revenus, exonérations fiscales
+  * fonctions : relevé parcellaire, relevé de propriété, onglets d'informations détaillées dans la popup
+* Le droit « Accéder aux données de propriétaires simplifiées » devient « Accéder aux données des propriétaires
+  (noms et adresses) »
+* Migration lors de la mise à jour : les groupes qui avaient le droit avancé reçoivent tous les nouveaux droits,
+  rien ne change pour les utilisateurs. Avec le seul droit simplifié, toujours pas de relevés PDF ni d'onglets
+  sous la popup
+* Exports CSV : un seul bouton « Parcelles et propriétaires » et un seul « Locaux et propriétaires ». Ils contiennent
+  les données sensibles autorisées par les droits de l'utilisateur, sauf si la case « Exporter pour un tiers »,
+  décochée par défaut, est cochée. La case n'est affichée qu'avec au moins un droit sur les données sensibles
+* Popup : le bouton « Relevé parcellaire pour un tiers » est supprimé. Avec au moins un droit sur les données
+  sensibles, un clic sur un bouton de relevé propose de le produire « Avec les données que je peux voir » ou
+  « Pour un tiers (sans données sensibles) ». Sans droit sur les données sensibles, le relevé est produit
+  directement, pour un tiers
 
 ### Fixed
 

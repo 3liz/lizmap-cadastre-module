@@ -26,7 +26,7 @@ class serviceCtrl extends jController
 
         $rep = $this->getResponse('json');
 
-        if (!jAcl2::check('cadastre.acces.donnees.proprio') && !jAcl2::check('cadastre.acces.donnees.proprio.simple')) {
+        if (!cadastreRights::hasOwnersAccess()) {
             $rep->data = array('status' => 'error', 'message' => 'Vous n\'avez pas les droits pour voir les données de propriété.');
 
             return $rep;
@@ -80,27 +80,42 @@ class serviceCtrl extends jController
             return $rep;
         }
 
+        // Each type needs its right: the fiche is displayed in the tabs of the popup and printed from it.
+        // The fiche shows the sensitive data allowed by the rights. The relevés are for a third party,
+        // without sensitive data, by default (box "Pour un tiers"), otherwise with the ones allowed by the rights
         if ($type == 'fiche') {
-            $creq = 'getHtml';
-        // jLog::log($creq);
+            $sensitive = cadastreRights::sensitiveData();
         } else {
-            $creq = 'createPdf';
+            $sensitive = cadastreRights::exportSensitiveData($this->param('tiers', '1') !== '0');
         }
-        $advanced = jAcl2::check('cadastre.acces.donnees.proprio');
         if ($type == 'parcelle-tiers') {
-            $advanced = false;
+            // Former relevé parcellaire for a third party, without sensitive data
             $type = 'parcelle';
+            $sensitive = cadastreRights::sensitiveData(array());
         }
+        $typeRights = array(
+            'fiche' => cadastreRights::POPUP_TABS,
+            'parcelle' => cadastreRights::RELEVE_PARCELLAIRE,
+            'proprietaire' => cadastreRights::RELEVE_PROPRIETE,
+        );
+        if (!array_key_exists($type, $typeRights) || !jAcl2::check($typeRights[$type])) {
+            $rep->data = array('status' => 'error', 'message' => 'Vous n\'avez pas les droits pour cette fonction.');
+
+            return $rep;
+        }
+        $creq = ($type == 'fiche') ? 'getHtml' : 'createPdf';
         $request = new lizmapCadastreRequest(
             $p,
-            array(
-                'service' => 'CADASTRE',
-                'version' => '1.0.0',
-                'request' => $creq,
-                'layer' => $parcelleLayer,
-                'parcelle' => $parcelleId,
-                'type' => $type,
-                'advanced' => $advanced,
+            array_merge(
+                array(
+                    'service' => 'CADASTRE',
+                    'version' => '1.0.0',
+                    'request' => $creq,
+                    'layer' => $parcelleLayer,
+                    'parcelle' => $parcelleId,
+                    'type' => $type,
+                ),
+                cadastreRights::pluginParameters($sensitive)
             )
         );
         $result = $request->process();
@@ -250,8 +265,15 @@ class serviceCtrl extends jController
         $p = lizmap::getProject($repository . '~' . $project);
 
         // checks
-        if (!jAcl2::check('cadastre.acces.donnees.proprio') && !jAcl2::check('cadastre.acces.donnees.proprio.simple')) {
+        if (!cadastreRights::hasOwnersAccess() || !jAcl2::check(cadastreRights::RELEVE_PROPRIETE)) {
             $rep->data = array('status' => 'error', 'message' => 'Vous n\'avez pas les droits pour voir les données de propriété.');
+
+            return $rep;
+        }
+        // The parameters are used in a shell command
+        jClasses::inc('cadastre~cadastreExtraInfos');
+        if (!preg_match(cadastreExtraInfos::PARCELLE_ID_PATTERN, (string) $parcelleId)) {
+            $rep->data = array('status' => 'error', 'message' => 'Identifiant de parcelle invalide.');
 
             return $rep;
         }
@@ -268,14 +290,18 @@ class serviceCtrl extends jController
         // Create file path
         $log = jApp::tempPath($token . '.log');
 
-        // Run python code
-        $cmd = 'python3 ' . $standalone_python_script;
-        $cmd .= ' -P ' . $p->getQgisPath();
-        $cmd .= ' -L "' . $parcelleLayer . '"';
-        $cmd .= ' -I ' . $parcelleId;
-        $cmd .= ' -T ' . $type;
-        $cmd .= ' -D ' . jApp::tempPath();
-        $cmd .= ' -O ' . $log;
+        // Run python code, for a third party unless the box "Pour un tiers" was unchecked
+        $sensitive = cadastreRights::exportSensitiveData($this->param('tiers', '1') !== '0');
+        $cmd = 'python3 ' . escapeshellarg($standalone_python_script);
+        $cmd .= ' -P ' . escapeshellarg($p->getQgisPath());
+        $cmd .= ' -L ' . escapeshellarg($parcelleLayer);
+        $cmd .= ' -I ' . escapeshellarg($parcelleId);
+        $cmd .= ' -T ' . escapeshellarg($type);
+        $cmd .= ' -D ' . escapeshellarg(jApp::tempPath());
+        $cmd .= ' -O ' . escapeshellarg($log);
+        $cmd .= ' -N ' . ($sensitive['birth'] ? 'true' : 'false');
+        $cmd .= ' -R ' . ($sensitive['revenue'] ? 'true' : 'false');
+        $cmd .= ' -E ' . ($sensitive['exoneration'] ? 'true' : 'false');
         // jLog::log($cmd);
         $this->execInBackground($cmd);
 
@@ -310,7 +336,7 @@ class serviceCtrl extends jController
         $p = lizmap::getProject($repository . '~' . $project);
 
         // checks
-        if (!jAcl2::check('cadastre.acces.donnees.proprio') && !jAcl2::check('cadastre.acces.donnees.proprio.simple')) {
+        if (!cadastreRights::hasOwnersAccess()) {
             $rep->data = array('status' => 'error', 'message' => 'Vous n\'avez pas les droits pour voir les données de propriété.');
 
             return $rep;
@@ -397,7 +423,7 @@ class serviceCtrl extends jController
         $p = lizmap::getProject($repository . '~' . $project);
 
         // checks
-        if (!jAcl2::check('cadastre.acces.donnees.proprio') && !jAcl2::check('cadastre.acces.donnees.proprio.simple')) {
+        if (!cadastreRights::hasOwnersAccess()) {
             $rep->data = array('status' => 'error', 'message' => 'Vous n\'avez pas les droits pour voir les données de propriété.');
 
             return $rep;
@@ -462,7 +488,7 @@ class serviceCtrl extends jController
     {
         $rep = $this->getResponse('json');
 
-        if (!jAcl2::check('cadastre.acces.donnees.proprio') && !jAcl2::check('cadastre.acces.donnees.proprio.simple')) {
+        if (!cadastreRights::hasOwnersAccess()) {
             $rep->data = array(
                 'status' => 'error',
                 'message' => 'Vous n\'avez pas les droits pour voir les données de propriété.',
@@ -489,11 +515,9 @@ class serviceCtrl extends jController
             return $rep;
         }
         $withGeom = false;
-        $forThirdParty = true;
-        if (jAcl2::check('cadastre.acces.donnees.proprio')) {
-            $advanced = $this->param('advanced');
-            $forThirdParty = ($advanced !== '1');
-        }
+        // Export for a third party, without sensitive data, by default (box "Exporter pour un tiers"),
+        // otherwise with the ones allowed by the rights
+        $sensitive = cadastreRights::exportSensitiveData($this->param('tiers', '1') !== '0');
 
         /** @var jResponseBinary $rep */
         $rep = $this->getResponse('binary');
@@ -504,7 +528,7 @@ class serviceCtrl extends jController
 
         /** @var cadastreExtraInfos $extra_infos */
         $extra_infos = jClasses::getService('cadastre~cadastreExtraInfos');
-        $path = $extra_infos->getLocauxAndProprioInfos($repository, $project, $parcelleLayer, $parcelleIds, $withGeom, $forThirdParty);
+        $path = $extra_infos->getLocauxAndProprioInfos($repository, $project, $parcelleLayer, $parcelleIds, $withGeom, $sensitive);
 
         $rep->fileName = $path;
         $rep->deleteFileAfterSending = true;
@@ -577,7 +601,7 @@ class serviceCtrl extends jController
     {
         $rep = $this->getResponse('json');
 
-        if (!jAcl2::check('cadastre.acces.donnees.proprio') && !jAcl2::check('cadastre.acces.donnees.proprio.simple')) {
+        if (!cadastreRights::hasOwnersAccess()) {
             $rep->data = array(
                 'status' => 'error',
                 'message' => 'Vous n\'avez pas les droits pour voir les données de propriété.',
@@ -604,11 +628,9 @@ class serviceCtrl extends jController
             return $rep;
         }
         $withGeom = false;
-        $forThirdParty = true;
-        if (jAcl2::check('cadastre.acces.donnees.proprio')) {
-            $advanced = $this->param('advanced');
-            $forThirdParty = ($advanced !== '1');
-        }
+        // Export for a third party, without sensitive data, by default (box "Exporter pour un tiers"),
+        // otherwise with the ones allowed by the rights
+        $sensitive = cadastreRights::exportSensitiveData($this->param('tiers', '1') !== '0');
 
         /** @var jResponseBinary $rep */
         $rep = $this->getResponse('binary');
@@ -669,7 +691,7 @@ class serviceCtrl extends jController
             $parcelleLayer,
             $parcelleIds,
             $withGeom,
-            $forThirdParty,
+            $sensitive,
             $intersectionParams
         );
 
