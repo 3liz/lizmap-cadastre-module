@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Security
+
+* Export PDF asynchrone d'un propriétaire (script `standalone/export.py` du plugin) : les paramètres de la commande
+  sont échappés et l'identifiant de parcelle est validé, ils permettaient une injection de commande
+
 ### Changed
 
 * Exports CSV des locaux et des parcelles avec leurs propriétaires : ils sont produits par le plugin QGIS
@@ -9,6 +14,36 @@
   peut voir. Sinon, les requêtes SQL du module sont utilisées, avec le même résultat
 * Les dates et lieux de naissance sont masqués (`XX/XX/XXXX`, `XXX`) sans le droit de les voir, au lieu de
   retirer les colonnes, comme dans la fiche parcellaire
+
+* Nouveaux droits, à la place de « Accéder aux données de propriétaires avancées » :
+  * données sensibles, comme dans le plugin QGIS : dates et lieux de naissance, revenus, exonérations fiscales
+  * fonctions : relevé parcellaire, relevé de propriété, onglets d'informations détaillées dans la popup
+* Le droit « Accéder aux données de propriétaires simplifiées » devient « Accéder aux données des propriétaires
+  (noms et adresses) »
+* Migration lors de la mise à jour : les groupes qui avaient le droit avancé reçoivent tous les nouveaux droits,
+  rien ne change pour les utilisateurs. Avec le seul droit simplifié, toujours pas de relevés PDF ni d'onglets
+  sous la popup
+* Exports CSV : un seul bouton « Parcelles et propriétaires » et un seul « Locaux et propriétaires ». Ils contiennent
+  les données sensibles autorisées par les droits de l'utilisateur, sauf si la case « Exporter pour un tiers »,
+  décochée par défaut, est cochée. La case n'est affichée qu'avec au moins un droit sur les données sensibles
+* Popup : le bouton « Relevé parcellaire pour un tiers » est supprimé. Avec au moins un droit sur les données
+  sensibles, un clic sur un bouton de relevé propose de le produire « Avec les données que je peux voir » ou
+  « Pour un tiers (sans données sensibles) ». Sans droit sur les données sensibles, le relevé est produit
+  directement, pour un tiers
+
+* Lizmap Web Client 3.10 (Bootstrap 5) : les onglets du panneau de recherche et de la popup des parcelles
+  fonctionnent de nouveau, avec le style plat des formulaires de Lizmap. Les boutons de la popup sont
+  de petite taille. Dans les 3 onglets du formulaire de recherche, les étiquettes sont au-dessus
+  des champs de petite taille de Bootstrap 5
+* Panneau de recherche : un texte d'introduction au-dessus des onglets, et la description de l'onglet affiché
+* Lizmap Web Client 3.10 : les boutons de sélection (nouvelle sélection, ajouter, supprimer) et le zoom
+  du panneau de recherche fonctionnent de nouveau
+* L'icône du titre du panneau de recherche s'affiche de nouveau
+* Le contenu des onglets de la popup défile dans l'onglet au lieu de déborder sur les popups suivantes
+* Onglets de la popup : même aspect que la fiche parcellaire dans QGIS, avec les titres et les en-têtes
+  des tableaux en bleu, des bordures fines et un gris léger sur une ligne sur deux
+* Impression du détail de la parcelle (bouton de la popup) : elle a le même style que les onglets,
+  au lieu d'un contenu sans style
 
 ### Fixed
 

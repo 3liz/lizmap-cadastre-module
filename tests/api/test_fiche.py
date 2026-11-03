@@ -6,11 +6,11 @@ import requests
 from conftest import BASE_URL, COPROPRIETE, PROJECT
 
 
-def fiche(session: requests.Session, type: str) -> requests.Response:
+def fiche(session: requests.Session, type: str, **params: str) -> requests.Response:
     """Call the module for the fiche (HTML) or a relevé (PDF) of the copropriété"""
     return session.get(
         f"{BASE_URL}/index.php/cadastre/service/getCadastrePdf",
-        params={**PROJECT, "parcelle": COPROPRIETE, "type": type},
+        params={**PROJECT, "parcelle": COPROPRIETE, "type": type, **params},
     )
 
 
@@ -20,19 +20,39 @@ def test_anonymous(anonymous: requests.Session):
 
 
 def test_fiche(user: requests.Session, admin: requests.Session):
-    """The birth dates are masked without the full rights"""
-    html = fiche(user, "fiche").text
-    assert "<h2>Parcelle</h2>" in html
-    assert "XX/XX/XXXX" in html
+    """The fiche needs the right on the tabs of the popup, the sensitive data their own rights"""
+    assert fiche(user, "fiche").json()["status"] == "error"
 
     html = fiche(admin, "fiche").text
+    assert "<h2>Parcelle</h2>" in html
     assert "Date de naissance" in html
     assert "XX/XX/XXXX" not in html
 
 
-@pytest.mark.parametrize("type", ["parcelle", "proprietaire"])
-def test_releve(user: requests.Session, type: str):
-    """The relevé is a PDF file"""
-    response = fiche(user, type)
+@pytest.mark.parametrize("type", ["parcelle", "proprietaire", "parcelle-tiers"])
+def test_releve(user: requests.Session, admin: requests.Session, type: str):
+    """The relevés need their rights, they are PDF files"""
+    assert fiche(user, type).json()["status"] == "error"
+
+    response = fiche(admin, type)
     assert response.headers["Content-Type"] == "application/pdf"
     assert response.content.startswith(b"%PDF")
+
+
+def test_separate_rights(agent: requests.Session):
+    """Each right is given separately: birth data without revenues, relevé parcellaire without relevé de propriété"""
+    html = fiche(agent, "fiche").text
+    assert "Date de naissance" in html and "XX/XX/XXXX" not in html
+    # The revenues of the locaux are masked
+    assert "XXX" in html
+
+    assert fiche(agent, "parcelle").headers["Content-Type"] == "application/pdf"
+    assert fiche(agent, "proprietaire").json()["status"] == "error"
+
+
+@pytest.mark.parametrize("tiers", ["0", "1"])
+def test_releve_tiers(agent: requests.Session, admin: requests.Session, tiers: str):
+    """The box "Pour un tiers" of the popup gives the parameter tiers: the server gives the sensitive data allowed
+    by the rights only without it (the text of the PDF cannot be read by the tests)"""
+    for session in (agent, admin):
+        assert fiche(session, "parcelle", tiers=tiers).headers["Content-Type"] == "application/pdf"

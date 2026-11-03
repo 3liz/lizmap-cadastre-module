@@ -179,19 +179,35 @@ import-lizmap-acl:
 		php lizmap/console.php acl2:add __anonymous "lizmap.tools.layer.export" tests ; \
 		php lizmap/console.php acl2:add users "lizmap.tools.layer.export" tests ; \
 		php lizmap/console.php acl2:add admins "lizmap.tools.layer.export" tests'
-	@echo "Cadastre: search for everybody, owners without birth data for users, full data for admins"
+	@echo "Cadastre: search for everybody, owners (names and addresses) only for users, all the rights for admins"
 	@echo "The rights of the module are global: it does not check them on a repository"
 	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
 		php lizmap/console.php acl2:add __anonymous "cadastre.use.search.tool" ; \
 		php lizmap/console.php acl2:add users "cadastre.use.search.tool" ; \
 		php lizmap/console.php acl2:add admins "cadastre.use.search.tool" ; \
 		php lizmap/console.php acl2:add users "cadastre.acces.donnees.proprio.simple" ; \
-		php lizmap/console.php acl2:add admins "cadastre.acces.donnees.proprio"'
+		for right in proprio.simple naissance revenus exonerations ; do \
+			php lizmap/console.php acl2:add admins "cadastre.acces.donnees.$$right" ; \
+		done ; \
+		for right in releve.parcellaire releve.propriete popup.onglets ; do \
+			php lizmap/console.php acl2:add admins "cadastre.$$right" ; \
+		done'
 	@echo "Add the user 'cadastre', in the group 'users'"
 	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
 		php lizmap/console.php jcommunity:user:create --no-error-if-exist cadastre cadastre@lizmap.local cadastre ; \
 		php lizmap/console.php acl2user:list | grep -q " cadastre " || php lizmap/console.php acl2user:register cadastre ; \
 		php lizmap/console.php acl2user:list | grep " cadastre " | grep -q " users " || php lizmap/console.php acl2user:addgroup cadastre users'
+	@echo "Add the user 'agent', in the group 'agents': owners, birth data, relevé parcellaire and tabs of the popup"
+	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
+		php lizmap/console.php acl2group:list | grep -q " agents " || php lizmap/console.php acl2group:create agents Agents ; \
+		php lizmap/console.php acl2:add agents "cadastre.use.search.tool" ; \
+		php lizmap/console.php acl2:add agents "lizmap.repositories.view" tests ; \
+		for right in acces.donnees.proprio.simple acces.donnees.naissance releve.parcellaire popup.onglets ; do \
+			php lizmap/console.php acl2:add agents "cadastre.$$right" ; \
+		done ; \
+		php lizmap/console.php jcommunity:user:create --no-error-if-exist agent agent@lizmap.local agent ; \
+		php lizmap/console.php acl2user:list | grep -q " agent " || php lizmap/console.php acl2user:register agent ; \
+		php lizmap/console.php acl2user:list | grep " agent " | grep -q " agents " || php lizmap/console.php acl2user:addgroup agent agents'
 
 install-module:
 	docker compose exec -u ${LIZMAP_USER_ID} lizmap php /www/lizmap/install/configurator.php cadastre

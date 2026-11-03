@@ -329,7 +329,7 @@ class search
         }
 
         // Access control
-        if ($field != 'voie' && !jAcl2::check('cadastre.acces.donnees.proprio') && !jAcl2::check('cadastre.acces.donnees.proprio.simple')) {
+        if ($field != 'voie' && !cadastreRights::hasOwnersAccess()) {
             return null;
         }
 
@@ -436,7 +436,7 @@ class search
         }
 
         // Access control
-        if ($field != 'voie' && !jAcl2::check('cadastre.acces.donnees.proprio') && !jAcl2::check('cadastre.acces.donnees.proprio.simple')) {
+        if ($field != 'voie' && !cadastreRights::hasOwnersAccess()) {
             return null;
         }
 

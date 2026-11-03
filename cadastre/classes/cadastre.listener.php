@@ -14,8 +14,7 @@ class cadastreListener extends jEventListener
         // Check if the user has enough rights
         if (!(
             jAcl2::check('cadastre.use.search.tool')
-            || jAcl2::check('cadastre.acces.donnees.proprio')
-            || jAcl2::check('cadastre.acces.donnees.proprio.simple')
+            || cadastreRights::hasOwnersAccess()
         )) {
             return;
         }
@@ -35,7 +34,8 @@ class cadastreListener extends jEventListener
         );
 
         $cadastreConfig['url'] = jUrl::get('cadastre~service:initExport');
-        $cadastreConfig['advanced'] = jAcl2::check('cadastre.acces.donnees.proprio');
+        // Rights of the user, to display the buttons, the check boxes and the tabs
+        $cadastreConfig['rights'] = cadastreRights::forJavaScript();
 
         $jscode = array(
             'var cadastreConfig = ' . json_encode($cadastreConfig),

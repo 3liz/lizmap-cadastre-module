@@ -54,6 +54,14 @@ def user() -> requests.Session:
 
 
 @pytest.fixture(scope="session")
+def agent() -> requests.Session:
+    """The user agent: owners, birth data, relevé parcellaire and tabs of the popup, nothing else"""
+    session = requests.Session()
+    login(session, "agent")
+    return session
+
+
+@pytest.fixture(scope="session")
 def admin() -> requests.Session:
     """The user admin: all the owners data"""
     session = requests.Session()

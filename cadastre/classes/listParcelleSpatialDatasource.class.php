@@ -18,7 +18,7 @@ class listParcelleSpatialDatasource extends jFormsDynamicDatasource
 
     public function getData($form)
     {
-        if (!jAcl2::check('cadastre.acces.donnees.proprio') && !jAcl2::check('cadastre.acces.donnees.proprio.simple')) {
+        if (!cadastreRights::hasOwnersAccess()) {
             return array();
         }
         $repository = $form->getData($this->criteriaFrom[0]);

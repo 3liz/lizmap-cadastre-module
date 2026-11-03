@@ -63,19 +63,27 @@ def masked(result: list[dict[str, str]], prefix: str = "") -> bool:
 
 
 def test_locaux(user: requests.Session, admin: requests.Session):
-    """One row per local and per owner, the birth data are masked without the full rights"""
+    """One row per local and per owner, the birth data are masked for a third party, the default"""
     result = rows(export(user, "locauxProprios", [COPROPRIETE, PARCELLE]))
     assert list(result[0]) == LOCAUX_COLUMNS
     assert {row["parcelle"] for row in result} == {COPROPRIETE, PARCELLE}
     assert len({row["l_invariant"] for row in result}) == 7
     assert masked(result, "p_")
 
-    # The parameter advanced is ignored without the full rights
-    assert masked(rows(export(user, "locauxProprios", [COPROPRIETE], advanced="1")), "p_")
-    result = rows(export(admin, "locauxProprios", [COPROPRIETE], advanced="1"))
+    # Without right on the sensitive data, the export is always the one for a third party
+    assert masked(rows(export(user, "locauxProprios", [COPROPRIETE], tiers="0")), "p_")
+    result = rows(export(admin, "locauxProprios", [COPROPRIETE], tiers="0"))
     assert list(result[0]) == LOCAUX_COLUMNS
     assert not any(row["p_date_naissance"] == "XX/XX/XXXX" for row in result)
     assert masked(rows(export(admin, "locauxProprios", [COPROPRIETE])), "p_")
+
+
+def test_export_partial_rights(agent: requests.Session, admin: requests.Session):
+    """With one right on the sensitive data, its data are exported, unless the export is for a third party"""
+    result = rows(export(agent, "locauxProprios", [COPROPRIETE], tiers="0"))
+    assert not any(row["p_date_naissance"] == "XX/XX/XXXX" for row in result)
+    assert masked(rows(export(agent, "locauxProprios", [COPROPRIETE], tiers="1")), "p_")
+    assert masked(rows(export(admin, "locauxProprios", [COPROPRIETE], tiers="1")), "p_")
 
 
 def test_parcelles(user: requests.Session, admin: requests.Session):
@@ -86,7 +94,7 @@ def test_parcelles(user: requests.Session, admin: requests.Session):
     parcelles = {p for row in result for p in row["parcelles"].split(", ")}
     assert parcelles == {COPROPRIETE, PARCELLE}
     assert masked(result)
-    result = rows(export(admin, "parcellesProprios", [COPROPRIETE], advanced="1"))
+    result = rows(export(admin, "parcellesProprios", [COPROPRIETE], tiers="0"))
     assert not any(row["date_naissance"] == "XX/XX/XXXX" for row in result)
 
 
