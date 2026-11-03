@@ -648,6 +648,34 @@ class cadastreExtraInfos
     protected $profile = 'cadastre';
 
     /**
+     * Check if the user can see a parcelle, with the filters of the parcelle layer: by login, the SQL filter
+     * of the layer and by polygon.
+     *
+     * The fiche and the relevés of a parcelle are refused if the user cannot see it on the map,
+     * even with a request built by hand.
+     *
+     * @param string $repository
+     * @param string $project
+     * @param string $parcelleLayer The name of the parcelle layer
+     * @param string $parcelleId    The id of the parcelle, the field geo_parcelle
+     *
+     * @return bool True if the user can see the parcelle
+     */
+    public function isParcelleVisible($repository, $project, $parcelleLayer, $parcelleId)
+    {
+        $ids = self::parseParcelleIds((string) $parcelleId);
+        if ($ids === null || count($ids) != 1) {
+            return false;
+        }
+        $this->repository = $repository;
+        $this->project = $project;
+        $this->config = cadastreConfig::get($repository, $project);
+        $this->profile = cadastreProfile::get($repository, $project, $parcelleLayer);
+
+        return count($this->getFilteredParcelleIds($ids)) == 1;
+    }
+
+    /**
      * Build the locaux and proprios CSV file and return its path.
      *
      * @param string $repository

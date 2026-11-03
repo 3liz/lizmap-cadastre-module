@@ -103,6 +103,11 @@ class serviceCtrl extends jController
 
             return $rep;
         }
+        if (!$this->isParcelleVisible($repository, $project, $parcelleLayer, $parcelleId)) {
+            $rep->data = array('status' => 'error', 'message' => 'Parcelle introuvable.');
+
+            return $rep;
+        }
         $creq = ($type == 'fiche') ? 'getHtml' : 'createPdf';
         $request = new lizmapCadastreRequest(
             $p,
@@ -175,6 +180,24 @@ class serviceCtrl extends jController
         }
 
         return $rep;
+    }
+
+    /**
+     * Check if the user can see a parcelle, with the filters of the parcelle layer.
+     *
+     * @param string $repository
+     * @param string $project
+     * @param string $parcelleLayer The name of the parcelle layer
+     * @param string $parcelleId    The id of the parcelle
+     *
+     * @return bool True if the user can see the parcelle
+     */
+    protected function isParcelleVisible($repository, $project, $parcelleLayer, $parcelleId)
+    {
+        /** @var cadastreExtraInfos $extra_infos */
+        $extra_infos = jClasses::getService('cadastre~cadastreExtraInfos');
+
+        return $extra_infos->isParcelleVisible($repository, $project, $parcelleLayer, $parcelleId);
     }
 
     /**
@@ -279,6 +302,11 @@ class serviceCtrl extends jController
         }
         if (!$p) {
             $rep->data = array('status' => 'error', 'message' => 'A problem occurred while loading project with Lizmap');
+
+            return $rep;
+        }
+        if (!$this->isParcelleVisible($repository, $project, $parcelleLayer, $parcelleId)) {
+            $rep->data = array('status' => 'error', 'message' => 'Parcelle introuvable.');
 
             return $rep;
         }

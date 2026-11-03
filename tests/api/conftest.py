@@ -20,6 +20,10 @@ PROJECT = {"repository": "tests", "project": "cadastre_tests", "layer": "parcell
 COPROPRIETE = "1320290000A0107"
 PARCELLE = "1320290000A1088"
 
+# Parcelle hidden by the filter by login of the layer of the parcelles: only visible by the group agents,
+# not by the users nor the admins, see LOGIN_FILTER_PARCELLE in scripts/import_test_data.py
+HIDDEN_PARCELLE = "1320290000A0037"
+
 # Layer of the buildings, used for the spatial search
 BATI = "Bâti_4f3b3b17_efa5_46ca_8995_479baca18fe7"
 

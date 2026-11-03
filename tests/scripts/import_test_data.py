@@ -35,6 +35,13 @@ INSEE = "13029"
 PROJECTS = Path("/srv/projects/tests")
 MODEL = "cadastre_caen"
 PROJECT = "cadastre_tests"
+# Filter by login of the layer of the parcelles: the field of parcelle_info giving the group which can see
+# a parcelle ("all" for everybody), and a parcelle only visible by the group agents. The group users is not
+# used: with Lizmap 3.10, it is the default group of the new users, the user agent is also in it
+LOGIN_FILTER_FIELD = "groupe"
+LOGIN_FILTER_PARCELLE = "1320290000A0037"
+LOGIN_FILTER_GROUP = "agents"
+
 # Layers published in WFS, needed by the module: see the documentation of the configuration of the module
 WFS_LAYERS = ("communes", "parcelles", "sections")
 # Fields of the parcelles with the owners, not published in WMS and WFS: like the plugin cadastre does
@@ -80,6 +87,15 @@ def import_data():
         )
         if not cadastreImport(options, CadastreFeedback()).run():
             sys.exit("The import of the test data failed")
+
+    # Field of the filter by login of the parcelles
+    connection.executeSql(
+        f"ALTER TABLE {SCHEMA}.parcelle_info ADD COLUMN {LOGIN_FILTER_FIELD} text NOT NULL DEFAULT 'all'"
+    )
+    connection.executeSql(
+        f"UPDATE {SCHEMA}.parcelle_info SET {LOGIN_FILTER_FIELD} = '{LOGIN_FILTER_GROUP}' "
+        f"WHERE geo_parcelle = '{LOGIN_FILTER_PARCELLE}'"
+    )
     print(f"Test data imported in the schema {SCHEMA}")
 
 
@@ -123,6 +139,16 @@ def create_project():
     config["metadata"].update(LIZMAP_METADATA)
     config["options"]["bbox"] = [str(round(v)) for v in bbox]
     config["options"]["initialExtent"] = bbox
+    # Filter by login of the parcelles: only the users of the group agents see LOGIN_FILTER_PARCELLE
+    parcelles = project.mapLayersByName("parcelles")[0]
+    config["loginFilteredLayers"] = {
+        "parcelles": {
+            "layerId": parcelles.id(),
+            "filterAttribute": LOGIN_FILTER_FIELD,
+            "filterPrivate": "False",
+            "order": 0,
+        }
+    }
     for layer in config["layers"].values():
         extent = extents.get(layer.get("id"))
         if extent is not None:

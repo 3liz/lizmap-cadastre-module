@@ -5,7 +5,7 @@ import re
 
 import requests
 
-from conftest import BASE_URL, PROJECT
+from conftest import BASE_URL, HIDDEN_PARCELLE, PROJECT
 
 # Voie of the copropriété, CHEM DE LA COOPERATIVE: code of the table voie, built from the file TOPO
 # without ccovoi ("00000"). The parcelles have the code with ccovoi (132029015001500)
@@ -94,3 +94,33 @@ def test_owners_not_published(user: requests.Session):
                 "MAXFEATURES": "1"},
     ).json()["features"]
     assert features and "proprietaire" not in features[0]["properties"]
+
+
+def parcelles_list(session: requests.Session, section: str = "", voie: str = "") -> list[str]:
+    """Parcelles of the list of the tab Lieu of the search panel, filled by jForms for a section or a voie"""
+    page = session.get(
+        f"{BASE_URL}/index.php/view/map",
+        params={"repository": PROJECT["repository"], "project": PROJECT["project"]},
+    ).text
+    layer_id = re.search(r'id="jforms_cadastre_search_parcelleLayerId"[^>]*value="([^"]*)"', page)
+    assert layer_id, "No layer of the parcelles in the search form"
+    response = session.post(
+        f"{BASE_URL}/index.php/jelix/forms/getdata",
+        data={
+            "__form": "cadastre~search", "__formid": "0", "__JFORMS_TOKEN__": "", "__ref": "geo_parcelle_lieu",
+            "repository": PROJECT["repository"], "project": PROJECT["project"], "parcelleLayerId": layer_id.group(1),
+            "section": section, "voie": voie,
+        },
+        # jForms only answers to the requests of its JavaScript
+        headers={"X-Requested-With": "XMLHttpRequest"},
+    )
+    return [item["value"] for item in response.json()]
+
+
+def test_parcelles_login_filter(user: requests.Session, agent: requests.Session):
+    """The list of the parcelles of a section has only the parcelles the user can see (filter by login)"""
+    section = HIDDEN_PARCELLE[:-4]
+    assert HIDDEN_PARCELLE in parcelles_list(agent, section=section)
+    user_parcelles = parcelles_list(user, section=section)
+    assert user_parcelles
+    assert HIDDEN_PARCELLE not in user_parcelles

@@ -7,7 +7,7 @@ import json
 import pytest
 import requests
 
-from conftest import BASE_URL, BATI, COPROPRIETE, PARCELLE, PROJECT
+from conftest import BASE_URL, BATI, COPROPRIETE, HIDDEN_PARCELLE, PARCELLE, PROJECT
 
 # Columns of the exports, the same with the QGIS plugin (request GetExport) or with the SQL of the module
 LOCAUX_COLUMNS = [
@@ -153,3 +153,14 @@ def test_max_parcelles(user: requests.Session, name: str):
         data={**PROJECT, "parcelles": ",".join(parcelles[:MAX_EXPORT_PARCELLES])},
     )
     assert rows(response)
+
+
+@pytest.mark.parametrize("name, column", [("locauxProprios", "parcelle"), ("parcellesProprios", "parcelles")])
+def test_login_filter(user: requests.Session, agent: requests.Session, name: str, column: str):
+    """The exports only have the parcelles the user can see, with the filter by login of the parcelle layer"""
+    def exported(session: requests.Session) -> set[str]:
+        result = rows(export(session, name, [COPROPRIETE, HIDDEN_PARCELLE]))
+        return {p for row in result for p in row[column].split(", ")}
+
+    assert exported(agent) == {COPROPRIETE, HIDDEN_PARCELLE}
+    assert exported(user) == {COPROPRIETE}

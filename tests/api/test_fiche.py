@@ -3,11 +3,11 @@
 import pytest
 import requests
 
-from conftest import BASE_URL, COPROPRIETE, PROJECT
+from conftest import BASE_URL, COPROPRIETE, HIDDEN_PARCELLE, PROJECT
 
 
 def fiche(session: requests.Session, type: str, **params: str) -> requests.Response:
-    """Call the module for the fiche (HTML) or a relevé (PDF) of the copropriété"""
+    """Call the module for the fiche (HTML) or a relevé (PDF) of the copropriété, or of another parcelle"""
     return session.get(
         f"{BASE_URL}/index.php/cadastre/service/getCadastrePdf",
         params={**PROJECT, "parcelle": COPROPRIETE, "type": type, **params},
@@ -56,3 +56,10 @@ def test_releve_tiers(agent: requests.Session, admin: requests.Session, tiers: s
     by the rights only without it (the text of the PDF cannot be read by the tests)"""
     for session in (agent, admin):
         assert fiche(session, "parcelle", tiers=tiers).headers["Content-Type"] == "application/pdf"
+
+
+@pytest.mark.parametrize("type", ["fiche", "parcelle", "proprietaire"])
+def test_login_filter(admin: requests.Session, type: str):
+    """The fiche and the relevés of a parcelle hidden by the filter by login are refused, even with all the rights"""
+    response = fiche(admin, type, parcelle=HIDDEN_PARCELLE)
+    assert response.json() == {"status": "error", "message": "Parcelle introuvable."}

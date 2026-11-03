@@ -4,6 +4,9 @@
 
 ### Security
 
+* Fiche parcellaire et relevés : une parcelle que l'utilisateur ne voit pas sur la carte, à cause des filtres
+  de la couche des parcelles (filtre par utilisateur, filtre SQL de la couche, filtre par polygone), est refusée.
+  Une requête construite à la main permettait d'obtenir sa fiche et ses relevés
 * Export PDF asynchrone d'un propriétaire (script `standalone/export.py` du plugin) : les paramètres de la commande
   sont échappés et l'identifiant de parcelle est validé, ils permettaient une injection de commande
 
