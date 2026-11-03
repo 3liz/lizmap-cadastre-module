@@ -21,9 +21,27 @@ Toolbar buttons
   margin: 0 0 10px;
 }
 
-#cadastre h3 .icon {
-    background-image: url(cadastre-icon-white.png);
+/* Icon of the title of the panel. The theme of Lizmap sets an image which does not exist
+(images/cadastre-icon-dark.png in its own folder): a more specific rule uses the one of the module */
+#dock #cadastre h3 span.icon {
+    background-image: url(cadastre-icon-dark.png) !important;
     background-position: 0 0;
+}
+
+/* Introduction of the search panel, description of the displayed tab, and help of the selection buttons */
+#cadastre p.cadastre-search-intro {
+    margin-bottom: 2px;
+    padding: 3px;
+}
+
+#cadastre p.cadastre-search-help {
+    padding: 3px;
+    font-size: 0.9em;
+}
+
+#cadastre p.cadastre-search-buttons-help {
+    margin: 5px 0;
+    font-size: 0.9em;
 }
 
 #cadastre-content {
@@ -55,8 +73,10 @@ div.cadastre-popup-tab-container ul li a{
   padding: 3px;
 }
 
+/* Tabs of the popup: a long or wide content scrolls inside its tab, instead of covering the popups below */
 div.cadastre-popup-tab-container div.tab-pane{
     max-height: 300px;
+    overflow: auto;
     padding: 4px;
     font-size: 12px;
 }
@@ -74,3 +94,104 @@ div.cadastre-popup-tab-container div.tab-pane h4
 .popupButtonBar .btn-group.cadastre-releve {
     vertical-align: middle;
 }
+
+/*
+Lizmap 3.10 and above (Bootstrap 5): flat tabs like the forms of Lizmap, with only a bigger bottom
+border for the active tab (lizmap-web-client#7014). The class cadastre-bs5 is added by cadastreAdaptTabs()
+to the search panel and to the tabs of the popup.
+*/
+.cadastre-bs5 ul.nav-tabs {
+    border-bottom: 1px solid var(--color-contrasted-elements-light);
+}
+
+.cadastre-bs5 .nav-tabs > li > a.nav-link {
+    color: var(--color-text-primary);
+    padding: 5px;
+    border: none;
+}
+
+.cadastre-bs5 .nav-tabs > li > a.nav-link:hover,
+.cadastre-bs5 .nav-tabs > li > a.nav-link:focus,
+.cadastre-bs5 .nav-tabs > li > a.nav-link.active {
+    background: none;
+    border: none;
+    border-bottom: 3px solid var(--color-contrasted-elements);
+    color: var(--color-text-primary);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.cadastre-bs5 .nav-tabs > li > a.nav-link.active {
+    cursor: auto;
+}
+
+.cadastre-bs5 div.tab-pane {
+    padding: 5px;
+    padding-bottom: 10px;
+    margin-bottom: 5px;
+    border-left: 1px solid var(--color-contrasted-elements);
+    border-right: 1px solid var(--color-contrasted-elements);
+    border-bottom: 1px solid var(--color-contrasted-elements);
+}
+
+/*
+Search panel with Lizmap 3.10 and above: the small fields of Bootstrap 5 (form-select-sm, form-control-sm,
+given by Lizmap), with their label above them
+*/
+#div_form_cadastre_search.cadastre-bs5 label {
+    display: block;
+    margin-bottom: 0.25rem;
+    padding: 0;
+    font-size: 14px;
+}
+
+/* Fields of the tab "Recherche spatiale", spaced like those of the other tabs */
+#div_form_cadastre_search.cadastre-bs5 .control-group {
+    margin-bottom: 10px;
+}
+
+/* Group "Résultat": its label like the other ones, its field without the margins of the Bootstrap grid */
+#div_form_cadastre_search.cadastre-bs5 fieldset.jforms-ctrl-group {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+#div_form_cadastre_search.cadastre-bs5 fieldset.jforms-ctrl-group legend {
+    margin-bottom: 0.25rem;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+#div_form_cadastre_search.cadastre-bs5 fieldset.jforms-ctrl-group .container,
+#div_form_cadastre_search.cadastre-bs5 fieldset.jforms-ctrl-group .row {
+    margin: 0;
+    padding: 0;
+}
+
+/* Button to reset the search form, small like the other ones, with some space around it */
+#div_form_cadastre_search.cadastre-bs5 button.jforms-ctrl-reset {
+    margin: 5px 0;
+}
+
+/* Texts of the search panel a bit bigger with Lizmap 3.10 (about +15 %): introduction, warning of the exports,
+description of the tab and help of the selection buttons */
+#div_form_cadastre_search.cadastre-bs5 p.cadastre-search-intro {
+    font-size: 14px;
+}
+
+#div_form_cadastre_search.cadastre-bs5 p.cadastre-search-help,
+#div_form_cadastre_search.cadastre-bs5 p.cadastre-search-buttons-help,
+#div_form_cadastre_search.cadastre-bs5 p.cadastre-export-warning {
+    font-size: 12.5px;
+}
+
+/* Buttons of the toolbar of the search panel (zoom, selection) with Lizmap 3.10: Lizmap reduces the padding
+of the buttons of the panels, so the classes btn-sm or btn-lg of Bootstrap have no effect. They get the size
+they have with Lizmap 3.9 */
+#div_form_cadastre_search.cadastre-bs5 button.jforms-ctrl-button.btn {
+    --bs-btn-padding-x: 12px;
+    --bs-btn-padding-y: 6px;
+    --bs-btn-font-size: 14px;
+}
+

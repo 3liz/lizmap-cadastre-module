@@ -31,6 +31,16 @@
   « Pour un tiers (sans données sensibles) ». Sans droit sur les données sensibles, le relevé est produit
   directement, pour un tiers
 
+* Lizmap Web Client 3.10 (Bootstrap 5) : les onglets du panneau de recherche et de la popup des parcelles
+  fonctionnent de nouveau, avec le style plat des formulaires de Lizmap. Les boutons de la popup sont
+  de petite taille. Dans les 3 onglets du formulaire de recherche, les étiquettes sont au-dessus
+  des champs de petite taille de Bootstrap 5
+* Panneau de recherche : un texte d'introduction au-dessus des onglets, et la description de l'onglet affiché
+* Lizmap Web Client 3.10 : les boutons de sélection (nouvelle sélection, ajouter, supprimer) et le zoom
+  du panneau de recherche fonctionnent de nouveau
+* L'icône du titre du panneau de recherche s'affiche de nouveau
+* Le contenu des onglets de la popup défile dans l'onglet au lieu de déborder sur les popups suivantes
+
 ### Fixed
 
 * Export CSV des locaux : l'adresse du local n'est plus vide pour une voie sans nature (RUE, CHE...),

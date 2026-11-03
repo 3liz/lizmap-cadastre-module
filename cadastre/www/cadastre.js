@@ -1,6 +1,74 @@
 /* global cadastreConfig */
 /*eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_" }]*/
 
+/**
+ * Check if Lizmap uses Bootstrap 5 (Lizmap 3.10 and above) or Bootstrap 2 (before).
+ *
+ * Bootstrap 5 is loaded as a script which defines the global object bootstrap.
+ *
+ * @returns {boolean} True for Bootstrap 5
+ */
+function cadastreIsBootstrap5() {
+    return typeof window.bootstrap !== 'undefined' && typeof window.bootstrap.Tab !== 'undefined';
+}
+
+/**
+ * Adapt tabs written for Bootstrap 2 to Bootstrap 5, with the flat style of the forms of Lizmap.
+ *
+ * With Bootstrap 2 (before Lizmap 3.10), nothing is changed. With Bootstrap 5, the links of the tabs
+ * get the class nav-link and the attribute data-bs-toggle, the active tab is marked on its link,
+ * and the container gets the class cadastre-bs5 used by the CSS of the flat style.
+ *
+ * @param {jQuery} container The element containing the ul.nav-tabs and the div.tab-pane
+ */
+function cadastreAdaptTabs(container) {
+    if (!cadastreIsBootstrap5()) {
+        return;
+    }
+    container.addClass('cadastre-bs5');
+    container.find('ul.nav-tabs > li').each(function () {
+        var item = $(this);
+        var link = item.children('a');
+        item.addClass('nav-item');
+        link.addClass('nav-link').attr('data-bs-toggle', 'tab').removeAttr('data-toggle');
+        if (item.hasClass('active')) {
+            link.addClass('active');
+            item.removeClass('active');
+        }
+    });
+}
+
+/**
+ * Show a tab, with Bootstrap 5 or Bootstrap 2.
+ *
+ * @param {jQuery} link The link of the tab
+ */
+function cadastreShowTab(link) {
+    if (link.length == 0) {
+        return;
+    }
+    if (cadastreIsBootstrap5()) {
+        window.bootstrap.Tab.getOrCreateInstance(link[0]).show();
+    } else {
+        link.tab('show');
+    }
+}
+
+/**
+ * Get the target of the active tab, with Bootstrap 5 (active link) or Bootstrap 2 (active item).
+ *
+ * @param {jQuery} container The element containing the ul.nav-tabs
+ *
+ * @returns {string} The href of the link of the active tab, like #tab1
+ */
+function cadastreActiveTab(container) {
+    var link = container.find('ul.nav-tabs a.nav-link.active');
+    if (link.length == 0) {
+        link = container.find('ul.nav-tabs > li.active > a');
+    }
+    return link.attr('href');
+}
+
 function selectParcelles(getFeatureUrlData, addToSelection) {
     if (!(typeof cadastreConfig != 'undefined'))
         return;
@@ -154,6 +222,21 @@ lizMap.events.on({
             return;
 
         var cadastreCrs = 'EPSG:4326';
+
+        // Tabs of the search panel: Bootstrap 5 and flat style of Lizmap 3.10 and above
+        cadastreAdaptTabs($('#div_form_cadastre_search'));
+        // Description of the displayed tab, above the tabs
+        $('#div_form_cadastre_search ul.nav-tabs a').click(function () {
+            $('#cadastre-search-help').text($(this).data('help'));
+        });
+        if (cadastreIsBootstrap5()) {
+            // Small button to reset the search form, like the other buttons of the panel
+            $('#div_form_cadastre_search button.jforms-ctrl-reset').addClass('btn-sm');
+            // The labels are above the fields (see cadastre.css): the spaces between them are removed
+            $('#div_form_cadastre_search .tab-pane > p').contents().filter(function () {
+                return this.nodeType === Node.TEXT_NODE;
+            }).remove();
+        }
 
         function initCadastreForm() {
             var formId = $('#div_form_cadastre_search form').attr('id');
@@ -390,10 +473,10 @@ lizMap.events.on({
                 var fieldname = null; var filter = null; var fids = null;
 
                 // Lieu tab is active
-                if ($('#div_form_cadastre_search ul li:first').hasClass('active')) {
+                if (cadastreActiveTab($('#div_form_cadastre_search')) == '#tab1') {
                     var section = $('#' + formId + '_section').val();
                     fieldname = '#' + formId + '_geo_parcelle_lieu';
-                    if ($(fieldname + ' option').size() > 1 && (section || $('#' + formId + '_voie').val())) {
+                    if ($(fieldname + ' option').length > 1 && (section || $('#' + formId + '_voie').val())) {
                         if (section) {
                             if ($(fieldname).val()) {
                                 // Select one parcelle
@@ -414,9 +497,9 @@ lizMap.events.on({
                     }
                 }
                 // Prop tab is active
-                else if ($('#div_form_cadastre_search ul li:nth-child(2)').hasClass('active')) {
+                else if (cadastreActiveTab($('#div_form_cadastre_search')) == '#tab2') {
                     fieldname = '#' + formId + '_geo_parcelle_prop';
-                    if ($('#jforms_cadastre_search_geo_parcelle_prop option').size() > 1) {
+                    if ($('#jforms_cadastre_search_geo_parcelle_prop option').length > 1) {
                         if ($(fieldname).val() == '') {
                             var comptecommunal = $('#' + formId + '_comptecommunal').val();
                             var compte = $('#' + formId + '_compte').val();
@@ -432,9 +515,9 @@ lizMap.events.on({
                     }
                 }
                 // Spatial tab is active
-                else if ($('#div_form_cadastre_search ul li:nth-child(3)').hasClass('active')) {
+                else if (cadastreActiveTab($('#div_form_cadastre_search')) == '#tab3') {
                     fieldname = '#' + formId + '_geo_parcelle_spatial';
-                    if ($('#jforms_cadastre_search_geo_parcelle_spatial option').size() > 1) {
+                    if ($('#jforms_cadastre_search_geo_parcelle_spatial option').length > 1) {
                         if ($(fieldname).val() == '') {
                             fids = $.map($(fieldname + ' option'), function (o) { return "'" + o.value + "'"; }).join(',');
                         } else {
@@ -574,7 +657,7 @@ lizMap.events.on({
 
             var layername = null; var fieldname = null; var fieldval = null;
 
-            if ($('#div_form_cadastre_search ul li:first').hasClass('active')) {
+            if (cadastreActiveTab($('#div_form_cadastre_search')) == '#tab1') {
                 // TAB 3 : lieu
                 if ($('#' + formId + '_commune').val()) {
                     layername = 'Communes'; fieldname = 'geo_commune'; fieldval = $('#' + formId + '_commune').val();
@@ -588,7 +671,7 @@ lizMap.events.on({
                 if ($('#' + formId + '_geo_parcelle_lieu').val()) {
                     layername = 'Parcelles'; fieldname = 'geo_parcelle'; fieldval = $('#' + formId + '_geo_parcelle_lieu').val();
                 }
-            } else if ($('#div_form_cadastre_search ul li:nth-child(2)').hasClass('active')) {
+            } else if (cadastreActiveTab($('#div_form_cadastre_search')) == '#tab2') {
                 // TAB 3 : prop
                 if ($('#' + formId + '_commune_prop').val()) {
                     layername = 'Communes'; fieldname = 'geo_commune'; fieldval = $('#' + formId + '_commune_prop').val();
@@ -604,7 +687,7 @@ lizMap.events.on({
                         layername = 'Proprietaire'; fieldname = 'prop'; fieldval = $('#' + formId + '_comptecommunal').val();
                     }
                 }
-            } else if ($('#div_form_cadastre_search ul li:nth-child(3)').hasClass('active')) {
+            } else if (cadastreActiveTab($('#div_form_cadastre_search')) == '#tab3') {
                 // TAB 3 : spatial
                 if ($('#' + formId + '_geo_parcelle_spatial').val()) {
                     layername = 'Parcelles'; fieldname = 'geo_parcelle'; fieldval = $('#' + formId + '_geo_parcelle_spatial').val();
@@ -876,7 +959,7 @@ lizMap.events.on({
             const form = document.getElementById('jforms_cadastre_search');
             let intersectionDataJson = null;
             // Check if the spatial search tab is active
-            const spatialTabActive = (document.querySelector('#div_form_cadastre_search ul li.active a').getAttribute('href') == '#tab3');
+            const spatialTabActive = (cadastreActiveTab($('#div_form_cadastre_search')) == '#tab3');
             if (form
                 // Visible tab must be "Recherche spatiale"
                 && spatialTabActive
@@ -992,6 +1075,8 @@ lizMap.events.on({
             tabContent.append(tabPanes);
             html_object.append(navTabs)
             html_object.append(tabContent)
+            // Bootstrap 5 and flat style of Lizmap 3.10 and above
+            cadastreAdaptTabs(html_object);
 
             return [html_object, firstTab];
         }
@@ -1051,7 +1136,7 @@ lizMap.events.on({
                     + '<i class="' + icon + '"></i>&nbsp;</a>';
             }
 
-            var bootstrap5 = (typeof window.bootstrap !== 'undefined' && typeof window.bootstrap.Dropdown !== 'undefined');
+            var bootstrap5 = cadastreIsBootstrap5();
             // Static display: the dropdown of Bootstrap 5 does not need Popper
             var toggle = bootstrap5 ? 'data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false"' : 'data-toggle="dropdown"';
             // Bootstrap 5 adds the caret itself
@@ -1114,18 +1199,18 @@ lizMap.events.on({
                             }
                             if (rights.popupTabs) {
                                 // Print Parcelle info HTML detail
-                                eHtml += '<button class="btn btn-mini cadastre-export-parcelle print" title="Imprimer le détail">';
+                                eHtml += '<button class="btn btn-mini btn-sm cadastre-export-parcelle print" title="Imprimer le détail">';
                                 eHtml += '<i class="icon-print"></i>&nbsp;</button>';
                             }
 
                             if ('attributeLayers' in config && cadastreLayer in config.attributeLayers) {
-                                eHtml += '<button class="btn btn-mini cadastre-select-parcelle-proprietaire" target="_blank" value="';
+                                eHtml += '<button class="btn btn-mini btn-sm cadastre-select-parcelle-proprietaire" target="_blank" value="';
                                 eHtml += fid;
                                 eHtml += '" title="Sélectionner les parcelles du propriétaire"';
                                 eHtml += ' onclick="selectParcelleByProprietaire(\'' + feat.attributes[cadastreConfig.pk] + '\', true)">';
                                 eHtml += '<i class="icon-user"></i><i class="icon-plus"></i>&nbsp;</button>';
 
-                                eHtml += '<button class="btn btn-mini cadastre-unselect-parcelle-proprietaire" target="_blank" value="';
+                                eHtml += '<button class="btn btn-mini btn-sm cadastre-unselect-parcelle-proprietaire" target="_blank" value="';
                                 eHtml += fid;
                                 eHtml += '" title="Retirer les parcelles du propriétaire"';
                                 eHtml += ' onclick="selectParcelleByProprietaire(\'' + feat.attributes[cadastreConfig.pk] + '\', false)">';
@@ -1162,7 +1247,7 @@ lizMap.events.on({
                                         self.parent().append(contentContainer);
 
                                         // Activate first tab
-                                        self.parent().find('.nav-tabs a[href="#' + firstTab + '"]').tab('show');
+                                        cadastreShowTab(self.parent().find('.nav-tabs a[href="#' + firstTab + '"]'));
                                     } else {
                                         self.parent().append(data_object);
                                     }

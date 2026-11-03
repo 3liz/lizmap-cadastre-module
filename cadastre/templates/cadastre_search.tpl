@@ -8,11 +8,14 @@
 </div>
 
 <div id="div_form_cadastre_search" class="menu-content">
+  <p class="cadastre-search-intro">{@cadastre~search.search.intro@}</p>
+  <!-- Description of the displayed tab, from the attribute data-help of its link -->
+  <p class="cadastre-search-help"><em id="cadastre-search-help">{@cadastre~search.search.help.lieu@}</em></p>
   <ul class="nav nav-tabs" style="margin-bottom: 5px;">
-    <li class="active"><a href="#tab1" data-toggle="tab">{@cadastre~search.group.search.lieu@}</a></li>
+    <li class="active"><a href="#tab1" data-toggle="tab" data-help="{@cadastre~search.search.help.lieu@}">{@cadastre~search.group.search.lieu@}</a></li>
     {if $has_majic === '1'}
-    <li><a href="#tab2" data-toggle="tab">{@cadastre~search.group.search.proprietaire@}</a></li>
-    <li><a href="#tab3" data-toggle="tab">{@cadastre~search.group.search.spatial@}</a></li>
+    <li><a href="#tab2" data-toggle="tab" data-help="{@cadastre~search.search.help.proprietaire@}">{@cadastre~search.group.search.proprietaire@}</a></li>
+    <li><a href="#tab3" data-toggle="tab" data-help="{@cadastre~search.search.help.spatial@}">{@cadastre~search.group.search.spatial@}</a></li>
     {/if}
   </ul>
 
@@ -65,6 +68,7 @@
 
   </div>
 
+  <p class="cadastre-search-buttons-help">{@cadastre~search.search.buttons.help@}</p>
   <div style="text-align:center;margin-bottom: 5px;">
     {ctrl_control 'zoom'}
     <div class="btn-group">
