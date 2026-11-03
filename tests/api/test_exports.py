@@ -130,3 +130,26 @@ def test_parcelles_spatial_search_injection(user: requests.Session, payload: str
     """Invalid identifiers of selected objects are refused: they cannot change the SQL query"""
     response = export(user, "parcellesProprios", [COPROPRIETE], **spatial_search(payload))
     assert response.json() == {"status": "error", "message": "Identifiants des objets sélectionnés invalides."}
+
+
+# Maximum number of parcelles of an export, see cadastreExtraInfos::MAX_EXPORT_PARCELLES
+MAX_EXPORT_PARCELLES = 20000
+
+
+@pytest.mark.parametrize("name", ["locauxProprios", "parcellesProprios"])
+def test_max_parcelles(user: requests.Session, name: str):
+    """Too big exports are refused, the list of the parcelles is sent with POST like the JavaScript does"""
+    parcelles = [COPROPRIETE] + [f"1320290000Z{i:04d}" for i in range(MAX_EXPORT_PARCELLES)]
+    response = user.post(
+        f"{BASE_URL}/index.php/cadastre/service/{name}", data={**PROJECT, "parcelles": ",".join(parcelles)}
+    )
+    assert response.json() == {
+        "status": "error", "message": f"L'export est limité à {MAX_EXPORT_PARCELLES} parcelles."
+    }
+
+    # At the limit, the export is done: only the existing parcelles are exported
+    response = user.post(
+        f"{BASE_URL}/index.php/cadastre/service/{name}",
+        data={**PROJECT, "parcelles": ",".join(parcelles[:MAX_EXPORT_PARCELLES])},
+    )
+    assert rows(response)

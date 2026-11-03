@@ -55,6 +55,12 @@ class cadastreExtraInfos
     public const OBJECT_ID_PATTERN = '/^[0-9A-Za-z_-]{1,100}$/';
 
     /**
+     * Maximum number of parcelles of a CSV export: QGIS Server should not compute too big exports.
+     * The JavaScript of the module checks it before the request, see cadastreConfig.exportMaxParcelles.
+     */
+    public const MAX_EXPORT_PARCELLES = 20000;
+
+    /**
      * Parse and validate a comma separated list of parcelle ids, given by the user.
      *
      * @param null|string $parcelles The ids of the parcelles, separated by commas
@@ -198,6 +204,9 @@ class cadastreExtraInfos
     /**
      * Check if the QGIS plugin cadastre of QGIS Server has the request GetExport.
      *
+     * The released versions of the plugin before this request do not have it: the module then uses
+     * its own SQL queries.
+     *
      * @param object $p The Lizmap project
      *
      * @return bool True if the exports can be done by the plugin
@@ -224,23 +233,17 @@ class cadastreExtraInfos
     }
 
     /**
-     * Get the rows of an export from the QGIS plugin cadastre, request GetExport.
+     * Get the parameters of the request GetExport of the QGIS plugin cadastre.
      *
-     * @param object     $p                The Lizmap project
      * @param string     $type             The type of export: locaux or proprietaires
      * @param array      $parcelle_ids     The ids of the parcelles the user can see
      * @param array      $sensitive        The sensitive data given in the export, see cadastreRights::sensitiveData()
      * @param null|array $intersectionData The objects selected by the spatial search (optional)
      *
-     * @return array The rows, as objects with the names of the columns as properties
-     *
-     * @throws Exception if the plugin did not return the export
+     * @return array The parameters
      */
-    protected function getPluginExportRows($p, $type, $parcelle_ids, $sensitive, $intersectionData = null)
+    protected function getPluginExportParams($type, $parcelle_ids, $sensitive, $intersectionData = null)
     {
-        if (count($parcelle_ids) == 0) {
-            return array();
-        }
         $params = array_merge(
             array(
                 'service' => 'CADASTRE',
@@ -259,26 +262,51 @@ class cadastreExtraInfos
             $params['spatial_distance'] = $intersectionData['buffer'];
         }
 
-        jClasses::inc('cadastre~lizmapCadastreRequest');
-        $request = new lizmapCadastreRequest($p, $params);
-        $result = $request->process();
-        $data = $result->data;
-        if ($result->code != 200 || !is_object($data) || $data->status !== 'success') {
-            throw new Exception('Cadastre - GetExport error: ' . (is_object($data) ? $data->message : $result->code));
-        }
-
-        $rows = array();
-        foreach ($data->data->rows as $row) {
-            $rows[] = (object) array_combine($data->data->columns, $row);
-        }
-
-        return $rows;
+        return $params;
     }
 
     /**
-     * Get the rows of an export: from the QGIS plugin if it can, otherwise with the SQL queries of the module.
+     * Get the CSV file of an export from the QGIS plugin cadastre, request GetExport.
+     *
+     * The file is written by blocks from the response of QGIS Server, without reading it all in memory.
+     *
+     * @param object     $p                The Lizmap project
+     * @param string     $type             The type of export: locaux or proprietaires
+     * @param array      $parcelle_ids     The ids of the parcelles the user can see
+     * @param array      $sensitive        The sensitive data given in the export, see cadastreRights::sensitiveData()
+     * @param null|array $intersectionData The objects selected by the spatial search (optional)
+     *
+     * @return string The CSV file path
+     *
+     * @throws Exception if the plugin did not return the export
+     */
+    protected function getPluginExportCsv($p, $type, $parcelle_ids, $sensitive, $intersectionData = null)
+    {
+        if (count($parcelle_ids) == 0) {
+            return $this->buildCsv(array());
+        }
+        $params = $this->getPluginExportParams($type, $parcelle_ids, $sensitive, $intersectionData);
+
+        $path = tempnam(sys_get_temp_dir(), 'cadastre_' . session_id() . '_');
+        $request = new lizmapCadastreRequest($p, $params);
+
+        try {
+            $request->getExportToFile($path);
+        } catch (Exception $e) {
+            unlink($path);
+
+            throw $e;
+        }
+
+        return $path;
+    }
+
+    /**
+     * Get the CSV file of an export: from the QGIS plugin if it can, otherwise with the SQL queries of the module.
      *
      * The plugin is used for the parcelles the user can see, and gives the same columns and values.
+     * Its CSV file is written by blocks, the export is never entirely in memory. The rows of the SQL queries
+     * of the module are read then written in the file.
      *
      * @param string     $type             The type of export: locaux or proprietaires
      * @param array      $parcelle_ids     The ids of parcelles
@@ -286,9 +314,9 @@ class cadastreExtraInfos
      * @param array      $sensitive        The sensitive data given in the export, see cadastreRights::sensitiveData()
      * @param null|array $intersectionData The objects selected by the spatial search (optional)
      *
-     * @return array The rows
+     * @return string The CSV file path
      */
-    protected function getExportRows($type, $parcelle_ids, $withGeom, $sensitive, $intersectionData = null)
+    protected function getExportCsv($type, $parcelle_ids, $withGeom, $sensitive, $intersectionData = null)
     {
         $p = lizmap::getProject($this->repository . '~' . $this->project);
         jClasses::inc('cadastre~lizmapCadastreRequest');
@@ -296,7 +324,7 @@ class cadastreExtraInfos
             try {
                 $ids = $this->getFilteredParcelleIds($parcelle_ids);
 
-                return $this->getPluginExportRows($p, $type, $ids, $sensitive, $intersectionData);
+                return $this->getPluginExportCsv($p, $type, $ids, $sensitive, $intersectionData);
             } catch (Exception $e) {
                 // Use the SQL queries of the module
                 jLog::logEx($e, 'error');
@@ -311,7 +339,7 @@ class cadastreExtraInfos
             $sql = $this->getParcellesAndProprioSql($parcelle_ids, $withGeom, $forThirdParty, $intersectionData);
         }
 
-        return $this->query($sql, array(), $this->profile);
+        return $this->buildCsv($this->query($sql, array(), $this->profile));
     }
 
     /**
@@ -639,9 +667,8 @@ class cadastreExtraInfos
 
         $profile = cadastreProfile::get($repository, $project, $parcelleLayer);
         $this->profile = $profile;
-        $rows = $this->getExportRows('locaux', $parcelle_ids, $withGeom, $sensitive);
 
-        return $this->buildCsv($rows);
+        return $this->getExportCsv('locaux', $parcelle_ids, $withGeom, $sensitive);
     }
 
     /**
@@ -664,8 +691,7 @@ class cadastreExtraInfos
         $this->config = cadastreConfig::get($repository, $project);
         $profile = cadastreProfile::get($repository, $project, $parcelleLayer);
         $this->profile = $profile;
-        $rows = $this->getExportRows('proprietaires', $parcelle_ids, $withGeom, $sensitive, $intersectionData);
 
-        return $this->buildCsv($rows);
+        return $this->getExportCsv('proprietaires', $parcelle_ids, $withGeom, $sensitive, $intersectionData);
     }
 }

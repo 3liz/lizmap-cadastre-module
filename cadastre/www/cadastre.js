@@ -973,6 +973,18 @@ lizMap.events.on({
                 window.setTimeout(cadastreRemoveMessage, 5000);
                 return;
             }
+            // Too big exports are refused by the server
+            var maxParcelles = cadastreConfig.exportMaxParcelles;
+            if (maxParcelles && selectedParcelles.length > maxParcelles) {
+                cadastreRemoveMessage();
+                lizMap.addMessage(
+                    selectedParcelles.length + ' parcelles sont sélectionnées : l\'export est limité à '
+                    + maxParcelles + ' parcelles. Réduisez la sélection.',
+                    'error', true
+                ).attr('id', CADASTRE_MESSAGE_ID);
+                window.setTimeout(cadastreRemoveMessage, 8000);
+                return;
+            }
 
             var typeName = cadastreLayer.split(' ').join('_');
             if ('typename' in cadastreLayerConfig) {

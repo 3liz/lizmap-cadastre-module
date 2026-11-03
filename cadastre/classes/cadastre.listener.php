@@ -36,6 +36,9 @@ class cadastreListener extends jEventListener
         $cadastreConfig['url'] = jUrl::get('cadastre~service:initExport');
         // Rights of the user, to display the buttons, the check boxes and the tabs
         $cadastreConfig['rights'] = cadastreRights::forJavaScript();
+        // Maximum number of parcelles of a CSV export, checked before the request
+        jClasses::inc('cadastre~cadastreExtraInfos');
+        $cadastreConfig['exportMaxParcelles'] = cadastreExtraInfos::MAX_EXPORT_PARCELLES;
 
         $jscode = array(
             'var cadastreConfig = ' . json_encode($cadastreConfig),

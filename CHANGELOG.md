@@ -9,6 +9,11 @@
 
 ### Changed
 
+* Exports CSV produits par le plugin QGIS cadastre de QGIS Server (requête `GetExport`) : le fichier
+  est écrit au fil de la réponse de QGIS Server, sans être chargé en mémoire, quelle que soit sa taille
+* Exports CSV limités à 20 000 parcelles sélectionnées : un message le signale avant l'envoi de la requête,
+  et le serveur refuse une liste plus longue
+
 * JavaScript : requêtes avec `fetch` au lieu de jQuery, et accès directs aux éléments de la page
   (`document.getElementById`...) lorsque c'est simple. jQuery reste utilisé pour l'autocomplétion,
   les onglets de Bootstrap et les événements `change` du formulaire de recherche

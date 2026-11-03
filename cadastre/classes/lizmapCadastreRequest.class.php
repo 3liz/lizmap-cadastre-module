@@ -213,34 +213,40 @@ class lizmapCadastreRequest extends OGCRequest
         );
     }
 
-    public function process_getExport()
-    {
-        return $this->getExport();
-    }
-
     /**
-     * Get the data of a CSV export from the QGIS plugin: the names of the columns and the rows.
+     * Get a CSV export from the QGIS plugin, request GetExport, and write it in a file.
      *
-     * The request is sent with POST, the list of the parcelles can be long.
+     * The response of QGIS Server is read as a stream and written by blocks: the export is never
+     * entirely in memory, whatever its size.
      *
-     * @return object The response, with the decoded JSON as data
+     * @param string $path The path of the CSV file
+     *
+     * @throws Exception if the plugin did not return the CSV file, for example an error in JSON
      */
-    public function getExport()
+    public function getExportToFile($path)
     {
         // Access control
         if (!cadastreRights::hasOwnersAccess()) {
-            jMessage::add('Cadastre - Droits insuffisants pour accéder aux données de propriété', 'Error');
-
-            return $this->serviceException();
+            throw new Exception('Cadastre - Droits insuffisants pour accéder aux données de propriété');
         }
 
-        $response = $this->request(true);
+        $response = $this->request(true, true);
+        $stream = $response->data;
+        if ($response->code != 200 || strpos((string) $response->mime, 'text/csv') !== 0) {
+            // The errors of the plugin are in JSON
+            $body = is_object($stream) ? $stream->getContents() : (string) $stream;
 
-        return (object) array(
-            'code' => $response->code,
-            'mime' => $response->mime,
-            'data' => json_decode($response->data),
-            'cached' => false,
-        );
+            throw new Exception('Cadastre - GetExport CSV error: ' . $response->code . ' ' . substr($body, 0, 500));
+        }
+
+        $fd = fopen($path, 'w');
+        while (!$stream->eof()) {
+            fwrite($fd, $stream->read(self::STREAM_BLOCK_SIZE));
+        }
+        fclose($fd);
+        $stream->close();
     }
+
+    /** Size in bytes of the blocks of a CSV export written in its file, see getExportToFile() */
+    public const STREAM_BLOCK_SIZE = 65536;
 }

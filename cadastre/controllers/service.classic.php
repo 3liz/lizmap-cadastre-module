@@ -514,6 +514,15 @@ class serviceCtrl extends jController
 
             return $rep;
         }
+        // Too big exports are refused, the JavaScript checks it before the request
+        if (count($parcelleIds) > cadastreExtraInfos::MAX_EXPORT_PARCELLES) {
+            $rep->data = array(
+                'status' => 'error',
+                'message' => 'L\'export est limité à ' . cadastreExtraInfos::MAX_EXPORT_PARCELLES . ' parcelles.',
+            );
+
+            return $rep;
+        }
         $withGeom = false;
         // Export for a third party, without sensitive data, by default (box "Exporter pour un tiers"),
         // otherwise with the ones allowed by the rights
@@ -624,6 +633,15 @@ class serviceCtrl extends jController
         $parcelleIds = cadastreExtraInfos::parseParcelleIds($this->param('parcelles'));
         if ($parcelleIds === null) {
             $rep->data = array('status' => 'error', 'message' => 'Identifiants de parcelles absents ou invalides.');
+
+            return $rep;
+        }
+        // Too big exports are refused, the JavaScript checks it before the request
+        if (count($parcelleIds) > cadastreExtraInfos::MAX_EXPORT_PARCELLES) {
+            $rep->data = array(
+                'status' => 'error',
+                'message' => 'L\'export est limité à ' . cadastreExtraInfos::MAX_EXPORT_PARCELLES . ' parcelles.',
+            );
 
             return $rep;
         }

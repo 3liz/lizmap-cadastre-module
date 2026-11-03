@@ -57,3 +57,8 @@ def test_map(request: pytest.FixtureRequest, session: str, rights: list[str]):
     assert (box is not None) is ("exportSensitive" in rights)
     if box:
         assert "checked" not in box.group(1) and "disabled" not in box.group(1)
+
+
+def test_export_max_parcelles(user: requests.Session):
+    """The JavaScript knows the maximum number of parcelles of an export, checked before the request"""
+    assert cadastre_config(map_page(user))["exportMaxParcelles"] == 20000
