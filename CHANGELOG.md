@@ -9,6 +9,10 @@
 
 ### Changed
 
+* JavaScript : requêtes avec `fetch` au lieu de jQuery, et accès directs aux éléments de la page
+  (`document.getElementById`...) lorsque c'est simple. jQuery reste utilisé pour l'autocomplétion,
+  les onglets de Bootstrap et les événements `change` du formulaire de recherche
+
 * Exports CSV des locaux et des parcelles avec leurs propriétaires : ils sont produits par le plugin QGIS
   cadastre de QGIS Server (requête `GetExport`) lorsqu'il la propose, pour les parcelles que l'utilisateur
   peut voir. Sinon, les requêtes SQL du module sont utilisées, avec le même résultat
