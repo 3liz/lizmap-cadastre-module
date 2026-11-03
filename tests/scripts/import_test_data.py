@@ -34,6 +34,8 @@ INSEE = "13029"
 PROJECTS = Path("/srv/projects/tests")
 MODEL = "cadastre_caen"
 PROJECT = "cadastre_tests"
+# Layers published in WFS, needed by the module: see the documentation of the configuration of the module
+WFS_LAYERS = ("communes", "parcelles", "sections")
 # Metadata of the Lizmap configuration accepted by all the versions of Lizmap Web Client supported by the module
 LIZMAP_METADATA = {
     "lizmap_plugin_version_str": "4.5.0",
@@ -97,6 +99,11 @@ def create_project():
     project.viewSettings().setDefaultViewExtent(QgsReferencedRectangle(full, project.crs()))
     bbox = [full.xMinimum(), full.yMinimum(), full.xMaximum(), full.yMaximum()]
     project.writeEntry("WMSExtent", "/", [str(round(v)) for v in bbox])
+    # The model does not publish the communes in WFS: the zoom on a commune of the search panel would fail
+    wfs_ids = [layer.id() for layer in project.mapLayers().values() if layer.name() in WFS_LAYERS]
+    project.writeEntry("WFSLayers", "/", wfs_ids)
+    for layer_id in wfs_ids:
+        project.writeEntry("WFSLayersPrecision", "/" + layer_id, 8)
     project.write()
 
     # Lizmap configuration: the extents of the project and of the layers
