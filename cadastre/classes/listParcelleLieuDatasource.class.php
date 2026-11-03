@@ -35,13 +35,14 @@ class listParcelleLieuDatasource extends jFormsDynamicDatasource
         }
 
         $searchConditions = jDao::createConditions();
-        if (empty($voie)) {
+        if (!empty($section)) {
             $searchConditions->addCondition('geo_section', '=', $section);
-        } elseif (empty($section)) {
-            $searchConditions->addCondition('voie', '=', $voie);
-        } else {
-            $searchConditions->addCondition('geo_section', '=', $section);
-            $searchConditions->addCondition('voie', '=', $voie);
+        }
+        // The voie is compared with SQL, see cadastreConfig::voieSql(): it is added to the conditions of the layer
+        $voieCondition = null;
+        if (!empty($voie)) {
+            $quotedVoie = jDb::getConnection($this->profile)->quote(trim($voie));
+            $voieCondition = cadastreConfig::voieSql('voie') . ' = ' . cadastreConfig::voieSql($quotedVoie);
         }
 
         $config = cadastreConfig::get($repository, $project);
@@ -58,6 +59,9 @@ class listParcelleLieuDatasource extends jFormsDynamicDatasource
         }
         if ($loginFilter !== null) {
             $layerFilters[] = $loginFilter;
+        }
+        if ($voieCondition !== null) {
+            $layerFilters[] = $voieCondition;
         }
         if (count($layerFilters) != 0) {
             if (count($layerFilters) == 1) {

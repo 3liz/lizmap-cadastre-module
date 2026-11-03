@@ -180,7 +180,8 @@ class search
 
             if (!empty($this->voie)) {
                 $sql .= ' AND p.comptecommunal IN (';
-                $sql .= 'SELECT DISTINCT comptecommunal FROM parcelle_info WHERE voie = $' . $i;
+                $sql .= 'SELECT DISTINCT comptecommunal FROM parcelle_info WHERE ';
+                $sql .= cadastreConfig::voieSql('voie') . ' = ' . cadastreConfig::voieSql('$' . $i);
                 if ($pFilterConfig !== null) {
                     $sql .= ' AND ';
                     $sql .= $this->getFilterSql($pFilterConfig, $profile);
@@ -460,7 +461,7 @@ class search
             $sql = '
             SELECT ST_AsGeojson(ST_Envelope(ST_Extent(ST_Transform(geom,4326)))) as geom
             FROM parcelle_info p
-            WHERE p.voie = $1
+            WHERE ' . cadastreConfig::voieSql('p.voie') . ' = ' . cadastreConfig::voieSql('$1') . '
             ';
             if ($pFilterConfig !== null) {
                 $sql .= ' AND ';

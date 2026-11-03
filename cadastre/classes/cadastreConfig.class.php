@@ -11,6 +11,22 @@
 class cadastreConfig
 {
     /**
+     * Get the SQL expression of the code of a voie, to compare the voies of the parcelles and of the table voie.
+     *
+     * The code is ccodep, ccodir, ccocom, ccovoi and ccoriv. The table voie, built from the file TOPO,
+     * does not know ccovoi ("00000"), unlike the parcelles and the locaux: only the commune (6 first characters)
+     * and the code Rivoli (4 last characters) are compared, like the QGIS plugin.
+     *
+     * @param string $code Column or parameter giving the code of the voie, like p.voie or $1
+     *
+     * @return string The SQL expression
+     */
+    public static function voieSql($code)
+    {
+        return 'SUBSTR(' . $code . ', 1, 6) || SUBSTR(' . $code . ', 12, 4)';
+    }
+
+    /**
      * Get the cadastre config.
      *
      * @param string project Project key
