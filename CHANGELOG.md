@@ -40,6 +40,10 @@
   du panneau de recherche fonctionnent de nouveau
 * L'icône du titre du panneau de recherche s'affiche de nouveau
 * Le contenu des onglets de la popup défile dans l'onglet au lieu de déborder sur les popups suivantes
+* Onglets de la popup : même aspect que la fiche parcellaire dans QGIS, avec les titres et les en-têtes
+  des tableaux en bleu, des bordures fines et un gris léger sur une ligne sur deux
+* Impression du détail de la parcelle (bouton de la popup) : elle a le même style que les onglets,
+  au lieu d'un contenu sans style
 
 ### Fixed
 

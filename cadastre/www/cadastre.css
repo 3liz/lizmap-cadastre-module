@@ -57,17 +57,6 @@ Toolbar buttons
 Popup
 */
 
-.lizmapPopup.olPopup .lizmapPopupContent .cadastre.tab-content h3,
-#map-content .lizmapPopupContent .cadastre.tab-content h3,
-#popupcontent .lizmapPopupContent .cadastre.tab-content h3,
-.lizmapPopup.olPopup .lizmapPopupContent .cadastre.tab-content h4,
-#map-content .lizmapPopupContent .cadastre.tab-content h4,
-#popupcontent .lizmapPopupContent .cadastre.tab-content h4 {
-  color:#2B2B2B  !important;
-  font-size: 20px;
-  font-style: italic;
-}
-
 div.cadastre-popup-tab-container ul li a{
   font-size: 12px;
   padding: 3px;
@@ -81,13 +70,75 @@ div.cadastre-popup-tab-container div.tab-pane{
     font-size: 12px;
 }
 
-div.cadastre-popup-tab-container div.tab-pane h2,
-div.cadastre-popup-tab-container div.tab-pane h3,
-div.cadastre-popup-tab-container div.tab-pane h4
-{
-    font-size: 15px !important;
-    margin: 2px !important;
+/*
+Content of the tabs of the popup: same look as the fiche parcellaire in QGIS, see fiche_parcelle.css in the plugin.
+The selectors start with #map-content or #popupcontent to be more specific than the styles of Lizmap for the popups.
+*/
+
+/* Titles of the sections (h3) and of the PEV of the locaux (h4) */
+#map-content div.cadastre-popup-tab-container div.tab-pane h2,
+#map-content div.cadastre-popup-tab-container div.tab-pane h3,
+#map-content div.cadastre-popup-tab-container div.tab-pane h4,
+#popupcontent div.cadastre-popup-tab-container div.tab-pane h2,
+#popupcontent div.cadastre-popup-tab-container div.tab-pane h3,
+#popupcontent div.cadastre-popup-tab-container div.tab-pane h4 {
+    color: #43718c !important;
+    font-size: 14px !important;
+    font-style: normal !important;
     font-weight: bold !important;
+    line-height: 1.5;
+    margin: 10px 0 4px 0 !important;
+    padding: 0 !important;
+    background: none !important;
+    border: none !important;
+}
+
+#map-content div.cadastre-popup-tab-container div.tab-pane h4,
+#popupcontent div.cadastre-popup-tab-container div.tab-pane h4 {
+    color: #505050 !important;
+    font-size: 13px !important;
+}
+
+/* Tables: thin grey borders, white background */
+#map-content div.cadastre-popup-tab-container div.tab-pane table,
+#popupcontent div.cadastre-popup-tab-container div.tab-pane table {
+    border-collapse: collapse;
+    border: 1px solid #BBB;
+    width: 100%;
+    margin: 0 0 6px 0;
+    background: #FFF;
+}
+
+/* Cells: no background or shadow of the striped tables of Bootstrap, the rows are striped below */
+#map-content div.cadastre-popup-tab-container div.tab-pane table th,
+#map-content div.cadastre-popup-tab-container div.tab-pane table td,
+#popupcontent div.cadastre-popup-tab-container div.tab-pane table th,
+#popupcontent div.cadastre-popup-tab-container div.tab-pane table td {
+    border: 1px solid #BBB;
+    padding: 3px 5px;
+    text-align: left;
+    vertical-align: top;
+    color: #333;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Headers of the columns, or of the lines for the tables of a single object */
+#map-content div.cadastre-popup-tab-container div.tab-pane table th,
+#popupcontent div.cadastre-popup-tab-container div.tab-pane table th {
+    color: #43718c;
+    font-weight: bold;
+}
+
+/* A light grey on one row out of two: the first row of data, after the headers, is grey like in QGIS */
+#map-content div.cadastre-popup-tab-container div.tab-pane table tr:nth-child(even),
+#popupcontent div.cadastre-popup-tab-container div.tab-pane table tr:nth-child(even) {
+    background: #F5F5F5;
+}
+
+#map-content div.cadastre-popup-tab-container div.tab-pane table tr:nth-child(odd),
+#popupcontent div.cadastre-popup-tab-container div.tab-pane table tr:nth-child(odd) {
+    background: #FFF;
 }
 
 /* Dropdown of the choice of a relevé, in the toolbar of the popup: aligned with the other buttons */

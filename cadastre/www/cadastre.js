@@ -1081,11 +1081,42 @@ lizMap.events.on({
             return [html_object, firstTab];
         }
 
+        /**
+         * Style sheet of the print of the detailed information of a parcelle: same look as the tabs
+         * of the popup and as the fiche parcellaire in QGIS, see fiche_parcelle.css in the plugin.
+         *
+         * It is written in the print window, an external style sheet could be loaded after the print.
+         */
+        var CADASTRE_PRINT_CSS = [
+            'body { font-family: "Lucida Grande", "Segoe UI", Arial, sans-serif; font-size: 12px; color: #333; }',
+            'h1 { font-size: 18px; color: #43718c; margin: 0 0 8px 0; }',
+            'h2 { font-size: 16px; color: #43718c; margin: 16px 0 6px 0; line-height: 1.5;'
+                + ' border-bottom: 2px solid #43718c; }',
+            'h3 { font-size: 14px; color: #43718c; margin: 10px 0 4px 0; line-height: 1.5; }',
+            'h4 { font-size: 13px; color: #505050; margin: 8px 0 4px 0; }',
+            'h2, h3, h4 { page-break-after: avoid; break-after: avoid; }',
+            'table { border-collapse: collapse; border: 1px solid #BBB; width: 100%; margin: 0 0 6px 0; }',
+            'th, td { border: 1px solid #BBB; padding: 3px 5px; text-align: left; vertical-align: top; }',
+            'th { color: #43718c; font-weight: bold; }',
+            'tr { page-break-inside: avoid; break-inside: avoid; }',
+            // A light grey on one row out of two, printed even if the browser does not print the backgrounds
+            'tr:nth-child(even) { background: #F5F5F5; -webkit-print-color-adjust: exact; print-color-adjust: exact; }',
+            'tr:nth-child(odd) { background: #FFF; }'
+        ].join('\n');
+
+        /**
+         * Print a HTML content in a new window, with the style of the fiche parcellaire.
+         *
+         * @param {string} html The HTML content: the fiche parcellaire given by the QGIS plugin
+         *
+         * @returns {boolean} True
+         */
         function printHtmlContent(html)
         {
             var print_window = window.open('', 'PRINT', 'height=400,width=600');
 
             print_window.document.write('<html><head><title>' + document.title  + '</title>');
+            print_window.document.write('<style>' + CADASTRE_PRINT_CSS + '</style>');
             print_window.document.write('</head><body >');
             print_window.document.write('<h1>' + document.title  + '</h1>');
             print_window.document.write(html);
