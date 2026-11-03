@@ -76,3 +76,21 @@ def test_wfs_layers(user: requests.Session):
     names = re.findall(r"<Name>([^<]+)</Name>", capabilities)
     for layer in ("communes", "parcelles", "sections"):
         assert layer in names
+
+
+def test_owners_not_published(user: requests.Session):
+    """The owners of the parcelles are not published by QGIS Server: only the module gives them, with its rights"""
+    params = {**PROJECT, "SERVICE": "WFS", "VERSION": "1.0.0"}
+    description = user.get(
+        f"{BASE_URL}/index.php/lizmap/service",
+        params={**params, "REQUEST": "DescribeFeatureType", "TYPENAME": PROJECT["layer"]},
+    ).text
+    assert 'name="geo_parcelle"' in description
+    assert "proprietaire" not in description
+
+    features = user.get(
+        f"{BASE_URL}/index.php/lizmap/service",
+        params={**params, "REQUEST": "GetFeature", "TYPENAME": PROJECT["layer"], "OUTPUTFORMAT": "GeoJSON",
+                "MAXFEATURES": "1"},
+    ).json()["features"]
+    assert features and "proprietaire" not in features[0]["properties"]

@@ -16,6 +16,7 @@ import tempfile
 from pathlib import Path
 
 from qgis.core import (
+    Qgis,
     QgsApplication,
     QgsProject,
     QgsProviderRegistry,
@@ -36,6 +37,9 @@ MODEL = "cadastre_caen"
 PROJECT = "cadastre_tests"
 # Layers published in WFS, needed by the module: see the documentation of the configuration of the module
 WFS_LAYERS = ("communes", "parcelles", "sections")
+# Fields of the parcelles with the owners, not published in WMS and WFS: like the plugin cadastre does
+# when it loads the layers, only the module gives them, according to the rights of the user
+OWNER_FIELDS = ("proprietaire", "proprietaire_info")
 # Metadata of the Lizmap configuration accepted by all the versions of Lizmap Web Client supported by the module
 LIZMAP_METADATA = {
     "lizmap_plugin_version_str": "4.5.0",
@@ -104,6 +108,12 @@ def create_project():
     project.writeEntry("WFSLayers", "/", wfs_ids)
     for layer_id in wfs_ids:
         project.writeEntry("WFSLayersPrecision", "/" + layer_id, 8)
+    for layer in project.mapLayersByName("parcelles"):
+        for name in OWNER_FIELDS:
+            index = layer.fields().indexOf(name)
+            if index >= 0:
+                layer.setFieldConfigurationFlag(index, Qgis.FieldConfigurationFlag.HideFromWms, True)
+                layer.setFieldConfigurationFlag(index, Qgis.FieldConfigurationFlag.HideFromWfs, True)
     project.write()
 
     # Lizmap configuration: the extents of the project and of the layers
