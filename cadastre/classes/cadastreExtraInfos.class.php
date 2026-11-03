@@ -335,8 +335,9 @@ class cadastreExtraInfos
             (l.dnubat || '-' || l.descr || '-' || l.dniv || '-' || l.dpor) AS l_identifiant,
 
             -- adresse
-            ltrim(l.dnvoiri, '0') || l.dindic AS l_numero_voirie,
-            CASE WHEN v.libvoi IS NOT NULL THEN coalesce(v.natvoi || ' ') || v.libvoi ELSE p.cconvo || ' ' || p.dvoilib END AS l_adresse,
+            -- the index of repetition and the nature of the street are optional
+            ltrim(l.dnvoiri, '0') || coalesce(l.dindic, '') AS l_numero_voirie,
+            CASE WHEN v.libvoi IS NOT NULL THEN coalesce(v.natvoi || ' ', '') || v.libvoi ELSE p.cconvo || ' ' || p.dvoilib END AS l_adresse,
 
             -- local
             (l10.ccodep || l10.ccocom || '-' ||l10.dnupro) AS l10_compte_proprietaire,
@@ -358,7 +359,11 @@ class cadastreExtraInfos
                 CASE WHEN trim(pr.dnomus) != trim(pr.dnomlp) THEN Coalesce( trim(pr.dnomus) || '/' || trim(pr.dprnus) || ', née ', '' ) ELSE '' END ||
                 trim(coalesce(pr.ddenom, ''))
                     AS p_nom,
-            ltrim(trim(coalesce(pr.dlign4, '')), '0') || trim(coalesce(pr.dlign5, '')) || ' ' || trim(coalesce(pr.dlign6, '')) AS p_adresse,
+            -- the lines 4 to 6 of the address separated by spaces, without the empty ones
+            concat_ws(
+                ' ',
+                nullif(ltrim(trim(pr.dlign4), '0'), ''), nullif(trim(pr.dlign5), ''), nullif(trim(pr.dlign6), '')
+            ) AS p_adresse,
         ";
         // Birth data, masked like in the fiche parcellaire without the right to see them
         if (!$forThirdParty) {
