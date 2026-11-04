@@ -2,72 +2,62 @@
 
 ## Unreleased
 
-### Security
-
-* Fiche parcellaire et relevés : une parcelle que l'utilisateur ne voit pas sur la carte, à cause des filtres
-  de la couche des parcelles (filtre par utilisateur, filtre SQL de la couche, filtre par polygone), est refusée.
-  Une requête construite à la main permettait d'obtenir sa fiche et ses relevés
-* Export PDF asynchrone d'un propriétaire (script `standalone/export.py` du plugin) : les paramètres de la commande
-  sont échappés et l'identifiant de parcelle est validé, ils permettaient une injection de commande
+## 2.3.0 - 2026-11-04
 
 ### Changed
 
-* Exports CSV produits par le plugin QGIS cadastre de QGIS Server (requête `GetExport`) : le fichier
-  est écrit au fil de la réponse de QGIS Server, sans être chargé en mémoire, quelle que soit sa taille
-* Exports CSV limités à 20 000 parcelles sélectionnées : un message le signale avant l'envoi de la requête,
-  et le serveur refuse une liste plus longue
+* Support de **Lizmap Web Client 3.10**
 
-* JavaScript : requêtes avec `fetch` au lieu de jQuery, et accès directs aux éléments de la page
-  (`document.getElementById`...) lorsque c'est simple. jQuery reste utilisé pour l'autocomplétion,
-  les onglets de Bootstrap et les événements `change` du formulaire de recherche
+* **Panneau de recherche** : ajout d'un texte d'introduction au-dessus des onglets,
+  et de la description de l'onglet affiché. Amélioration de l'interface
 
-* Exports CSV des locaux et des parcelles avec leurs propriétaires : ils sont produits par le plugin QGIS
-  cadastre de QGIS Server (requête `GetExport`) lorsqu'il la propose, pour les parcelles que l'utilisateur
-  peut voir. Sinon, les requêtes SQL du module sont utilisées, avec le même résultat
-* Les dates et lieux de naissance sont masqués (`XX/XX/XXXX`, `XXX`) sans le droit de les voir, au lieu de
-  retirer les colonnes, comme dans la fiche parcellaire
-
-* Nouveaux droits, à la place de « Accéder aux données de propriétaires avancées » :
-  * données sensibles, comme dans le plugin QGIS : dates et lieux de naissance, revenus, exonérations fiscales
-  * fonctions : relevé parcellaire, relevé de propriété, onglets d'informations détaillées dans la popup
-* Le droit « Accéder aux données de propriétaires simplifiées » devient « Accéder aux données des propriétaires
-  (noms et adresses) »
+* **Nouveaux droits**, à la place de « Accéder aux données de propriétaires avancées » :
+  * **données sensibles**, comme dans le plugin QGIS : dates et lieux de naissance, revenus, exonérations fiscales
+  * **fonctions** : relevé parcellaire, relevé de propriété, onglets d'informations détaillées dans la popup
+* Le droit « **Accéder aux données de propriétaires simplifiées** » devient « **Accéder aux données des propriétaires
+  (noms et adresses)** »
 * Migration lors de la mise à jour : les groupes qui avaient le droit avancé reçoivent tous les nouveaux droits,
   rien ne change pour les utilisateurs. Avec le seul droit simplifié, toujours pas de relevés PDF ni d'onglets
   sous la popup
-* Exports CSV : un seul bouton « Parcelles et propriétaires » et un seul « Locaux et propriétaires ». Ils contiennent
-  les données sensibles autorisées par les droits de l'utilisateur, sauf si la case « Exporter pour un tiers »,
-  décochée par défaut, est cochée. La case n'est affichée qu'avec au moins un droit sur les données sensibles
-* Popup : le bouton « Relevé parcellaire pour un tiers » est supprimé. Avec au moins un droit sur les données
-  sensibles, un clic sur un bouton de relevé propose de le produire « Avec les données que je peux voir » ou
-  « Pour un tiers (sans données sensibles) ». Sans droit sur les données sensibles, le relevé est produit
+
+* **Popup** : le bouton « Relevé parcellaire pour un tiers » est supprimé.
+  Avec au moins un droit sur les données sensibles, un clic sur un bouton de relevé
+  propose de le produire « Avec les données que je peux voir » ou
+  « Pour un tiers (sans données sensibles) ».
+  Sans droit sur les données sensibles, le relevé est produit
   directement, pour un tiers
 
-* Lizmap Web Client 3.10 (Bootstrap 5) : les onglets du panneau de recherche et de la popup des parcelles
-  fonctionnent de nouveau, avec le style plat des formulaires de Lizmap. Les boutons de la popup sont
-  de petite taille. Dans les 3 onglets du formulaire de recherche, les étiquettes sont au-dessus
-  des champs de petite taille de Bootstrap 5
-* Panneau de recherche : un texte d'introduction au-dessus des onglets, et la description de l'onglet affiché
-* Lizmap Web Client 3.10 : les boutons de sélection (nouvelle sélection, ajouter, supprimer) et le zoom
-  du panneau de recherche fonctionnent de nouveau
-* L'icône du titre du panneau de recherche s'affiche de nouveau
-* Le contenu des onglets de la popup défile dans l'onglet au lieu de déborder sur les popups suivantes
-* Onglets de la popup : même aspect que la fiche parcellaire dans QGIS, avec les titres et les en-têtes
-  des tableaux en bleu, des bordures fines et un gris léger sur une ligne sur deux
-* Impression du détail de la parcelle (bouton de la popup) : elle a le même style que les onglets,
-  au lieu d'un contenu sans style
+
+* **Popup** : nouveau bouton « **Carte d'identité de la parcelle** »,
+* entre le relevé parcellaire et le relevé
+  de propriété : une synthèse de la parcelle en PDF, produite par le plugin QGIS cadastre de QGIS Server.
+
+* Les **Exports CSV** sont maintenant produits par le **plugin QGIS cadastre** de QGIS Server (requête `GetExport`)
+  * Exports CSV **limités à 20 000 parcelles** sélectionnées.
+
+* **JavaScript** : requêtes avec `fetch` au lieu de jQuery, et accès directs aux éléments de la page vi `document` au lieu de `$()`
+* Les **dates et lieux de naissance** sont masqués (`XX/XX/XXXX`, `XXX`) sans le droit de les voir, au lieu de
+  retirer les colonnes, comme dans la fiche parcellaire
 
 ### Fixed
 
-* Recherche par adresse : les parcelles de la voie choisie sont de nouveau trouvées, ainsi que l'emprise de la voie
-  et les propriétaires de la voie. Le code de la voie de la table `voie`, issue du fichier TOPO, ne contient pas
-  le code `ccovoi` (`00000`), contrairement à celui des parcelles : seuls la commune et le code Rivoli sont
-  comparés, comme dans le plugin QGIS
-* Impression du détail de la parcelle : un clic sur le bouton n'imprime plus le détail de toutes les parcelles
+* **Recherche par adresse** : les parcelles de la voie choisie
+  sont de nouveau trouvées, ainsi que l'emprise de la voie
+  et les propriétaires de la voie.
+* **Impression** du détail de la parcelle :
+  un clic sur le bouton n'imprime plus le détail de toutes les parcelles
   de la popup, et la requête n'est plus synchrone (la fenêtre est ouverte au clic, puis remplie)
-* Export CSV des locaux : l'adresse du local n'est plus vide pour une voie sans nature (RUE, CHE...),
+* **Export CSV des locaux** : l'adresse du local n'est plus vide
+  pour une voie sans nature (RUE, CHE...),
   le numéro de voirie n'est plus vide sans indice de répétition, et les lignes de l'adresse
   du propriétaire sont séparées par des espaces
+
+
+### Security
+
+* **Fiche parcellaire et relevés** : application des filtres Lizmap (par utilisateur)
+* **Export PDF asynchrone** (script `standalone/export.py` du plugin) : vérification des paramètres de la commande
+
 
 ## 2.2.0 - 2026-11-02
 
