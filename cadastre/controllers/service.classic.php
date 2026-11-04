@@ -96,6 +96,8 @@ class serviceCtrl extends jController
         $typeRights = array(
             'fiche' => cadastreRights::POPUP_TABS,
             'parcelle' => cadastreRights::RELEVE_PARCELLAIRE,
+            // Carte d'identité de la parcelle, with the right of the relevé parcellaire
+            'identite' => cadastreRights::RELEVE_PARCELLAIRE,
             'proprietaire' => cadastreRights::RELEVE_PROPRIETE,
         );
         if (!array_key_exists($type, $typeRights) || !jAcl2::check($typeRights[$type])) {
@@ -141,6 +143,13 @@ class serviceCtrl extends jController
 
         // Get created PDFs;
         $data = $result->data;
+        if (!is_object($data) || !isset($data->data->tokens)) {
+            // For example a version of the QGIS plugin without the carte d'identité
+            $rep = $this->getResponse('text');
+            $rep->content = 'Erreur de création du document : ' . (is_object($data) && isset($data->message) ? $data->message : $result->code);
+
+            return $rep;
+        }
         $pdfs = array();
         $tok = null;
         foreach ($data->data->tokens as $token) {

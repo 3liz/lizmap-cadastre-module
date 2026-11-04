@@ -29,7 +29,7 @@ def test_fiche(user: requests.Session, admin: requests.Session):
     assert "XX/XX/XXXX" not in html
 
 
-@pytest.mark.parametrize("type", ["parcelle", "proprietaire", "parcelle-tiers"])
+@pytest.mark.parametrize("type", ["parcelle", "identite", "proprietaire", "parcelle-tiers"])
 def test_releve(user: requests.Session, admin: requests.Session, type: str):
     """The relevés need their rights, they are PDF files"""
     assert fiche(user, type).json()["status"] == "error"
@@ -47,6 +47,8 @@ def test_separate_rights(agent: requests.Session):
     assert "XXX" in html
 
     assert fiche(agent, "parcelle").headers["Content-Type"] == "application/pdf"
+    # The carte d'identité has the right of the relevé parcellaire
+    assert fiche(agent, "identite").headers["Content-Type"] == "application/pdf"
     assert fiche(agent, "proprietaire").json()["status"] == "error"
 
 
@@ -58,7 +60,7 @@ def test_releve_tiers(agent: requests.Session, admin: requests.Session, tiers: s
         assert fiche(session, "parcelle", tiers=tiers).headers["Content-Type"] == "application/pdf"
 
 
-@pytest.mark.parametrize("type", ["fiche", "parcelle", "proprietaire"])
+@pytest.mark.parametrize("type", ["fiche", "parcelle", "identite", "proprietaire"])
 def test_login_filter(admin: requests.Session, type: str):
     """The fiche and the relevés of a parcelle hidden by the filter by login are refused, even with all the rights"""
     response = fiche(admin, type, parcelle=HIDDEN_PARCELLE)

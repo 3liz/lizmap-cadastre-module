@@ -1306,6 +1306,8 @@ lizMap.events.on({
                             if (rights.releveParcellaire) {
                                 // Export parcelle to PDF
                                 eHtml += releveButtonHtml(link, 'parcelle', 'Relevé parcellaire', 'icon-file', rights);
+                                // Carte d'identité of the parcelle to PDF, with the same right
+                                eHtml += releveButtonHtml(link, 'identite', 'Carte d\'identité de la parcelle', 'icon-list-alt', rights);
                             }
                             if (rights.relevePropriete) {
                                 // Export propriétaire to PDF
