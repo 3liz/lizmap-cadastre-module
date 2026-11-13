@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Removed
+
+* **Export PDF asynchrone** du relevé de propriété : le module ne lance plus le script `standalone/export.py`
+  du plugin QGIS avec une commande système, ni la page d'attente de l'export. Le relevé de propriété est créé
+  par QGIS Server, comme les autres PDF : depuis la version 2.5.4 du plugin, les exports PDF sont assez rapides,
+  et le script a été supprimé du plugin. Le relevé contient tous les comptes du propriétaire
+
 ## 2.3.0 - 2026-11-04
 
 ### Changed

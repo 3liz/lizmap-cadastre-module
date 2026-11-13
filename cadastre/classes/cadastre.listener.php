@@ -33,7 +33,7 @@ class cadastreListener extends jEventListener
             jUrl::get('jelix~www:getfile', array('targetmodule' => 'cadastre', 'file' => 'cadastre.js')),
         );
 
-        $cadastreConfig['url'] = jUrl::get('cadastre~service:initExport');
+        $cadastreConfig['url'] = jUrl::get('cadastre~service:getCadastrePdf');
         // Rights of the user, to display the buttons, the check boxes and the tabs
         $cadastreConfig['rights'] = cadastreRights::forJavaScript();
         // Maximum number of parcelles of a CSV export, checked before the request
