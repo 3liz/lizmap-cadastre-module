@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 2.3.1 - 2026-11-13
+
 ### Removed
 
 * **Export PDF asynchrone** du relevé de propriété : le module ne lance plus le script `standalone/export.py`
