@@ -2,10 +2,12 @@
 
 ## Unreleased
 
+## 2.3.2 - 2026-11-25
+
 ### Fixed
 
-* **Filtre par login** avec l'option « Valeurs multiples » : fiche, relevés et exports d'une parcelle
-  attribuée à plusieurs groupes, comme `groupe_a,groupe_b`
+* **Filtre par login** avec l'option « Valeurs multiples » : fiche, relevés, exports et recherche d'une parcelle
+  attribuée à plusieurs groupes, comme `groupe_a,groupe_b`, y compris avec Lizmap Web Client 3.9.13
 
 ## 2.3.1 - 2026-11-13
 
