@@ -122,28 +122,22 @@ class cadastreConfig
         return $dtParams->sql;
     }
 
-    public static function getFilterByLogin($repository, $project, $layerId)
-    {
-        if (jAuth::isConnected() && jAcl2::check('lizmap.tools.loginFilteredLayers.override', $repository)) {
-            return null;
-        }
-
-        $p = lizmap::getProject($repository . '~' . $project);
-
-        $qgisLayer = $p->getLayer($layerId);
-        if (!$qgisLayer) {
-            return null;
-        }
-
-        $layerName = $qgisLayer->getName();
-        $loginFilterConfig = $p->getLoginFilteredConfig($layerName);
-        if (!$loginFilterConfig) {
-            return null;
-        }
-
-        return $loginFilterConfig;
-    }
-
+    /**
+     * Get the SQL condition of the filter by login of a layer, built by Lizmap Web Client like for the map.
+     *
+     * It is used in the SQL queries of the module: the searches, the lists of the forms, the fiche,
+     * the relevés and the exports.
+     *
+     * With the option "Allow multiple values", the field may contain several groups separated by commas.
+     * The condition uses the name of the field without the alias of the table.
+     *
+     * @param string $repository The repository of the project
+     * @param string $project    The project
+     * @param string $layerId    The id of the layer
+     *
+     * @return null|string The condition between parentheses, null if the layer has no filter by login
+     *                     or if the user can see all the features
+     */
     public static function getLoginFilter($repository, $project, $layerId)
     {
         if (jAuth::isConnected() && jAcl2::check('lizmap.tools.loginFilteredLayers.override', $repository)) {
@@ -157,7 +151,10 @@ class cadastreConfig
             return null;
         }
 
-        $loginFilterObj = $p->getLoginFilter($qgisLayer->getName());
+        // The filter is run as SQL by the module. Lizmap Web Client >= 3.9.13 gives a QGIS expression by default,
+        // and the SQL filter with its 3rd parameter $forSql. The older versions ignore this parameter
+        // and always give the SQL filter
+        $loginFilterObj = $p->getLoginFilter($qgisLayer->getName(), false, true);
         if (!empty($loginFilterObj) && array_key_exists('filter', $loginFilterObj)) {
             return $loginFilterObj['filter'];
         }

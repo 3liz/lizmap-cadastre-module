@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Fixed
+
+* **Filtre par login** avec l'option « Valeurs multiples » : fiche, relevés et exports d'une parcelle
+  attribuée à plusieurs groupes, comme `groupe_a,groupe_b`
+
 ## 2.3.1 - 2026-11-13
 
 ### Removed

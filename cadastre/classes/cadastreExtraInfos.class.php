@@ -10,40 +10,6 @@
  */
 class cadastreExtraInfos
 {
-    protected function getFilterSql($filterConfig, $profile = 'cadastre', $tableAlias = '')
-    {
-        $cnx = jDb::getConnection($profile);
-        $field = $filterConfig->filterAttribute;
-        $value = null;
-        if (jAuth::isConnected()) {
-            if (property_exists($filterConfig, 'filterPrivate') && $filterConfig->filterPrivate == 'True') {
-                $user = jAuth::getUserSession();
-                $value = $user->login;
-            } else {
-                $value = jAcl2DbUserGroup::getGroups();
-            }
-        }
-
-        $sql = '';
-
-        if (is_array($value)) {
-            $preparedValues = array();
-            foreach ($value as $v) {
-                $preparedValues[] = $cnx->quote(trim($v));
-            }
-            $sql .= '"' . $field . '" IN (' . implode(', ', $preparedValues) . ', ' . $cnx->quote('all') . ')';
-        } elseif (is_string($value) || is_numeric($value)) {
-            $sql .= '"' . $field . '" IN (' . $cnx->quote(trim($value)) . ', ' . $cnx->quote('all') . ')';
-        } else {
-            $sql .= '"' . $field . '" = ' . $cnx->quote('all');
-        }
-        if ($tableAlias !== '') {
-            $sql = $tableAlias . '.' . $sql;
-        }
-
-        return $sql;
-    }
-
     /**
      * Regular expression of a valid parcelle id, the field geo_parcelle, like 1320290000A0107.
      */
@@ -164,13 +130,14 @@ class cadastreExtraInfos
     protected function getLayerFiltersSql()
     {
         $sql = '';
-        $filterConfig = cadastreConfig::getFilterByLogin($this->repository, $this->project, $this->config->parcelle->id);
+        // Filter by login, built by Lizmap like for the map: with the option "Allow multiple values", the field
+        // may contain several groups separated by commas
+        $loginFilter = cadastreConfig::getLoginFilter($this->repository, $this->project, $this->config->parcelle->id);
         $layerSql = cadastreConfig::getLayerSql($this->repository, $this->project, $this->config->parcelle->id);
         $polygonFilter = cadastreConfig::getPolygonFilter($this->repository, $this->project, $this->config->parcelle->id);
 
-        if ($filterConfig !== null) {
-            $sql .= ' AND ';
-            $sql .= $this->getFilterSql($filterConfig);
+        if ($loginFilter !== null) {
+            $sql .= ' AND ' . $loginFilter;
         }
         if ($layerSql) {
             $sql .= ' AND (' . $layerSql . ')';

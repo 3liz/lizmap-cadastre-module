@@ -36,11 +36,14 @@ PROJECTS = Path("/srv/projects/tests")
 MODEL = "cadastre_caen"
 PROJECT = "cadastre_tests"
 # Filter by login of the layer of the parcelles: the field of parcelle_info giving the group which can see
-# a parcelle ("all" for everybody), and a parcelle only visible by the group agents. The group users is not
+# a parcelle ("all" for everybody), and a parcelle only visible by the group cadastre_agents. The group users is not
 # used: with Lizmap 3.10, it is the default group of the new users, the user agent is also in it
+# The option "Allow multiple values" is enabled: the value of the parcelle lists 2 groups, separated by a comma,
+# the agents are only in the second one. Its id has an underscore, a wildcard of the LIKE patterns: since
+# Lizmap Web Client 3.9.13, the filter is a QGIS expression unless the SQL filter is asked
 LOGIN_FILTER_FIELD = "groupe"
 LOGIN_FILTER_PARCELLE = "1320290000A0037"
-LOGIN_FILTER_GROUP = "agents"
+LOGIN_FILTER_GROUP = "autre_groupe,cadastre_agents"
 
 # Layers published in WFS, needed by the module: see the documentation of the configuration of the module
 WFS_LAYERS = ("communes", "parcelles", "sections")
@@ -139,13 +142,14 @@ def create_project():
     config["metadata"].update(LIZMAP_METADATA)
     config["options"]["bbox"] = [str(round(v)) for v in bbox]
     config["options"]["initialExtent"] = bbox
-    # Filter by login of the parcelles: only the users of the group agents see LOGIN_FILTER_PARCELLE
+    # Filter by login of the parcelles: only the users of the groups of LOGIN_FILTER_GROUP see LOGIN_FILTER_PARCELLE
     parcelles = project.mapLayersByName("parcelles")[0]
     config["loginFilteredLayers"] = {
         "parcelles": {
             "layerId": parcelles.id(),
             "filterAttribute": LOGIN_FILTER_FIELD,
             "filterPrivate": "False",
+            "allow_multiple_acl_values": True,
             "order": 0,
         }
     }

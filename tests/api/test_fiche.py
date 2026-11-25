@@ -65,3 +65,12 @@ def test_login_filter(admin: requests.Session, type: str):
     """The fiche and the relevés of a parcelle hidden by the filter by login are refused, even with all the rights"""
     response = fiche(admin, type, parcelle=HIDDEN_PARCELLE)
     assert response.json() == {"status": "error", "message": "Parcelle introuvable."}
+
+
+def test_login_filter_multiple(agent: requests.Session):
+    """The fiche and the relevé of the hidden parcelle are given to the agents: their group cadastre_agents is
+    the second one of the field of the filter by login, with the option "Allow multiple values". The underscore
+    of the group must not be escaped like in a QGIS expression (Lizmap Web Client >= 3.9.13)
+    """
+    assert "<h2>Parcelle</h2>" in fiche(agent, "fiche", parcelle=HIDDEN_PARCELLE).text
+    assert fiche(agent, "parcelle", parcelle=HIDDEN_PARCELLE).headers["Content-Type"] == "application/pdf"

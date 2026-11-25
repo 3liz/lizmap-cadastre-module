@@ -197,17 +197,18 @@ import-lizmap-acl:
 		php lizmap/console.php jcommunity:user:create --no-error-if-exist cadastre cadastre@lizmap.local cadastre ; \
 		php lizmap/console.php acl2user:list | grep -q " cadastre " || php lizmap/console.php acl2user:register cadastre ; \
 		php lizmap/console.php acl2user:list | grep " cadastre " | grep -q " users " || php lizmap/console.php acl2user:addgroup cadastre users'
-	@echo "Add the user 'agent', in the group 'agents': owners, birth data, relevé parcellaire and tabs of the popup"
+	@echo "Add the user 'agent', in the group 'cadastre_agents': owners, birth data, relevé parcellaire and tabs of the popup"
+# The id of the group has an underscore: it is a wildcard of the LIKE patterns of the filter by login
 	docker compose exec -u $(LIZMAP_USER_ID) lizmap /bin/sh -c ' \
-		php lizmap/console.php acl2group:list | grep -q " agents " || php lizmap/console.php acl2group:create agents Agents ; \
-		php lizmap/console.php acl2:add agents "cadastre.use.search.tool" ; \
-		php lizmap/console.php acl2:add agents "lizmap.repositories.view" tests ; \
+		php lizmap/console.php acl2group:list | grep -q " cadastre_agents " || php lizmap/console.php acl2group:create cadastre_agents Agents ; \
+		php lizmap/console.php acl2:add cadastre_agents "cadastre.use.search.tool" ; \
+		php lizmap/console.php acl2:add cadastre_agents "lizmap.repositories.view" tests ; \
 		for right in acces.donnees.proprio.simple acces.donnees.naissance releve.parcellaire popup.onglets ; do \
-			php lizmap/console.php acl2:add agents "cadastre.$$right" ; \
+			php lizmap/console.php acl2:add cadastre_agents "cadastre.$$right" ; \
 		done ; \
 		php lizmap/console.php jcommunity:user:create --no-error-if-exist agent agent@lizmap.local agent ; \
 		php lizmap/console.php acl2user:list | grep -q " agent " || php lizmap/console.php acl2user:register agent ; \
-		php lizmap/console.php acl2user:list | grep " agent " | grep -q " agents " || php lizmap/console.php acl2user:addgroup agent agents'
+		php lizmap/console.php acl2user:list | grep " agent " | grep -q " cadastre_agents " || php lizmap/console.php acl2user:addgroup agent cadastre_agents'
 
 install-module:
 	docker compose exec -u ${LIZMAP_USER_ID} lizmap php /www/lizmap/install/configurator.php cadastre
