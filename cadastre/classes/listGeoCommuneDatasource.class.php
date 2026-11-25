@@ -28,9 +28,9 @@ class listGeoCommuneDatasource extends jFormsDynamicDatasource
 
         $config = cadastreConfig::get($repository, $project);
         $layerConditions = null;
-        $layerSql = cadastreConfig::getLayerSql($repository, $project, $config->commune->id);
-        $polygonFilter = cadastreConfig::getPolygonFilter($repository, $project, $config->commune->id);
-        $loginFilter = cadastreConfig::getLoginFilter($repository, $project, $config->commune->id);
+        $layerSql = cadastreConfig::getLayerSql($repository, $project, cadastreConfig::layerId($config, 'commune'));
+        $polygonFilter = cadastreConfig::getPolygonFilter($repository, $project, cadastreConfig::layerId($config, 'commune'));
+        $loginFilter = cadastreConfig::getLoginFilter($repository, $project, cadastreConfig::layerId($config, 'commune'));
         $layerFilters = array();
         if ($layerSql !== null) {
             $layerFilters[] = $layerSql;

@@ -64,7 +64,7 @@ class search
     protected function getSql($profile = 'cadastre')
     {
         // Filters by login of the communes and of the parcelles, built by Lizmap like for the map, null if none
-        $cLoginFilter = cadastreConfig::getLoginFilter($this->repository, $this->project, $this->config->commune->id);
+        $cLoginFilter = cadastreConfig::getLoginFilter($this->repository, $this->project, cadastreConfig::layerId($this->config, 'commune'));
         $pLoginFilter = cadastreConfig::getLoginFilter($this->repository, $this->project, $this->config->parcelle->id);
 
         $cnx = jDb::getConnection($profile);
@@ -72,8 +72,8 @@ class search
 
         if ($this->field == 'voie') {
             $layerConditions = null;
-            $layerSql = cadastreConfig::getLayerSql($this->repository, $this->project, $this->config->commune->id);
-            $polygonFilter = cadastreConfig::getPolygonFilter($this->repository, $this->project, $this->config->commune->id);
+            $layerSql = cadastreConfig::getLayerSql($this->repository, $this->project, cadastreConfig::layerId($this->config, 'commune'));
+            $polygonFilter = cadastreConfig::getPolygonFilter($this->repository, $this->project, cadastreConfig::layerId($this->config, 'commune'));
             if ($layerSql !== null && $polygonFilter !== null) {
                 $layerConditions .= '(' . $layerSql . ') AND (' . $polygonFilter . ')';
             } elseif ($layerSql !== null) {

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Fixed
+
+* **Journal de Lizmap** : plus d'erreurs `Undefined property: stdClass::$commune` ou `$section`
+  pour un projet sans couche des communes ou des sections
+
 ## 2.3.2 - 2026-11-25
 
 ### Fixed

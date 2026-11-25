@@ -105,9 +105,37 @@ class cadastreConfig
         return (object) $capabilities;
     }
 
+    /**
+     * Get the id of a layer of the cadastre config, if the project has it.
+     *
+     * The layers of the communes and of the sections are optional: their project variables
+     * cadastre_commune_layer_id and cadastre_section_layer_id may be missing, or give a layer
+     * which does not exist anymore.
+     *
+     * @param null|object $config The cadastre config, see get()
+     * @param string      $key    The layer: parcelle, section or commune
+     *
+     * @return null|string The id of the layer, null if the project does not have it
+     */
+    public static function layerId($config, $key)
+    {
+        if (!$config || !isset($config->{$key})) {
+            return null;
+        }
+
+        return $config->{$key}->id;
+    }
+
     public static function getLayerSql($repository, $project, $layerId)
     {
+        // No layer, see layerId()
+        if (!$layerId) {
+            return null;
+        }
         $p = lizmap::getProject($repository . '~' . $project);
+        if (!$p) {
+            return null;
+        }
 
         $qgisLayer = $p->getLayer($layerId);
         if (!$qgisLayer) {
@@ -144,7 +172,14 @@ class cadastreConfig
             return null;
         }
 
+        // No layer, see layerId()
+        if (!$layerId) {
+            return null;
+        }
         $p = lizmap::getProject($repository . '~' . $project);
+        if (!$p) {
+            return null;
+        }
 
         $qgisLayer = $p->getLayer($layerId);
         if (!$qgisLayer) {
@@ -168,7 +203,14 @@ class cadastreConfig
             return null;
         }
 
+        // No layer, see layerId()
+        if (!$layerId) {
+            return null;
+        }
         $p = lizmap::getProject($repository . '~' . $project);
+        if (!$p) {
+            return null;
+        }
 
         $qgisLayer = $p->getLayer($layerId);
         if (!$qgisLayer) {
